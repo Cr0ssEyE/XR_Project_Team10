@@ -45,45 +45,41 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Player Input Function
+	/**
+	 *	유저 입력 관련 함수 리스트
+	 **/
 protected:
-	void LeftAddForceAction(const FInputActionValue& Value);
-	void RightAddForceAction(const FInputActionValue& Value);
-	void UpAddForceAction(const FInputActionValue& Value);
-	void DownAddForceAction(const FInputActionValue& Value);
+	void MoveAction(const FInputActionValue& Value);
 	void JumpAddForceAction(const FInputActionValue& Value);
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void JumpJustTimingAction(const FInputActionValue& Value);
 	void BoostAddForceAction();
 	void EnableBoostCoolDownTimer();
+	void VelocityDecelerateTimer();
 	
-	// Player Input Action
+	/**
+	 * 유저 입력 관련 변수 리스트
+	 **/
 private:
 	UPROPERTY()
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
 
 	UPROPERTY()
 	TObjectPtr<class UInputAction> ToggleTypeAction;
-	
-	UPROPERTY()
-	TObjectPtr<class UInputAction> LeftButtonAction;
 
 	UPROPERTY()
-	TObjectPtr<class UInputAction> RightButtonAction;
+	TObjectPtr<class UInputAction> MoveInputAction;
 
-	UPROPERTY()
-	TObjectPtr<class UInputAction>  UpButtonAction;
-	
-	UPROPERTY()
-	TObjectPtr<class UInputAction>  DownButtonAction;
-	
 	UPROPERTY()
 	TObjectPtr<class UInputAction> JumpAction;
 
 	UPROPERTY()
 	TObjectPtr<class UInputAction> BoostAction;
-	
+
+	/**
+	 * 캐릭터 이동 관련 변수 리스트
+	 **/
 private:
 	UPROPERTY()
 	float AddMoveForceValue;
@@ -101,7 +97,7 @@ private:
 	FTimerHandle JustTimingTimerHandle;
 	
 	UPROPERTY()
-	FTimerHandle StopCheckTimerHandle;
+	FTimerHandle VelocityDecelerationTimerHandle;
 	
 	UPROPERTY()
 	float JumpDelayRemainTime;
@@ -114,31 +110,52 @@ private:
 	
 	UPROPERTY()
 	float JumpDelayTime;
+	
+	UPROPERTY()
+	float VelocityDecelerateTime;
+
+	/** 공격 관련 변수 리스트 \n
+	 * AttackDash를 AD_ 와 같은 형태로 축약해서 표현한다.
+	**/
+private:
+	UPROPERTY()
+	FTimerHandle AD_DurationTimerHandle;
 
 	UPROPERTY()
-	FTimerHandle BoostDurationTimerHandle;
+	FTimerHandle AD_CoolDownTimerHandle;
+	
+	UPROPERTY()
+	float AD_AddForceValue;
 
 	UPROPERTY()
-	FTimerHandle BoostCoolDownTimerHandle;
+	float AD_AddMaxForceValue;
 	
 	UPROPERTY()
-	float BoostAddForceValue;
+	float AD_CurrentRemainTime;
+	
+	UPROPERTY()
+	float AD_DurationTime;
 
 	UPROPERTY()
-	float BoostAddMaxForceValue;
+	float AD_CoolDownRemainTime;
 	
 	UPROPERTY()
-	float BoostCurrentRemainTime;
-	
-	UPROPERTY()
-	float BoostDurationTime;
+	float AD_CoolDownTime;
 
+	/** 리바운드 관련 변수 리스트 \n
+	 * ReBound를 RB_와 같은 형태로 축약해서 표현한다. \n
+	 * ReBoundDash를 RBD_와 같은 형태로 축약해서 표현한다.
+	**/
+private:
 	UPROPERTY()
-	float BoostCoolDownRemainTime;
+	float RB_AddForceValue;
 	
 	UPROPERTY()
-	float BoostCoolDownTime;
-	
+	float RBD_AddForceValue;
+
+	/**
+	 * 플레이어 상태 관련 변수 리스트
+	 **/
 private:
 	uint32 bIsRolling : 1;
 

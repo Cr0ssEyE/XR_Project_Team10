@@ -3,14 +3,16 @@
 
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Player/KWPlayerDataAsset.h"
+#include "XR_Project_Team10/Util/PPConstructorHelper.h"
+#include "XR_Project_Team10/Util/PPTimerHelper.h"
+
+#include "Kismet/KismetMathLibrary.h"
 #include "EnhancedInputComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "XR_Project_Team10/Util/PPConstructorHelper.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
@@ -61,10 +63,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
 
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
-	LeftButtonAction = CharacterData->LeftButtonAction;
-	RightButtonAction = CharacterData->RightButtonAction;
-	UpButtonAction = CharacterData->UpButtonAction;
-	DownButtonAction = CharacterData->DownButtonAction;
+	MoveInputAction = CharacterData->MoveInputAction;
 	JumpAction = CharacterData->JumpAction;
 	BoostAction = CharacterData->BoostAction;
 	
@@ -74,10 +73,10 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	JustTimingTime = CharacterData->JustTimingValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
 	
-	BoostAddForceValue = CharacterData->BoostAddForceValue;
-	BoostAddMaxForceValue = CharacterData->BoostAddMaxForceValue;
-	BoostDurationTime = CharacterData->BoostDurationTime;
-	BoostCoolDownTime = CharacterData->BoostCoolDownTime;
+	AD_AddForceValue = CharacterData->BoostAddForceValue;
+	AD_AddMaxForceValue = CharacterData->BoostAddMaxForceValue;
+	AD_DurationTime = CharacterData->BoostDurationTime;
+	AD_CoolDownTime = CharacterData->BoostCoolDownTime;
 	
 }
 
@@ -127,88 +126,57 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	EnhancedInputComponent->BindAction(ToggleTypeAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::ToggleCharacterTypeAction);
 
-	EnhancedInputComponent->BindAction(LeftButtonAction, ETriggerEvent::Triggered, this, &AKWPlayerCharacter::LeftAddForceAction);
-	
-	EnhancedInputComponent->BindAction(RightButtonAction, ETriggerEvent::Triggered, this, &AKWPlayerCharacter::RightAddForceAction);
-	
-	EnhancedInputComponent->BindAction(UpButtonAction, ETriggerEvent::Triggered, this, &AKWPlayerCharacter::UpAddForceAction);
+	EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &AKWPlayerCharacter::MoveAction);
 
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpAddForceAction);
 	
-	EnhancedInputComponent->BindAction(DownButtonAction, ETriggerEvent::Triggered, this, &AKWPlayerCharacter::DownAddForceAction);
-
 	EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpJustTimingAction);
 }
 
-void AKWPlayerCharacter::LeftAddForceAction(const FInputActionValue& Value)
+void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 {
-	if(bIsRolling)
-	{
-		if(GetVelocity().Y >= -MaxMoveForceValue)
-		{
-			const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-			const FVector Movement = Direction * AddMoveForceValue;
-			RollingMesh->AddForce(Movement * -10000);
-		}
-	}
-	else
-	{
-		FVector DirectionVector = UKismetMathLibrary::GetRightVector(GetControlRotation());
-		AddMovementInput(FVector(DirectionVector.X, DirectionVector.Y, 0.f), -1);
-	}
-}
+	FVector2D MovementVector = Value.Get<FVector2D>();
 
-void AKWPlayerCharacter::RightAddForceAction(const FInputActionValue& Value)
-{
-	if(bIsRolling)
+	float InputSizeSquared = MovementVector.SquaredLength();
+	float MovementVectorSize = 1.0f;
+	float MovementVectorSizeSquared = MovementVector.SquaredLength();
+	if (MovementVectorSizeSquared > 1.0f)
 	{
-		if(GetVelocity().Y <= MaxMoveForceValue)
-		{
-			const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-			const FVector Movement = Direction * AddMoveForceValue;
-			RollingMesh->AddForce(Movement * 10000);
-		}
+		MovementVector.Normalize();
+		MovementVectorSizeSquared = 1.0f;
 	}
 	else
 	{
-		FVector DirectionVector = UKismetMathLibrary::GetRightVector(GetControlRotation());
-		AddMovementInput(FVector(DirectionVector.X, DirectionVector.Y, 0.f), 1);
+		MovementVectorSize = FMath::Sqrt(MovementVectorSizeSquared);
 	}
-}
-
-void AKWPlayerCharacter::UpAddForceAction(const FInputActionValue& Value)
-{
+	
+	FVector MoveDirection = FVector(MovementVector.X, MovementVector.Y, 0.0f);
+	
 	if(bIsRolling)
 	{
-		if(RollingMesh->GetComponentVelocity().X <= MaxMoveForceValue)
+		FVector AddForceResult = MoveDirection * AddMoveForceValue;
+		if(GetVelocity().X >= MaxMoveForceValue && AddForceResult.X > 0)
 		{
-			const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-			const FVector Movement = Direction * AddMoveForceValue;
-			RollingMesh->AddForce(Movement * 10000);
+			AddForceResult.X = 0.0f;
 		}
+		if(GetVelocity().X <= -MaxMoveForceValue && AddForceResult.X <= 0)
+		{
+			AddForceResult.X = 0.0f;
+		}
+		if(GetVelocity().Y >= MaxMoveForceValue && AddForceResult.Y > 0)
+		{
+			AddForceResult.Y = 0.0f;
+		}
+		if(GetVelocity().Y <= -MaxMoveForceValue && AddForceResult.Y <= 0)
+		{
+			AddForceResult.Y = 0.0f;
+		}
+		RollingMesh->AddForce(AddForceResult * 10000);
 	}
 	else
 	{
-		FVector DirectionVector = UKismetMathLibrary::GetForwardVector(GetControlRotation());
-		AddMovementInput(FVector(DirectionVector.X, 0.f, 0.f), 1);
-	}
-}
-
-void AKWPlayerCharacter::DownAddForceAction(const FInputActionValue& Value)
-{
-	if(bIsRolling)
-	{
-		if(GetVelocity().X >= -MaxMoveForceValue)
-		{
-			const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-			const FVector Movement = Direction * AddMoveForceValue;
-			RollingMesh->AddForce(Movement * -10000);
-		}
-	}
-	else
-	{
-		FVector DirectionVector = UKismetMathLibrary::GetForwardVector(GetControlRotation());
-		AddMovementInput(FVector(DirectionVector.X, 0.f, 0.f), -1);
+		GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
+		AddMovementInput(MoveDirection, MovementVectorSize);
 	}
 }
 
@@ -268,6 +236,7 @@ void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Valu
 		
 		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetRelativeScale3D(FVector::ZeroVector);
+		VelocityDecelerateTimer();
 	}
 }
 
@@ -315,43 +284,61 @@ void AKWPlayerCharacter::JumpJustTimingAction(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::BoostAddForceAction()
 {
-	if(GetWorldTimerManager().IsTimerActive(BoostCoolDownTimerHandle))
+	if(GetWorldTimerManager().IsTimerActive(AD_CoolDownTimerHandle))
 	{
 		return;
 	}
 	
-	BoostCurrentRemainTime = 0;
+	AD_CurrentRemainTime = 0;
 	// AddMoveForceValue += BoostAddForceValue;
 	// MaxMoveForceValue += BoostAddMaxForceValue;
 	const FVector DirectionX = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
 	const FVector DirectionY = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-	const FVector MovementX = DirectionX * BoostAddForceValue;
-	const FVector MovementY = DirectionY * BoostAddForceValue;
+	const FVector MovementX = DirectionX * AD_AddForceValue;
+	const FVector MovementY = DirectionY * AD_AddForceValue;
 	RollingMesh->AddForce(MovementX * 1000000 * RollingMesh->GetComponentVelocity().GetSafeNormal().X);
 	RollingMesh->AddForce(MovementY * 1000000 * RollingMesh->GetComponentVelocity().GetSafeNormal().Y);
 	
-	GetWorldTimerManager().SetTimer(BoostDurationTimerHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorldTimerManager().SetTimer(AD_DurationTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			BoostCurrentRemainTime += GetWorld()->DeltaTimeSeconds;
-			if(BoostCurrentRemainTime >= BoostDurationTime)
+			AD_CurrentRemainTime += GetWorld()->DeltaTimeSeconds;
+			if(AD_CurrentRemainTime >= AD_DurationTime)
 			{
-				BoostCurrentRemainTime = 0;
+				AD_CurrentRemainTime = 0;
 				EnableBoostCoolDownTimer();
-				GetWorldTimerManager().ClearTimer(BoostDurationTimerHandle);
+				GetWorldTimerManager().ClearTimer(AD_DurationTimerHandle);
 			}
 		}), 0.01f, true);
 }
 
 void AKWPlayerCharacter::EnableBoostCoolDownTimer()
 {
-	BoostCoolDownRemainTime = 0;
-	GetWorldTimerManager().SetTimer(BoostCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
+	AD_CoolDownRemainTime = 0;
+	GetWorldTimerManager().SetTimer(AD_CoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			BoostCoolDownRemainTime += GetWorld()->DeltaTimeSeconds;
-			if(BoostCoolDownRemainTime >= BoostCoolDownTime)
+			AD_CoolDownRemainTime += GetWorld()->DeltaTimeSeconds;
+			if(AD_CoolDownRemainTime >= AD_CoolDownTime)
 			{
-				BoostCoolDownRemainTime = 0;
-				GetWorldTimerManager().ClearTimer(BoostCoolDownTimerHandle);
+				AD_CoolDownRemainTime = 0;
+				GetWorldTimerManager().ClearTimer(AD_CoolDownTimerHandle);
+			}
+		}), 0.01f, true);
+}
+
+void AKWPlayerCharacter::VelocityDecelerateTimer()
+{
+	VelocityDecelerateTime = 0.1f;
+	FPPTimerHelper::GetActualDeltaTime(VelocityDecelerationTimerHandle);
+	GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			if(FPPTimerHelper::IsDelayElapsed(VelocityDecelerationTimerHandle, VelocityDecelerateTime))
+			{
+				FVector Velocity = GetVelocity().GetSafeNormal();
+				RollingMesh->AddForce(Velocity * -10000);
+			}
+			if(!bIsRolling)
+			{
+				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 			}
 		}), 0.01f, true);
 }

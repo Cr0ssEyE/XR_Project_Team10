@@ -8,7 +8,7 @@
 #include "KWPlayerDataAsset.generated.h"
 
 /**
- * 
+ * 플레이어 캐릭터 관련 데이터 에셋
  */
 UCLASS()
 class XR_PROJECT_TEAM10_API UKWPlayerDataAsset : public UDataAsset
@@ -51,18 +51,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputAction> ToggleTypeAction;
-	
-	UPROPERTY(EditAnywhere, Category = Input)
-	TObjectPtr<class UInputAction> LeftButtonAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
-	TObjectPtr<class UInputAction> RightButtonAction;
-
-	UPROPERTY(EditAnywhere, Category = Input)
-	TObjectPtr<class UInputAction> UpButtonAction;
-
-	UPROPERTY(EditAnywhere, Category = Input)
-	TObjectPtr<class UInputAction> DownButtonAction;
+	TObjectPtr<class UInputAction> MoveInputAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputAction> JumpAction;
