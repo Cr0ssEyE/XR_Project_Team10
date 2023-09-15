@@ -46,5 +46,6 @@ public:
 	static void InvalidateTimerHandle(const FTimerHandle& InHandle)
 	{
 		DeltaTimeMap.Remove(InHandle);
+		DelayMap.Remove(InHandle);
 	}
 };

@@ -65,7 +65,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
 	MoveInputAction = CharacterData->MoveInputAction;
 	JumpAction = CharacterData->JumpAction;
-	BoostAction = CharacterData->BoostAction;
+	DA_Action = CharacterData->DA_Action;
 	
 	AddMoveForceValue = CharacterData->AddMoveForceValue;
 	AddJumpForceValue = CharacterData->AddJumpForceValue;
@@ -73,11 +73,9 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	JustTimingTime = CharacterData->JustTimingValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
 	
-	AD_AddForceValue = CharacterData->BoostAddForceValue;
-	AD_AddMaxForceValue = CharacterData->BoostAddMaxForceValue;
-	AD_DurationTime = CharacterData->BoostDurationTime;
-	AD_CoolDownTime = CharacterData->BoostCoolDownTime;
-	
+	DA_AddForceValue = CharacterData->DA_AddForceValue;
+	DA_DurationTime = CharacterData->DA_DurationTime;
+	DA_CoolDownTime = CharacterData->DA_CoolDownTime;
 }
 
 // Called when the game starts or when spawned
@@ -130,7 +128,7 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpAddForceAction);
 	
-	EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpJustTimingAction);
+	EnhancedInputComponent->BindAction(DA_Action, ETriggerEvent::Started, this, &AKWPlayerCharacter::DA_AddForceAction);
 }
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
@@ -240,8 +238,10 @@ void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Valu
 	}
 }
 
-void AKWPlayerCharacter::JumpJustTimingAction(const FInputActionValue& Value)
+void AKWPlayerCharacter::RB_JustTimingAction(const FInputActionValue& Value)
 {
+	// 리바운드 구현 후 개편 예정
+	/*
 	JustTimingElapsedTime = 0;
 	if(!bIsJumping)
 	{
@@ -266,7 +266,7 @@ void AKWPlayerCharacter::JumpJustTimingAction(const FInputActionValue& Value)
 		
 			if(bResult)
 			{
-				BoostAddForceAction();
+				// AD_AddForceAction();
 				bIsJumping = false;
 				GetWorldTimerManager().ClearTimer(JustTimingTimerHandle);
 				GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
@@ -280,67 +280,65 @@ void AKWPlayerCharacter::JumpJustTimingAction(const FInputActionValue& Value)
 				GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
 			}
 		}), 0.01f, true);
+	*/
 }
 
-void AKWPlayerCharacter::BoostAddForceAction()
+void AKWPlayerCharacter::DA_AddForceAction(const FInputActionValue& Value)
 {
-	if(GetWorldTimerManager().IsTimerActive(AD_CoolDownTimerHandle))
+	if(GetWorldTimerManager().IsTimerActive(DA_CoolDownTimerHandle))
 	{
 		return;
 	}
 	
-	AD_CurrentRemainTime = 0;
 	// AddMoveForceValue += BoostAddForceValue;
 	// MaxMoveForceValue += BoostAddMaxForceValue;
 	const FVector DirectionX = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
 	const FVector DirectionY = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-	const FVector MovementX = DirectionX * AD_AddForceValue;
-	const FVector MovementY = DirectionY * AD_AddForceValue;
+	const FVector MovementX = DirectionX * DA_AddForceValue;
+	const FVector MovementY = DirectionY * DA_AddForceValue;
 	RollingMesh->AddForce(MovementX * 1000000 * RollingMesh->GetComponentVelocity().GetSafeNormal().X);
 	RollingMesh->AddForce(MovementY * 1000000 * RollingMesh->GetComponentVelocity().GetSafeNormal().Y);
 	
-	GetWorldTimerManager().SetTimer(AD_DurationTimerHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorldTimerManager().SetTimer(DA_DurationTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			AD_CurrentRemainTime += GetWorld()->DeltaTimeSeconds;
-			if(AD_CurrentRemainTime >= AD_DurationTime)
+			if(FPPTimerHelper::IsDelayElapsed(DA_DurationTimerHandle, DA_DurationTime))
 			{
-				AD_CurrentRemainTime = 0;
-				EnableBoostCoolDownTimer();
-				GetWorldTimerManager().ClearTimer(AD_DurationTimerHandle);
+				DA_CoolDownTimer();
+				GetWorldTimerManager().ClearTimer(DA_DurationTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(DA_DurationTimerHandle);
 			}
-		}), 0.01f, true);
+		}), 0.001f, true);
 }
 
-void AKWPlayerCharacter::EnableBoostCoolDownTimer()
+void AKWPlayerCharacter::DA_CoolDownTimer()
 {
-	AD_CoolDownRemainTime = 0;
-	GetWorldTimerManager().SetTimer(AD_CoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorldTimerManager().SetTimer(DA_CoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			AD_CoolDownRemainTime += GetWorld()->DeltaTimeSeconds;
-			if(AD_CoolDownRemainTime >= AD_CoolDownTime)
+			if(FPPTimerHelper::IsDelayElapsed(DA_CoolDownTimerHandle, DA_CoolDownTime))
 			{
-				AD_CoolDownRemainTime = 0;
-				GetWorldTimerManager().ClearTimer(AD_CoolDownTimerHandle);
+				DA_CoolDownRemainTime = 0;
+				GetWorldTimerManager().ClearTimer(DA_CoolDownTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(DA_CoolDownTimerHandle);
 			}
-		}), 0.01f, true);
+		}), 0.001f, true);
 }
 
 void AKWPlayerCharacter::VelocityDecelerateTimer()
 {
 	VelocityDecelerateTime = 0.1f;
-	FPPTimerHelper::GetActualDeltaTime(VelocityDecelerationTimerHandle);
 	GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			if(FPPTimerHelper::IsDelayElapsed(VelocityDecelerationTimerHandle, VelocityDecelerateTime))
 			{
-				FVector Velocity = GetVelocity().GetSafeNormal();
-				RollingMesh->AddForce(Velocity * -10000);
+				const FVector DecelerateVelocity = GetVelocity().GetSafeNormal();
+				RollingMesh->AddForce(DecelerateVelocity * -10000);
 			}
 			if(!bIsRolling)
 			{
 				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(VelocityDecelerationTimerHandle);
 			}
-		}), 0.01f, true);
+		}), 0.001f, true);
 }
 
 

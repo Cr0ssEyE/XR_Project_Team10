@@ -35,16 +35,13 @@ public:
 	float JumpDelayTime;
 
 	UPROPERTY(EditAnywhere, Category = InputValue)
-	float BoostAddForceValue;
-
-	UPROPERTY(EditAnywhere, Category = InputValue)
-	float BoostAddMaxForceValue;
+	float DA_AddForceValue;
 	
 	UPROPERTY(EditAnywhere, Category = InputValue)
-	float BoostDurationTime;
+	float DA_DurationTime;
 
 	UPROPERTY(EditAnywhere, Category = InputValue)
-	float BoostCoolDownTime;
+	float DA_CoolDownTime;
 	
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<class UInputMappingContext> PlayerInputMappingContext;
@@ -59,5 +56,5 @@ public:
 	TObjectPtr<class UInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
-	TObjectPtr<class UInputAction> BoostAction;
+	TObjectPtr<class UInputAction> DA_Action;
 };

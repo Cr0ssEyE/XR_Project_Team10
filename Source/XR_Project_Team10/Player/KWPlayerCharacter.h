@@ -8,11 +8,18 @@
 #include "Components/CapsuleComponent.h"
 #include "KWPlayerCharacter.generated.h"
 
+// 플레이어 캐릭터
 UCLASS()
 class XR_PROJECT_TEAM10_API AKWPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	/*
+	* 약어 정리
+	* DA = DashAttack
+	* RB = ReBound
+	* RBD = ReBoundDash
+	*/
 public:
 	// Sets default values for this character's properties
 	AKWPlayerCharacter();
@@ -53,9 +60,9 @@ protected:
 	void JumpAddForceAction(const FInputActionValue& Value);
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
-	void JumpJustTimingAction(const FInputActionValue& Value);
-	void BoostAddForceAction();
-	void EnableBoostCoolDownTimer();
+	void RB_JustTimingAction(const FInputActionValue& Value);
+	void DA_AddForceAction(const FInputActionValue& Value);
+	void DA_CoolDownTimer();
 	void VelocityDecelerateTimer();
 	
 	/**
@@ -75,7 +82,7 @@ private:
 	TObjectPtr<class UInputAction> JumpAction;
 
 	UPROPERTY()
-	TObjectPtr<class UInputAction> BoostAction;
+	TObjectPtr<class UInputAction> DA_Action;
 
 	/**
 	 * 캐릭터 이동 관련 변수 리스트
@@ -119,28 +126,22 @@ private:
 	**/
 private:
 	UPROPERTY()
-	FTimerHandle AD_DurationTimerHandle;
+	FTimerHandle DA_DurationTimerHandle;
 
 	UPROPERTY()
-	FTimerHandle AD_CoolDownTimerHandle;
+	FTimerHandle DA_CoolDownTimerHandle;
 	
 	UPROPERTY()
-	float AD_AddForceValue;
+	float DA_AddForceValue;
+	
+	UPROPERTY()
+	float DA_DurationTime;
 
 	UPROPERTY()
-	float AD_AddMaxForceValue;
+	float DA_CoolDownRemainTime;
 	
 	UPROPERTY()
-	float AD_CurrentRemainTime;
-	
-	UPROPERTY()
-	float AD_DurationTime;
-
-	UPROPERTY()
-	float AD_CoolDownRemainTime;
-	
-	UPROPERTY()
-	float AD_CoolDownTime;
+	float DA_CoolDownTime;
 
 	/** 리바운드 관련 변수 리스트 \n
 	 * ReBound를 RB_와 같은 형태로 축약해서 표현한다. \n
