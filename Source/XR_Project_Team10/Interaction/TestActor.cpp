@@ -2,6 +2,7 @@
 
 
 #include "XR_Project_Team10/Interaction/TestActor.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 // Sets default values
 ATestActor::ATestActor()
@@ -20,12 +21,20 @@ void ATestActor::BeginPlay()
 
 void ATestActor::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Log, TEXT("Hit"));
+	//UE_LOG(LogTemp, Log, TEXT("Hit"));
+	
+
 }
 
 void ATestActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	UE_LOG(LogTemp, Log, TEXT("Begin"));
+
+	auto playableCharacter = Cast<AKWPlayerCharacter>(OtherActor);
+
+	if (nullptr != playableCharacter) {
+		//튕겨나가게 하기
+	}
 }
 
 void ATestActor::NotifyActorEndOverlap(AActor* OtherActor)

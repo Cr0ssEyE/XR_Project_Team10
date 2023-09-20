@@ -64,7 +64,12 @@ protected:
 	void DA_AddForceAction(const FInputActionValue& Value);
 	void DA_CoolDownTimer();
 	void VelocityDecelerateTimer();
-	
+	/**
+	* 테스트용 변수
+	**/
+
+private:
+
 	/**
 	 * 유저 입력 관련 변수 리스트
 	 **/
