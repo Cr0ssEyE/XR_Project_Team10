@@ -8,6 +8,16 @@
 #include "Components/CapsuleComponent.h"
 #include "KWPlayerCharacter.generated.h"
 
+UENUM()
+enum class EGearState : uint8 
+{
+	GearOne = 0,
+	GearTwo = 1,
+	GearThree = 2,
+	GearFour = 3,
+	EndOfGearState = 4
+};
+
 // 플레이어 캐릭터
 UCLASS()
 class XR_PROJECT_TEAM10_API AKWPlayerCharacter : public ACharacter
@@ -57,12 +67,13 @@ public:
 	 **/
 protected:
 	void MoveAction(const FInputActionValue& Value);
+	void MoveActionCompleted(const FInputActionValue& Value);
 	void JumpAddForceAction(const FInputActionValue& Value);
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void RB_JustTimingAction(const FInputActionValue& Value);
-	void DA_AddForceAction(const FInputActionValue& Value);
-	void DA_CoolDownTimer();
+	void AttackActionSequence(const FInputActionValue& Value);
+	void AttackCoolDownTimer();
 	void VelocityDecelerateTimer();
 	
 	/**
@@ -82,33 +93,38 @@ private:
 	TObjectPtr<class UInputAction> JumpAction;
 
 	UPROPERTY()
-	TObjectPtr<class UInputAction> DA_Action;
+	TObjectPtr<class UInputAction> AttackAction;
 
 	/**
-	 * 캐릭터 이동 관련 변수 리스트
+	 * 캐릭터 움직임 관련 변수 리스트
 	 **/
 private:
 	UPROPERTY()
-	float AddMoveForceValue;
+	FVector2D MoveInputValue;
 	
 	UPROPERTY()
-	float MaxMoveForceValue;
+	float DefaultVelocityValue;
+
+	UPROPERTY()
+	float DefaultMaxVelocityValue;
+	
+	UPROPERTY()
+	TArray<float> VelocityMultiplyValuesByGear;
+	
+	UPROPERTY()
+	TArray<float> MaxVelocityMagnificationByGear;
 
 	UPROPERTY()
 	float AddJumpForceValue;
 	
-	UPROPERTY()
 	FTimerHandle JumpDelayTimerHandle;
-
-	UPROPERTY()
+	
+	FTimerHandle DropDownTimerHandle;
+	
 	FTimerHandle JustTimingTimerHandle;
 	
-	UPROPERTY()
 	FTimerHandle VelocityDecelerationTimerHandle;
 	
-	UPROPERTY()
-	float JumpDelayRemainTime;
-
 	UPROPERTY()
 	float JustTimingTime;
 	
@@ -121,28 +137,32 @@ private:
 	UPROPERTY()
 	float VelocityDecelerateTime;
 
+	UPROPERTY()
+	FVector VelocityDecelerateTarget;
+
 	/** 공격 관련 변수 리스트 \n
 	 * AttackDash를 AD_ 와 같은 형태로 축약해서 표현한다.
 	**/
 private:
-	UPROPERTY()
 	FTimerHandle DA_DurationTimerHandle;
-
-	UPROPERTY()
-	FTimerHandle DA_CoolDownTimerHandle;
+	
+	FTimerHandle AttackCoolDownTimerHandle;
 	
 	UPROPERTY()
-	float DA_AddForceValue;
+	float DA_AddVelocityValue;
 	
 	UPROPERTY()
 	float DA_DurationTime;
 
 	UPROPERTY()
-	float DA_CoolDownRemainTime;
-	
-	UPROPERTY()
-	float DA_CoolDownTime;
+	float AttackCoolDownTime;
 
+	UPROPERTY()
+	float DropDownVelocityValue;
+
+	UPROPERTY()
+	float DropDownMinimumHeightValue;
+	
 	/** 리바운드 관련 변수 리스트 \n
 	 * ReBound를 RB_와 같은 형태로 축약해서 표현한다. \n
 	 * ReBoundDash를 RBD_와 같은 형태로 축약해서 표현한다.
@@ -152,12 +172,29 @@ private:
 	float RB_AddForceValue;
 	
 	UPROPERTY()
-	float RBD_AddForceValue;
+	float RBD_AddVelocityValue;
 
+
+	/**
+	 *	플레이어 상태 관련 함수 리스트
+	 **/
+private:
+	void CheckGearState();
+	
 	/**
 	 * 플레이어 상태 관련 변수 리스트
 	 **/
 private:
+	FTimerHandle CheckGearStateTimerHandle;
+	
+	EGearState CurrentGearState;
+
+	TArray<FVector> ColorsByGear;
+	
+	uint32 bIsDead : 1;
+	
+	uint32 bIsMoving : 1;
+	
 	uint32 bIsRolling : 1;
 
 	uint32 bIsJumping : 1;

@@ -13,5 +13,6 @@ void AKWPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	const FInputModeGameOnly GameOnlyInputMode;
+	SetShowMouseCursor(true);
 	SetInputMode(GameOnlyInputMode);
 }
