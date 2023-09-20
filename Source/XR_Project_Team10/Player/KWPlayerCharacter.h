@@ -52,6 +52,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
+
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/

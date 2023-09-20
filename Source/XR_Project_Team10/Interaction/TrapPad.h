@@ -2,15 +2,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "BoostPad.generated.h"
+#include "TrapPad.generated.h"
 
 UCLASS()
-class XR_PROJECT_TEAM10_API ABoostPad : public AActor
+class XR_PROJECT_TEAM10_API ATrapPad : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	ABoostPad();
+	// Sets default values for this actor's properties
+	ATrapPad();
 
 protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
@@ -18,5 +19,5 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	float AccelarationValue = 5;
+	FVector TrapVector;
 };
