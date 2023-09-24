@@ -6,7 +6,18 @@
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
+#include "XR_Project_Team10/Enumeration/KWObjectType.h"
 #include "KWPlayerCharacter.generated.h"
+
+UENUM()
+enum class EGearState : uint8 
+{
+	GearOne = 0,
+	GearTwo = 1,
+	GearThree = 2,
+	GearFour = 3,
+	EndOfGearState
+};
 
 // 플레이어 캐릭터
 UCLASS()
@@ -57,12 +68,13 @@ public:
 	 **/
 protected:
 	void MoveAction(const FInputActionValue& Value);
+	void MoveActionCompleted(const FInputActionValue& Value);
 	void JumpAddForceAction(const FInputActionValue& Value);
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void RB_JustTimingAction(const FInputActionValue& Value);
-	void DA_AddForceAction(const FInputActionValue& Value);
-	void DA_CoolDownTimer();
+	void AttackActionSequence(const FInputActionValue& Value);
+	void AttackCoolDownTimer();
 	void VelocityDecelerateTimer();
 	
 	/**
@@ -82,38 +94,43 @@ private:
 	TObjectPtr<class UInputAction> JumpAction;
 
 	UPROPERTY()
-	TObjectPtr<class UInputAction> DA_Action;
+	TObjectPtr<class UInputAction> AttackAction;
 
+	UPROPERTY()
+	TObjectPtr<class UInputAction> RBD_Action;
+	
 	/**
-	 * 캐릭터 이동 관련 변수 리스트
+	 * 캐릭터 움직임 관련 변수 리스트
 	 **/
 private:
 	UPROPERTY()
-	float AddMoveForceValue;
+	FVector2D MoveInputValue;
 	
 	UPROPERTY()
-	float MaxMoveForceValue;
+	float DefaultVelocityValue;
+
+	UPROPERTY()
+	float DefaultMaxVelocityValue;
+	
+	UPROPERTY()
+	TArray<float> VelocityMultiplyValuesByGear;
+	
+	UPROPERTY()
+	TArray<float> MaxVelocityMagnificationByGear;
 
 	UPROPERTY()
 	float AddJumpForceValue;
 	
-	UPROPERTY()
 	FTimerHandle JumpDelayTimerHandle;
-
-	UPROPERTY()
+	
+	FTimerHandle DropDownTimerHandle;
+	
 	FTimerHandle JustTimingTimerHandle;
 	
-	UPROPERTY()
 	FTimerHandle VelocityDecelerationTimerHandle;
 	
 	UPROPERTY()
-	float JumpDelayRemainTime;
-
-	UPROPERTY()
-	float JustTimingTime;
-	
-	UPROPERTY()
-	float JustTimingElapsedTime;
+	float RBD_JustTimingValue;
 	
 	UPROPERTY()
 	float JumpDelayTime;
@@ -121,46 +138,98 @@ private:
 	UPROPERTY()
 	float VelocityDecelerateTime;
 
+	UPROPERTY()
+	FVector VelocityDecelerateTarget;
+
 	/** 공격 관련 변수 리스트 \n
 	 * AttackDash를 AD_ 와 같은 형태로 축약해서 표현한다.
 	**/
 private:
-	UPROPERTY()
 	FTimerHandle DA_DurationTimerHandle;
-
-	UPROPERTY()
-	FTimerHandle DA_CoolDownTimerHandle;
+	
+	FTimerHandle AttackCoolDownTimerHandle;
 	
 	UPROPERTY()
-	float DA_AddForceValue;
+	float DA_AddVelocityValue;
 	
 	UPROPERTY()
 	float DA_DurationTime;
 
 	UPROPERTY()
-	float DA_CoolDownRemainTime;
-	
-	UPROPERTY()
-	float DA_CoolDownTime;
+	float AttackCoolDownTime;
 
+	UPROPERTY()
+	float DropDownVelocityValue;
+
+	UPROPERTY()
+	float DropDownMinimumHeightValue;
+
+	/**
+	 *	플레이어 상태 관련 함수 리스트
+	 **/
+private:
+	void CheckGearState();
+	
+	/**
+	 * 플레이어 상태 관련 변수 리스트
+	 **/
+private:
+	FTimerHandle CheckGearStateTimerHandle;
+	
+	EGearState CurrentGearState;
+
+	TArray<FLinearColor> ColorsByGear;
+	
+	uint32 bIsDead : 1;
+	
+	uint32 bIsMoving : 1;
+	
+	uint32 bIsRolling : 1;
+
+	uint32 bIsJumping : 1;
+
+	uint32 bIsReBounding : 1;
+
+	uint32 bIsInputJustAction : 1;
+	
+	uint32 bIsAttackOnGoing : 1;
+
+	/** 리바운드 관련 함수 리스트\n
+	 * 캐릭터에서 너무 많은 기능을 수행해서는 안되므로 \n
+	 * 가급적이면 리바운드는 충돌하는 대상에서 각도, 충격량 등을 계산하고 \n
+	 * 리바운드 실행 함수에서는 기어에 따른 배율을 적용해 리바운드를 수행하는 역할만을 한다.
+	 **/
+public:
+	void RB_ApplyReBoundByObjectType(FVector ReBoundResultValue, EReBoundObjectType ObjectType);
+	void RB_CheckContactToFloor();
+	void RBD_SuccessEvent();
+	void RBD_FailedEvent();
+	
 	/** 리바운드 관련 변수 리스트 \n
 	 * ReBound를 RB_와 같은 형태로 축약해서 표현한다. \n
 	 * ReBoundDash를 RBD_와 같은 형태로 축약해서 표현한다.
 	**/
 private:
-	UPROPERTY()
-	float RB_AddForceValue;
+	FTimerHandle RB_DelayTimerHandle;
+
+	FTimerHandle RB_ContactCheckHandle;
+	
+	FTimerHandle RBD_JustTimingCheckHandle;
+
+	FTimerHandle RBD_SucceedTimerHandle;
+	
+	FTimerHandle RBD_FailedTimerHandle;
 	
 	UPROPERTY()
-	float RBD_AddForceValue;
+	float RBD_AddVelocityValue;
 
-	/**
-	 * 플레이어 상태 관련 변수 리스트
-	 **/
-private:
-	uint32 bIsRolling : 1;
-
-	uint32 bIsJumping : 1;
+	UPROPERTY()
+	float RB_DisableMovementTime;
 	
-	uint32 bIsAttackOnGoing : 1;
+	UPROPERTY()
+	TArray<float> RB_MultiplyValuesByGear;
+
+	UPROPERTY()
+	TArray<float> RB_MultiplyValuesByObjectType;
 };
+
