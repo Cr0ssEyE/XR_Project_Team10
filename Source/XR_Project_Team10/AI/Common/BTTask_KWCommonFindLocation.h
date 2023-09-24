@@ -13,5 +13,11 @@ UCLASS()
 class XR_PROJECT_TEAM10_API UBTTask_KWCommonFindLocation : public UBTTaskNode
 {
 	GENERATED_BODY()
+
+public:
+	UBTTask_KWCommonFindLocation();
+
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
+private:
 };

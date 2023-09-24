@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "XR_Project_Team10/Character/Monster/Common/BTTask_KWCommonWait.h"
+#include "XR_Project_Team10/AI/Common/BTTask_KWCommonWait.h"
 

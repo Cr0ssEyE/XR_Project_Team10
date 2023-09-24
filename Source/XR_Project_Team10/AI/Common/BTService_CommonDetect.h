@@ -13,5 +13,10 @@ UCLASS()
 class XR_PROJECT_TEAM10_API UBTService_CommonDetect : public UBTService
 {
 	GENERATED_BODY()
-	
+
+public:
+	UBTService_CommonDetect();
+
+protected:
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 };
