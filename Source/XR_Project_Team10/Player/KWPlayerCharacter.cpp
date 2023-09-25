@@ -32,9 +32,9 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
-	GetMesh()->SetSkeletalMesh(FPPConstructorHelper::FindAndGetObject<USkeletalMesh>(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple'")));
+	GetMesh()->SetSkeletalMesh(FPPConstructorHelper::FindAndGetObject<USkeletalMesh>(TEXT("/Script/Engine.SkeletalMesh'/Game/11-Player-Anim/SkeletalMesh/SKM_Player_Kiwi.SKM_Player_Kiwi'")));
 	
-	GetMesh()->SetAnimClass(FPPConstructorHelper::FindAndGetClass<UAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/Characters/Mannequins/Animations/ABP_Quinn.ABP_Quinn_C'")));
+	GetMesh()->SetAnimClass(FPPConstructorHelper::FindAndGetClass<UAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/11-Player-Anim/Animations/ABP_Player_Kiwi.ABP_Player_Kiwi_C'")));
 	
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -80.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
