@@ -16,12 +16,6 @@ class XR_PROJECT_TEAM10_API UKWKiwiAnimDataAsset : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
-	FVector Velocity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
-	float MoveSpeed;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float MovingThreshold;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
