@@ -16,10 +16,10 @@ class XR_PROJECT_TEAM10_API UCommonMonsterDataAsset : public UDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "몬스터 체력")
-	int32 MonsterHP;
+	uint32 MonsterHP;
 
 	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "몬스터 이동속도")
-	int32 MonsterMoveSpeed;
+	uint32 MonsterMoveSpeed;
 
 
 public:
