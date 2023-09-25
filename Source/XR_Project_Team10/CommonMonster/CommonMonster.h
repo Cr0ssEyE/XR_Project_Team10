@@ -38,12 +38,8 @@ protected:
 	virtual void Attack() override;
 	virtual void Dead() override;
 
-private:
-
+protected:
 	//DataAsset MonsterData => IICommonMonsterBase
-	
-	//UPROPERTY(VisibleAnywhere)
-	//TObjectPtr<class CommonMonsterDataAsset> MonsterData;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UStaticMeshComponent> MonsterStaticMesh;
@@ -51,12 +47,15 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UCapsuleComponent> MonsterComponent;
 
-	
+	//º¯¼ö
 protected:
-	EState MonsterState;
+	UPROPERTY(VisibleAnywhere)
+	TEnumAsByte<EState> MonsterState;
 
+	UPROPERTY(VisibleAnywhere)
 	uint32 MonsterCurrentHP;
-	
+
+	UPROPERTY(VisibleAnywhere)
 	float MonsterCurrentMoveSpeed;
 	
 	//Getter Setter
@@ -64,6 +63,9 @@ public:
 	uint32 GetMonsterHP();
 	void SetMonsterHP(uint32);
 
-	EState GetMonsterState();
+	float GetMonsterSpeed();
+	void SetMonsterSpeed(float);
+
+	TEnumAsByte<EState> GetMonsterState();
 
 };

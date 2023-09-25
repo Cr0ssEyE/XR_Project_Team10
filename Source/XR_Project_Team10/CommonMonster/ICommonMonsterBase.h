@@ -30,5 +30,5 @@ protected:
 
 	// 공통 변수
 protected:
-	TObjectPtr<class CommonMonsterDataAsset> MonsterData;
+	TObjectPtr<class UCommonMonsterDataAsset> MonsterData;
 };

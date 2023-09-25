@@ -7,8 +7,10 @@ ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	MonsterCurrentHP = MonsterData->MonsterHP;
-	MonsterCurrentMoveSpeed = MonsterData->MonsterMoveSpeed;
+	if (nullptr != MonsterData) {
+		MonsterCurrentHP = MonsterData->MonsterHP;
+		MonsterCurrentMoveSpeed = MonsterData->MonsterMoveSpeed;
+	}
 }
 
 void ACommonMonster::Research()
@@ -49,7 +51,17 @@ void ACommonMonster::SetMonsterHP(uint32 hp)
 	MonsterCurrentHP = hp;
 }
 
-EState ACommonMonster::GetMonsterState()
+float ACommonMonster::GetMonsterSpeed()
+{
+	return MonsterCurrentMoveSpeed;
+}
+
+void ACommonMonster::SetMonsterSpeed(float sp)
+{
+	MonsterCurrentMoveSpeed = sp;
+}
+
+TEnumAsByte<EState> ACommonMonster::GetMonsterState()
 {
 	return MonsterState;
 }
