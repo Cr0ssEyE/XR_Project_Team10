@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,37 +15,37 @@ class XR_PROJECT_TEAM10_API UCommonMonsterDataAsset : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "¸ó½ºÅÍ Ã¼·Â")
+	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "ëª¬ìŠ¤í„° ì²´ë ¥")
 	uint32 MonsterHP;
 
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "¸ó½ºÅÍ ÀÌµ¿¼Óµµ")
+	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "ëª¬ìŠ¤í„° ì´ë™ì†ë„")
 	uint32 MonsterMoveSpeed;
 
 
 public:
-	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "¸ó½ºÅÍ Å½»ö ¹üÀ§ ¹İÁö¸§ °ª")
+	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "ëª¬ìŠ¤í„° íƒìƒ‰ ë²”ìœ„ ë°˜ì§€ë¦„ ê°’")
 	float MonsterResearchRange;
 
-	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "¸ó½ºÅÍ ÀÎÁö ¹üÀ§ ¹İÁö¸§ °ª")
+	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "ëª¬ìŠ¤í„° ì¸ì§€ ë²”ìœ„ ë°˜ì§€ë¦„ ê°’")
 	float MonsterRecognitionRange;
 
-	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "¸ó½ºÅÍ ÃßÀû ¹üÀ§ ¹İÁö¸§ °ª")
+	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "ëª¬ìŠ¤í„° ì¶”ì  ë²”ìœ„ ë°˜ì§€ë¦„ ê°’")
 	float MonsterTrackingRange;
 
-	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "¸ó½ºÅÍ °ø°İ ¹üÀ§ È®ÀÎ ¹İÁö¸§ °ª")
+	UPROPERTY(EditAnywhere, Category = Range, DisplayName = "ëª¬ìŠ¤í„° ê³µê²© ë²”ìœ„ í™•ì¸ ë°˜ì§€ë¦„ ê°’")
 	float MonsterAttackConfigRange;
 
 public:
 
-	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "¸ó½ºÅÍ ´ë±â »óÅÂ Áö¼Ó½Ã°£")
+	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "ëª¬ìŠ¤í„° ëŒ€ê¸° ìƒíƒœ ì§€ì†ì‹œê°„")
 	float MonsterIdleTime;
 
-	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "¸ó½ºÅÍ Å½»ö »óÅÂ Áö¼Ó½Ã°£")
+	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "ëª¬ìŠ¤í„° íƒìƒ‰ ìƒíƒœ ì§€ì†ì‹œê°„")
 	float MonsterResearchTime;
 
-	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "¸ó½ºÅÍ ÀÎÁö »óÅÂ Áö¼Ó½Ã°£")
+	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "ëª¬ìŠ¤í„° ì¸ì§€ ìƒíƒœ ì§€ì†ì‹œê°„")
 	float MonsterRecognitionTime;
 
-	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "¸ó½ºÅÍ ÃßÀû »óÅÂ Áö¼Ó½Ã°£")
+	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "ëª¬ìŠ¤í„° ì¶”ì  ìƒíƒœ ì§€ì†ì‹œê°„")
 	float MonsterTrackingTime;
 };

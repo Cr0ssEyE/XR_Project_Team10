@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -8,7 +8,7 @@
 #include "CommonMonster.generated.h"
 
 UENUM()
-enum EState : uint8 {
+enum class EState : uint8 {
 	E_IDLE,
 	E_RESEARCH,
 	E_RECOGNITION,
@@ -28,7 +28,7 @@ class XR_PROJECT_TEAM10_API ACommonMonster : public ACharacter, public IICommonM
 public:
 	ACommonMonster();
 
-	// IICommonMonsterBase¿ª(∏¶) ≈Î«ÿ ªÛº”
+	// IICommonMonsterBaseÏùÑ(Î•º) ÌÜµÌï¥ ÏÉÅÏÜç
 protected:
 	virtual void Research() override;
 	virtual void Recognition() override;
@@ -47,10 +47,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UCapsuleComponent> MonsterComponent;
 
-	//∫Øºˆ
+	//Î≥ÄÏàò
 protected:
 	UPROPERTY(VisibleAnywhere)
-	TEnumAsByte<EState> MonsterState;
+	EState MonsterState;
 
 	UPROPERTY(VisibleAnywhere)
 	uint32 MonsterCurrentHP;
@@ -60,12 +60,12 @@ protected:
 	
 	//Getter Setter
 public:
-	uint32 GetMonsterHP();
-	void SetMonsterHP(uint32);
+	__forceinline uint32 GetMonsterHP() { return MonsterCurrentHP; }
+	__forceinline void SetMonsterHP(uint32 hp) { MonsterCurrentHP = hp; }
 
-	float GetMonsterSpeed();
-	void SetMonsterSpeed(float);
+	__forceinline float GetMonsterSpeed() { return MonsterCurrentMoveSpeed; }
+	__forceinline void SetMonsterSpeed(float sp) { MonsterCurrentMoveSpeed = sp; }
 
-	TEnumAsByte<EState> GetMonsterState();
+	__forceinline TEnumAsByte<EState> GetMonsterState() { return MonsterState; }
 
 };

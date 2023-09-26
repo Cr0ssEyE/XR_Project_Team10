@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
@@ -18,17 +18,17 @@ class XR_PROJECT_TEAM10_API IICommonMonsterBase
 {
 	GENERATED_BODY()
 
-	// °øÅë ÇÔ¼ö
+	// ê³µí†µ í•¨ìˆ˜
 protected:
-	virtual void Research() = 0;		//Å½»ö
-	virtual void Recognition() = 0;		//ÀÎÁö
-	virtual void Tracking() = 0;		//ÃßÀû
-	virtual void AttackConfig() = 0;	//°ø°İ È®ÀÎ
-	virtual void AttackOmen() = 0;		//°ø°İ ÀüÁ¶
-	virtual void Attack() = 0;			//°ø°İ
-	virtual void Dead() = 0;			//»ç¸Á
+	virtual void Research() = 0;		//íƒìƒ‰
+	virtual void Recognition() = 0;		//ì¸ì§€
+	virtual void Tracking() = 0;		//ì¶”ì 
+	virtual void AttackConfig() = 0;	//ê³µê²© í™•ì¸
+	virtual void AttackOmen() = 0;		//ê³µê²© ì „ì¡°
+	virtual void Attack() = 0;			//ê³µê²©
+	virtual void Dead() = 0;			//ì‚¬ë§
 
-	// °øÅë º¯¼ö
+	// ê³µí†µ ë³€ìˆ˜
 protected:
 	TObjectPtr<class UCommonMonsterDataAsset> MonsterData;
 };
