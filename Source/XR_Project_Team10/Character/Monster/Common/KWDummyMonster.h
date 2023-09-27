@@ -26,12 +26,12 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 protected:
 	virtual FVector GetAIBaseLocation() override { return BaseLocation; }
 	virtual float GetAIMaximumMoveDistance() override { return MaximumMoveDistance; }
 	virtual float GetAIPatrolRadius() override { return 500.f; }
-	virtual float GetAIDetectRange() override { return 300.f; }
+	virtual float GetAIDetectRange() override { return 800.f; }
 	virtual float GetAIAttackRange() override { return AttackRange; }
 	virtual float GetAITurnSpeed() override { return TurnSpeed; }
 
