@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "XR_Project_Team10/Character/Monster/Common/KWDummyMonster.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 AKWCommonAIController::AKWCommonAIController()
@@ -57,7 +58,8 @@ void AKWCommonAIController::DeActivateAI()
 
 void AKWCommonAIController::SetTarget(const TArray<AActor*>& Actors)
 {
-	
+	UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
+	AKWDummyMonster* ControllingPawn = Cast<AKWDummyMonster>(BehaviorTreeComponent->GetAIOwner()->GetPawn());
 	for(AActor* DetectActor : Actors)
 	{
 		FActorPerceptionBlueprintInfo PerceptionInfo;
@@ -65,12 +67,8 @@ void AKWCommonAIController::SetTarget(const TArray<AActor*>& Actors)
 		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DetectActor);
 		if(PlayerCharacter)
 		{
-			if(!PerceptionInfo.LastSensedStimuli[0].WasSuccessfullySensed())
-			{
-				Blackboard->SetValueAsObject(KEY_TARGET, nullptr);
-				return;
-			}
 			Blackboard->SetValueAsObject(KEY_TARGET, PlayerCharacter);
+			CommonSight->PeripheralVisionAngleDegrees = 60.f;
 			return;
 		}
 	}

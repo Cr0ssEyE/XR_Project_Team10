@@ -19,7 +19,6 @@ AKWDummyMonster::AKWDummyMonster()
 void AKWDummyMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

@@ -5,6 +5,7 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "XR_Project_Team10/Character/Monster/Common/KWDummyMonster.h"
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/Interface/KWMonsterAIInterface.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
@@ -19,12 +20,11 @@ void UBTService_CommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
+	AKWDummyMonster* ControllingPawn = Cast<AKWDummyMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	if(!ControllingPawn)
 	{
 		return;
 	}
-
 	FVector Center = ControllingPawn->GetActorLocation();
 	UWorld* World = ControllingPawn->GetWorld();
 	if(!World)
@@ -50,7 +50,7 @@ void UBTService_CommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 		FCollisionShape::MakeSphere(DetectRadius),
 		CollisionQueryParams
 		);
-
+	bool bIsPlayerDetect = false;
 	if(bResult)
 	{
 		for (auto const& OverlapResult : OverlapResults)
@@ -58,18 +58,17 @@ void UBTService_CommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(OverlapResult.GetActor());
 			if(PlayerCharacter)
 			{
+				bIsPlayerDetect = true;
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter);
-				DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 1.f);
+				DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 0.1f);
+				// DrawDebugPoint(World, PlayerCharacter->GetActorLocation(), 10.0f, FColor::Blue, false, 1.0f);
 
-				DrawDebugPoint(World, PlayerCharacter->GetActorLocation(), 10.0f, FColor::Blue, false, 1.0f);
-
-				DrawDebugLine(World, ControllingPawn->GetActorLocation(), PlayerCharacter->GetActorLocation(), FColor::Red, false, 1.0f);
+				// DrawDebugLine(World, ControllingPawn->GetActorLocation(), PlayerCharacter->GetActorLocation(), FColor::Red, false, 1.0f);
 			}
 		}
 	}
-	else
+	if(!bIsPlayerDetect)
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, nullptr);
-		DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Yellow, false, 1.f);
 	}
 }
