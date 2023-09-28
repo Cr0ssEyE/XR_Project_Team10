@@ -559,6 +559,7 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 			if(bIsInputJustAction)
 			{
 				bIsReBounding = false;
+				bIsInputJustAction = false;
 				if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
 				{
 					GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
