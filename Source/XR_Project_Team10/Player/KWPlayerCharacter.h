@@ -63,6 +63,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
+
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/
@@ -76,7 +78,12 @@ protected:
 	void AttackActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
 	void VelocityDecelerateTimer();
-	
+	/**
+	* 테스트용 변수
+	**/
+
+private:
+
 	/**
 	 * 유저 입력 관련 변수 리스트
 	 **/

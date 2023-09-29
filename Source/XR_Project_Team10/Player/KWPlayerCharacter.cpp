@@ -17,6 +17,7 @@
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
 {
+
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -31,12 +32,13 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
-	GetMesh()->SetSkeletalMesh(FPPConstructorHelper::FindAndGetObject<USkeletalMesh>(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple'")));
+	GetMesh()->SetSkeletalMesh(FPPConstructorHelper::FindAndGetObject<USkeletalMesh>(TEXT("/Script/Engine.SkeletalMesh'/Game/11-Player-Anim/SkeletalMesh/SKM_Player_Kiwi.SKM_Player_Kiwi'")));
 	
-	GetMesh()->SetAnimClass(FPPConstructorHelper::FindAndGetClass<UAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/Characters/Mannequins/Animations/ABP_Quinn.ABP_Quinn_C'")));
+	GetMesh()->SetAnimClass(FPPConstructorHelper::FindAndGetClass<UAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/11-Player-Anim/Animations/ABP_Player_Kiwi.ABP_Player_Kiwi_C'")));
 	
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -80.f));
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
 	GetCapsuleComponent()->SetCapsuleSize(70.f, 70.f);
 	GetMesh()->BodyInstance.bLockZRotation = true;
 	
@@ -96,6 +98,7 @@ void AKWPlayerCharacter::BeginPlay()
 	RollingMesh->SetMassOverrideInKg(NAME_None, 50.f);
 	RollingMesh->SetStaticMesh(nullptr);
 	RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RollingMesh->BodyInstance.bLockZRotation = true;
 	CurrentGearState = EGearState::GearOne;
 	bIsDead = false;
 	bIsMoving = false;
@@ -106,6 +109,8 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsAttackOnGoing = false;
 	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
 	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCharacterMovement()->JumpZVelocity = 1200.f;
+	GetCharacterMovement()->GravityScale = 0.5f;
 }
 
 // Called every frame
@@ -223,7 +228,8 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 {
-	if(bIsJumping || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle) || RollingMesh->GetPhysicsLinearVelocity().Z > 30.f)
+	
+	if(bIsJumping || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
 	{
 		return;
 	}
@@ -237,8 +243,15 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 		}
 	}), 0.01f, true);
 	bIsJumping = true;
-	const FVector JumpVelocityVector = FVector(0.f, 0.f, AddJumpForceValue);
-	RollingMesh->SetPhysicsLinearVelocity(RollingMesh->GetPhysicsLinearVelocity() + JumpVelocityVector);
+	if(bIsRolling)
+	{
+		const FVector JumpVelocityVector = FVector(0.f, 0.f, AddJumpForceValue);
+		RollingMesh->SetPhysicsLinearVelocity(RollingMesh->GetPhysicsLinearVelocity() + JumpVelocityVector);
+	}
+	else
+	{
+		Jump();
+	}
 }
 
 void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Value)
