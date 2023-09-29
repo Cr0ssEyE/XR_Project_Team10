@@ -13,6 +13,10 @@ ACommonMonster::ACommonMonster()
 	}
 }
 
+void ACommonMonster::BeginPlay()
+{
+}
+
 void ACommonMonster::Research()
 {
 }
