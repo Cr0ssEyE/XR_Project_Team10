@@ -139,9 +139,6 @@ private:
 	float CurrentMaxVelocityValue;
 	
 	UPROPERTY()
-	float VelocityIncreaseValuePerSecond;
-
-	UPROPERTY()
 	TArray<float> MaxVelocityByGear;
 	
 	UPROPERTY()

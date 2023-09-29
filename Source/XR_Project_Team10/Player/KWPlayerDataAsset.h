@@ -33,7 +33,16 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트")
 	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
+
+public:
+	UPROPERTY(EditAnywhere, Category = View, DisplayName = "카메라 FOV")
+	float CameraFOV;
 	
+	UPROPERTY(EditAnywhere, Category = View, DisplayName = "스프링 암 길이")
+	float SpringArmLength;
+
+	UPROPERTY(EditAnywhere, Category = View, DisplayName = "스프링 암 기울기")
+    float SpringArmAngle;
 public:
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 이동 속도")
 	float WakingStateMoveSpeed;
@@ -50,9 +59,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 최대 값")
 	float DefaultMaxVelocityValue;
-
-	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "초당 이동속도 상승량(To 기어 별 최대 속도)")
-	float VelocityIncreaseValuePerSecond;
 	
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "기어 전환 이동속도 배율 값")
 	TArray<float> MaxVelocityMagnificationByGear;

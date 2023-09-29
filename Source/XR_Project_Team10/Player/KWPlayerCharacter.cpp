@@ -71,8 +71,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
 	DefaultMaxVelocityValue = CharacterData->DefaultMaxVelocityValue;
-	CurrentMaxVelocityValue = DefaultVelocityValue;
-	VelocityIncreaseValuePerSecond = CharacterData->VelocityIncreaseValuePerSecond;
+	CurrentMaxVelocityValue = DefaultMaxVelocityValue;
 	MaxVelocityMagnificationByGear = CharacterData->MaxVelocityMagnificationByGear;
 
 	for(int ArrayNum = 0; ArrayNum < static_cast<uint8>(EGearState::GearTwo); ArrayNum++)
@@ -107,6 +106,16 @@ void AKWPlayerCharacter::BeginPlay()
 	RollingMesh->SetStaticMesh(nullptr);
 	RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RollingMesh->BodyInstance.bLockZRotation = true;
+
+	Camera->FieldOfView = CharacterData->CameraFOV;
+	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
+	SpringArm->TargetArmLength =CharacterData->SpringArmLength;
+	SpringArm->SetRelativeRotation(FRotator(CharacterData->SpringArmAngle, 0.f,0.f));
+	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCharacterMovement()->MaxWalkSpeed = CharacterData->WakingStateMoveSpeed;
+	GetCharacterMovement()->JumpZVelocity = CharacterData->WakingStateJumpValue;
+	GetCharacterMovement()->GravityScale = CharacterData->WakingStateGravityScale;
+	
 	CurrentGearState = EGearState::GearOne;
 	bIsDead = false;
 	bIsMoving = false;
@@ -115,11 +124,6 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
-	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
-	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCharacterMovement()->MaxWalkSpeed = CharacterData->WakingStateMoveSpeed;
-	GetCharacterMovement()->JumpZVelocity = CharacterData->WakingStateJumpValue;
-	GetCharacterMovement()->GravityScale = CharacterData->WakingStateGravityScale;
 }
 
 // Called every frame
@@ -136,7 +140,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	{	
 		SpringArm->SetRelativeLocation(RootComponent->GetComponentToWorld().GetLocation());;
 	}
-	if(!bIsMoving)
+	if(!bIsMoving && bIsRolling && RollingMesh->GetPhysicsLinearVelocity().Length() > 100.f)
 	{
 		VelocityDecelerateTimer();
 	}
@@ -147,11 +151,11 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
 	
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
 }
 
 // Called to bind functionality to input
@@ -194,7 +198,7 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 	// Camera->GetForwardVector().X;
 	// Camera->GetRightVector().Y;
 
-	FVector MoveDirection = FVector(MoveInputValue.X * Camera->GetForwardVector().X, MoveInputValue.Y * Camera->GetRightVector().Y, 0.0f);
+	FVector MoveDirection = FVector(MoveInputValue.X, MoveInputValue.Y, 0.f);
 	
 	if(bIsRolling && CurrentGearState != EGearState::GearThree && CurrentGearState != EGearState::GearFour)
 	{
@@ -205,18 +209,38 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 		{
 			AddVelocityResult.X = 0.f;
 		}
-		if(RollingMesh->GetPhysicsLinearVelocity().X <= -CurrentMaxVelocityValue && MoveDirection.X < 0)
+		else if(RollingMesh->GetPhysicsLinearVelocity().X <= -CurrentMaxVelocityValue && MoveDirection.X < 0)
 		{
 			AddVelocityResult.X = 0.f;
 		}
+		
 		if(RollingMesh->GetPhysicsLinearVelocity().Y >= CurrentMaxVelocityValue && MoveDirection.Y > 0)
 		{
 			AddVelocityResult.Y = 0.f;
 		}
-		if(RollingMesh->GetPhysicsLinearVelocity().Y <= -CurrentMaxVelocityValue && MoveDirection.Y < 0)
+		else if(RollingMesh->GetPhysicsLinearVelocity().Y <= -CurrentMaxVelocityValue && MoveDirection.Y < 0)
 		{
 			AddVelocityResult.Y = 0.f;
 		}
+		
+		if(MoveInputValue.X == 0 && RollingMesh->GetPhysicsLinearVelocity().X > 10.f)
+		{
+			AddVelocityResult.X = -10.f;
+		}
+		else if(MoveInputValue.X == 0 && RollingMesh->GetPhysicsLinearVelocity().X < -10.f)
+		{
+			AddVelocityResult.X = 10.f;
+		}
+		
+		if(MoveInputValue.Y == 0 && RollingMesh->GetPhysicsLinearVelocity().Y > 10.f)
+		{
+			AddVelocityResult.Y = -10.f;
+		}
+		else if(MoveInputValue.Y == 0 && RollingMesh->GetPhysicsLinearVelocity().Y < -10.f)
+		{
+			AddVelocityResult.Y = 10.f;
+		}
+		
 		RollingMesh->SetPhysicsLinearVelocity(RollingMesh->GetPhysicsLinearVelocity() + AddVelocityResult);
 	}
 	else
@@ -357,8 +381,9 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 
 	GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			if(FPPTimerHelper::IsDelayElapsed(VelocityDecelerationTimerHandle, 0.005f))
+			if(FPPTimerHelper::IsDelayElapsed(VelocityDecelerationTimerHandle, 0.01f))
 			{
+				// GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Green, FString::Printf(TEXT("Decelerate Work")));
 				if(bIsAttackOnGoing)
 				{
 					RollingMesh->AddForce(RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000 * (1 + DA_DecelerateValue));
@@ -369,13 +394,14 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 				}
 			}
 		
-			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) <= VelocityDecelerateTarget.X && abs(RollingMesh->GetPhysicsLinearVelocity().Y) <= VelocityDecelerateTarget.Y)
+			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) <= abs(VelocityDecelerateTarget.X) && abs(RollingMesh->GetPhysicsLinearVelocity().Y) <= abs(VelocityDecelerateTarget.Y))
 			{
 				if(bIsAttackOnGoing)
 				{
 					bIsAttackOnGoing = false;
 				}
 				VelocityDecelerateTarget = FVector::ZeroVector;
+				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
 				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(VelocityDecelerationTimerHandle);
 			}
@@ -387,6 +413,7 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 					bIsAttackOnGoing = false;
 				}
 				VelocityDecelerateTarget = FVector::ZeroVector;
+				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
 				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(VelocityDecelerationTimerHandle);
 			}
@@ -423,14 +450,18 @@ void AKWPlayerCharacter::DA_ProceedAction()
 	const APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerController->GetMousePosition(MousePosition.X, MousePosition.Y);
 	PlayerController->GetViewportSize(ScreenSizeX, ScreenSizeY);
-		
+
 	const FVector MousePosition3D = FVector(-MousePosition.Y, MousePosition.X, 0.f);
 	const FVector ScreenCenter3D = FVector(-ScreenSizeY / 2, ScreenSizeX / 2, 0.0f);
 	FVector AD_Direction = (MousePosition3D - ScreenCenter3D).GetSafeNormal() * DA_AddVelocityValue;
 	AD_Direction.Z = RollingMesh->GetPhysicsLinearVelocity().Z;
 		
-	VelocityDecelerateTarget = FVector(100.f, 100.f ,0.f);
-		
+	VelocityDecelerateTarget = RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
+	VelocityDecelerateTarget.Z = 0.f;
+	if(VelocityDecelerateTarget.Length() < 100.f)
+	{
+		VelocityDecelerateTarget = FVector(100.f, 100.f, 0.f);
+	}
 	GetWorldTimerManager().SetTimer(DA_DurationTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			if(FPPTimerHelper::IsDelayElapsed(DA_DurationTimerHandle, DA_DurationTime))
@@ -507,6 +538,7 @@ void AKWPlayerCharacter::CheckGearState()
 			const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 			RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
 			CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+			return;
 		}
 		
 		// 왜 직선 기어값 변경은 두번 체크해야 하는지 이유 불명
@@ -546,6 +578,7 @@ void AKWPlayerCharacter::CheckGearState()
 				default:
 					checkNoEntry();
 				}
+				CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
 			}
 		}
 	}), 1.0f, true);
@@ -636,8 +669,8 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 	const FVector ScreenCenter3D = FVector(-ScreenSizeY / 2, ScreenSizeX / 2, 0.0f);
 	const FVector AD_Direction = (MousePosition3D - ScreenCenter3D).GetSafeNormal();
 
-	VelocityDecelerateTarget = FVector(300.f, 300.f ,0.f);
-		
+	VelocityDecelerateTarget = RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue * 0.75;
+	
 	GetWorldTimerManager().SetTimer(RBD_SucceedTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			if(FPPTimerHelper::IsDelayElapsed(RBD_SucceedTimerHandle, DA_DurationTime))
