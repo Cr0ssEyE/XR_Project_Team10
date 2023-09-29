@@ -67,7 +67,6 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	MoveInputAction = CharacterData->MoveInputAction;
 	JumpAction = CharacterData->JumpAction;
 	AttackAction = CharacterData->AttackAction;
-	RBD_Action = CharacterData->RBD_Action;
 	
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
 	DefaultMaxVelocityValue = CharacterData->DefaultMaxVelocityValue;
@@ -161,8 +160,6 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpAddForceAction);
 	
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::AttackActionSequence);
-
-	EnhancedInputComponent->BindAction(RBD_Action, ETriggerEvent::Started, this, &AKWPlayerCharacter::RB_JustTimingAction);
 }
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
@@ -266,32 +263,34 @@ void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Valu
 	}
 }
 
-void AKWPlayerCharacter::RB_JustTimingAction(const FInputActionValue& Value)
-{
-	if(!bIsReBounding || GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
-	{
-		return;
-	}
-	bIsInputJustAction = true;
-	GetWorldTimerManager().SetTimer(RBD_JustTimingCheckHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		if(!bIsReBounding)
-		{
-			GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
-		}
-		if(FPPTimerHelper::IsDelayElapsed(RBD_JustTimingCheckHandle, RBD_JustTimingValue))
-		{
-			bIsInputJustAction = false;
-			GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
-		}
-	}), 0.001f, true);
-}
-
 void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 {
-	if(GetWorldTimerManager().IsTimerActive(AttackCoolDownTimerHandle) || bIsReBounding)
+	if(bIsReBounding)
+	{
+		if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
+		{
+			return;
+		}
+		
+		bIsInputJustAction = true;
+		GetWorldTimerManager().SetTimer(RBD_JustTimingCheckHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			if(!bIsReBounding)
+			{
+				GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
+				FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
+			}
+			if(FPPTimerHelper::IsDelayElapsed(RBD_JustTimingCheckHandle, RBD_JustTimingValue))
+			{
+				bIsInputJustAction = false;
+				GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
+				FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
+			}
+		}), 0.001f, true);
+		return;
+	}
+	
+	if(GetWorldTimerManager().IsTimerActive(AttackCoolDownTimerHandle))
 	{
 		return;
 	}

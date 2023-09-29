@@ -97,7 +97,4 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 대시 입력 키")
 	TObjectPtr<class UInputAction> AttackAction;
-
-	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 리바운드 대시 입력 키")
-	TObjectPtr<class UInputAction> RBD_Action;
 };

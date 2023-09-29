@@ -72,7 +72,6 @@ protected:
 	void JumpAddForceAction(const FInputActionValue& Value);
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
-	void RB_JustTimingAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
 	void VelocityDecelerateTimer();
@@ -96,9 +95,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UInputAction> AttackAction;
 
-	UPROPERTY()
-	TObjectPtr<class UInputAction> RBD_Action;
-	
 	/**
 	 * 캐릭터 움직임 관련 변수 리스트
 	 **/
