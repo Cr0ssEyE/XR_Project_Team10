@@ -22,7 +22,8 @@ public:
 	
 	FORCEINLINE virtual UDataAsset* GetBossAIData() override { return BossMonsterAIData; }
 	
-	virtual void SetState(EMonsterState State) override { }
+	FORCEINLINE virtual void SetState(const EMonsterState State) override { CurrentState = State; }
+	
 	virtual void PlayEncounterAnimation() override { }
 	virtual void PlayDeadAnimation() override { }
 	virtual void DeActivateInGame() override { }
@@ -32,10 +33,10 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-private:
+protected:
 	virtual void InitData() override { }
 	
-private:
+protected:
 	UPROPERTY()
 	TObjectPtr<class UDataAsset> BossMonsterStatusData;
 
@@ -54,7 +55,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UAnimMontage> BossDeadMontage;
 	
-private:
+protected:
 	float BossHp;
 
 	EMonsterState CurrentState;
