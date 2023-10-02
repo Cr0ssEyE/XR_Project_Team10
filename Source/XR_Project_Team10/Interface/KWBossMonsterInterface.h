@@ -24,6 +24,9 @@ class XR_PROJECT_TEAM10_API IKWBossMonsterInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void InitData() = 0;
+	virtual UDataAsset* GetBossStatusData() = 0;
+	virtual UDataAsset* GetBossAnimData() = 0;
+	virtual UDataAsset* GetBossAIData() = 0;
 	virtual void SetState(EMonsterState State) = 0;
 	virtual void PlayEncounterAnimation() = 0;
 	virtual void PlayDeadAnimation() = 0;

@@ -19,10 +19,7 @@ class XR_PROJECT_TEAM10_API UKWBossHohonuDataAsset : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "호호누 본체 메시")
 	TObjectPtr<USkeletalMesh> HohonuMesh;
-
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "호호누 본체 애님 몽타주")
-	TObjectPtr<UAnimMontage> HohonuAnimMontage;
-
+	
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "호호누 링 이펙트")
 	TObjectPtr<UNiagaraSystem> HohonuRingEffect;
 

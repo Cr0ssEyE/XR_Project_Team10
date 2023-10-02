@@ -25,10 +25,3 @@ void AKWBossMonsterBase::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void AKWBossMonsterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
