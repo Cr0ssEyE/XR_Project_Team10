@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
-#include "BTService_CommonDetect.generated.h"
+#include "BTService_KWPlayerDetect.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class XR_PROJECT_TEAM10_API UBTService_CommonDetect : public UBTService
+class XR_PROJECT_TEAM10_API UBTService_KWPlayerDetect : public UBTService
 {
 	GENERATED_BODY()
 
 public:
-	UBTService_CommonDetect();
+	UBTService_KWPlayerDetect();
 
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;

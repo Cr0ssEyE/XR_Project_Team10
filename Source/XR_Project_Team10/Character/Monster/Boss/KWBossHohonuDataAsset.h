@@ -68,9 +68,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 공격 범위 증가 속도")
 	float SC_IncreaseAttackRange;
 
-	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 종료 후 딜레이(초)")
-	float SC_TerminateDelay;
-	
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 데미지")
 	float SL_Damage;
@@ -87,18 +84,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 범위")
 	float SL_AttackRange;
 
-	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 종료 후 딜레이(초)")
-	float SL_TerminateDelay;
-
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 데미지")
 	float MA_Damage;
 
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 속도")
 	float MA_AttackSpeed;
-
-	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양 손 휘두르기 종료 후 딜레이(초)")
-	float MA_TerminateDelay;
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 데미지")
@@ -116,18 +107,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 최대 이동 속도")
 	float WW_MaxMoveSpeed;
 
-	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 종료 후 딜레이(초)")
-	float WW_TerminateDelay;
-
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 거리")
 	float BS_Range;
 
 	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 이동 속도")
 	float BS_MoveSpeed;
-	
-	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 후 딜레이(초)")
-	float BS_TerminateDelay;
 
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_F, DisplayName = "호호누 연발 레이저 데미지")
@@ -139,6 +124,4 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_F, DisplayName = "호호누 연발 레이저 추적 속도")
 	float ML_TurnSpeed;
 	
-	UPROPERTY(EditAnywhere, Category = Pattern_F, DisplayName = "호호누 연발 레이저 후 딜레이(초)")
-	float ML_TerminateDelay;
 };

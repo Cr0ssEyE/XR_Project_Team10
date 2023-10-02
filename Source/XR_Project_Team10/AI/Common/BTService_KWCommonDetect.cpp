@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "XR_Project_Team10/AI/Common/BTService_CommonDetect.h"
+#include "XR_Project_Team10/AI/Common/BTService_KWCommonDetect.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -10,13 +10,13 @@
 #include "XR_Project_Team10/Interface/KWMonsterAIInterface.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
-UBTService_CommonDetect::UBTService_CommonDetect()
+UBTService_KWCommonDetect::UBTService_KWCommonDetect()
 {
 	NodeName = TEXT("Detect Target");
 	Interval = 1.0f;
 }
 
-void UBTService_CommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void UBTService_KWCommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 

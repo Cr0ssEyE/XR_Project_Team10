@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterBase.h"
 #include "KWBossMonsterHohonu.generated.h"
 
@@ -22,30 +23,28 @@ public:
 	virtual void PlayDeadAnimation() override;
 	virtual void DeActivateInGame() override;
 	virtual void ReActivateInGame() override;
+
+	/**
+	* 호호누 패턴 구현 함수 \n
+	* 호호누 패턴 별 약자 \n
+	* 수정 소환 = Summon Crystal = SC_ \n
+	* 레이저 발사 = SweepLaser = SL_ \n
+	* 양손 휘두르기 = MeleeAttack = MA_ \n
+	* 훨윈드 = Whirlwind = WW_ \n
+	* 백스텝 = BackStep = BS_ \n
+	* 연발 레이저 = MultipleLaser = ML_
+	**/
+public:
+    void ExecutePattern_SC(UBehaviorTreeComponent& OwnerComp);
+    void ExecutePattern_SL(UBehaviorTreeComponent& OwnerComp);
+    void ExecutePattern_MA(UBehaviorTreeComponent& OwnerComp);
+    void ExecutePattern_WW(UBehaviorTreeComponent& OwnerComp);
+    void ExecutePattern_BS(UBehaviorTreeComponent& OwnerComp);
+    void ExecutePattern_ML(UBehaviorTreeComponent& OwnerComp);
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void InitData() override;
-
-	/**
-	 * 호호누 패턴 구현 함수 \n
- 	 * 호호누 패턴 별 약자 \n
- 	 * 수정 소환 = Summon Crystal = SC_ \n
- 	 * 레이저 발사 = SweepLaser = SL_ \n
- 	 * 양손 휘두르기 = MeleeAttack = MA_ \n
-	 * 훨윈드 = Whirlwind = WW_ \n
- 	 * 백스텝 = BackStep = BS_ \n
- 	 * 연발 레이저 = MultipleLaser = ML_
- 	**/
-private:
-	void ExecutePattern_SC();
-	void ExecutePattern_SL();
-	void ExecutePattern_MA();
-	void ExecutePattern_WW();
-	void ExecutePattern_BS();
-	void ExecutePattern_ML();
-
-private:
 	
 };
