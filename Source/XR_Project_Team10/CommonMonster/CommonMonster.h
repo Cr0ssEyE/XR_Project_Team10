@@ -30,6 +30,8 @@ public:
 
 	// IICommonMonsterBase을(를) 통해 상속
 protected:
+	virtual void BeginPlay() override;
+
 	virtual void Research() override;
 	virtual void Recognition() override;
 	virtual void Tracking() override;
