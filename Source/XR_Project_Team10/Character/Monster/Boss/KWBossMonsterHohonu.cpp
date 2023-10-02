@@ -38,6 +38,36 @@ void AKWBossMonsterHohonu::ReActivateInGame()
 	
 }
 
+void AKWBossMonsterHohonu::ExecutePattern_SC(UBehaviorTreeComponent& OwnerComp)
+{
+	
+}
+
+void AKWBossMonsterHohonu::ExecutePattern_SL(UBehaviorTreeComponent& OwnerComp)
+{
+	
+}
+
+void AKWBossMonsterHohonu::ExecutePattern_MA(UBehaviorTreeComponent& OwnerComp)
+{
+	
+}
+
+void AKWBossMonsterHohonu::ExecutePattern_WW(UBehaviorTreeComponent& OwnerComp)
+{
+	
+}
+
+void AKWBossMonsterHohonu::ExecutePattern_BS(UBehaviorTreeComponent& OwnerComp)
+{
+	
+}
+
+void AKWBossMonsterHohonu::ExecutePattern_ML(UBehaviorTreeComponent& OwnerComp)
+{
+	
+}
+
 void AKWBossMonsterHohonu::BeginPlay()
 {
 	Super::BeginPlay();
