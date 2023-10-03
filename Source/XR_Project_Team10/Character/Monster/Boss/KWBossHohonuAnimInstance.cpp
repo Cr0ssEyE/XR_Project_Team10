@@ -5,6 +5,7 @@
 
 UKWBossHohonuAnimInstance::UKWBossHohonuAnimInstance()
 {
+	
 }
 
 void UKWBossHohonuAnimInstance::NativeInitializeAnimation()

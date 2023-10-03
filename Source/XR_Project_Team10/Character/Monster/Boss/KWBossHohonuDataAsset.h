@@ -29,10 +29,9 @@ public:
 public:
 	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 체력")
 	float HohonuHp;
-
-	// 사용 여부 아직 불투명해서 주석 처리
-	// UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 광폭화 체력")
-	// float HohonuLunaticHp;
+	
+	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 광폭화 체력")
+	float HohonuLunaticHp;
 	
 	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 기본 이동속도")
 	float HohonuMoveSpeed;

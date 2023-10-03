@@ -45,19 +45,15 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<class UDataAsset> BossMonsterAIData;
-	
-	UPROPERTY()
-	TObjectPtr<class UAnimMontage> BossEncounterMontage;
-	
-	UPROPERTY()
-	TObjectPtr<class UAnimMontage> BossPatternMontage;
 
 	UPROPERTY()
-	TObjectPtr<class UAnimMontage> BossDeadMontage;
+	TObjectPtr<class UAnimMontage> BossAnimMontage;
 	
 protected:
 	float BossHp;
 
+	float MoveSpeed;
+	
 	EMonsterState CurrentState;
 
 	uint8 bIsMoving = 0;

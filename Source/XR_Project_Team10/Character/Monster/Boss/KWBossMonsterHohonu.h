@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraSystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterBase.h"
+#include "XR_Project_Team10/Enumeration/KWHohonuPattern.h"
 #include "KWBossMonsterHohonu.generated.h"
 
 /**
@@ -17,13 +19,22 @@ class XR_PROJECT_TEAM10_API AKWBossMonsterHohonu : public AKWBossMonsterBase
 
 public:
 	AKWBossMonsterHohonu();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void InitData() override;
+
+public:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	
 	virtual void PlayEncounterAnimation() override;
 	virtual void PlayDeadAnimation() override;
 	virtual void DeActivateInGame() override;
 	virtual void ReActivateInGame() override;
 
+public:
+	void ActivatePatternOmen(EHohonuPattern Pattern);
+	void TogglePattern(EHohonuPattern Pattern, bool Value);
 	/**
 	* 호호누 패턴 구현 함수 \n
 	* 호호누 패턴 별 약자 \n
@@ -34,17 +45,68 @@ public:
 	* 백스텝 = BackStep = BS_ \n
 	* 연발 레이저 = MultipleLaser = ML_
 	**/
-public:
-    void ExecutePattern_SC(UBehaviorTreeComponent& OwnerComp);
-    void ExecutePattern_SL(UBehaviorTreeComponent& OwnerComp);
-    void ExecutePattern_MA(UBehaviorTreeComponent& OwnerComp);
-    void ExecutePattern_WW(UBehaviorTreeComponent& OwnerComp);
-    void ExecutePattern_BS(UBehaviorTreeComponent& OwnerComp);
-    void ExecutePattern_ML(UBehaviorTreeComponent& OwnerComp);
+private:
+	void OmenPattern_SC();
+	void OmenPattern_SL();
+	void OmenPattern_MA();
+	void OmenPattern_WW();
+	void OmenPattern_BS();
+	void OmenPattern_ML();
+    void ExecutePattern_SC(bool Value);
+    void ExecutePattern_SL(bool Value);
+    void ExecutePattern_MA(bool Value);
+    void ExecutePattern_WW(bool Value);
+    void ExecutePattern_BS(bool Value);
+    void ExecutePattern_ML(bool Value);
+
+	// 호호누 패턴 관련 변수
+private:
+	float HohonuLunaticHp;
 	
-protected:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-	virtual void InitData() override;
+	float SC_Count;
+	
+	float SC_Speed;
+
+	float SL_Damage;
+
+	float SL_AttackDelay;
+	
+	float SL_Degree;
+
+	float SL_TurnSpeed;
+	
+	float SL_AttackRange;
+
+	float MA_Damage;
+	
+	float MA_AttackSpeed;
+	
+	float WW_Damage;
+
+	float WW_AttackDelay;
+	
+	float WW_AttackTime;
+	
+	float WW_IncreaseMoveSpeed;
+
+	float WW_MaxMoveSpeed;
+	
+	float BS_Range;
+
+	float BS_MoveSpeed;
+
+	float ML_Damage;
+
+	float ML_AttackTime;
+
+	float ML_TurnSpeed;
+
+	// 기타 효과 관련 컴포넌트
+private:
+	UPROPERTY()
+	TObjectPtr<UNiagaraComponent> HohonuRingEffect;
+	
+	UPROPERTY()
+	TObjectPtr<UNiagaraComponent> HohonuHeadEffect;
 	
 };
