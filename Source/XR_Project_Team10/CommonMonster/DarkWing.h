@@ -1,9 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
+#include "XR_Project_Team10/CommonMonster/DW_FeatherProjectile.h"
 #include "DarkWing.generated.h"
 
 /**
@@ -15,8 +16,10 @@ class XR_PROJECT_TEAM10_API ADarkWing : public ACommonMonster
 	GENERATED_BODY()
 public:
 	ADarkWing();
-	
-	// IICommonMonsterBaseÀ»(¸¦) ÅëÇØ »ó¼Ó
+
+	//virtual bool ShouldTickIfViewportsOnly() const override { return true; }
+	virtual void Tick(float DeltaTime) override;
+	// IICommonMonsterBaseì„(ë¥¼) í†µí•´ ìƒì†
 protected:
 	virtual void BeginPlay() override;
 
@@ -28,28 +31,35 @@ protected:
 	virtual void Attack() override;
 	virtual void Dead() override;
 	
-	// º¯¼ö
+	// ì™¸ë¶€ ìˆ˜ì • ë³€ìˆ˜
 private:
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "°ø°İ ÁØºñ ½Ã°£")
-	float AttackReadyTime;
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "ê³µê²© ì¤€ë¹„ ì‹œê°„")
+	float AttackReadyTime = 0.5;
 
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "°ø°İ »ç°Å¸®")
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "ê³µê²© ì‚¬ê±°ë¦¬")
 	float AttackRange;
 
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "ë‹¤ìŒ ê³µê²© ì‹œê°„")
+	float AttackNextTime;
 
-	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "±êÅĞ °ø°İ·Â")
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "ê³µê²© ì‹œì‘ ìœ„ì¹˜")
+	TArray<FVector> AttackOffsets;
+	
+
+	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "ê¹ƒí„¸ ê³µê²©ë ¥")
 	uint32 FeatherPower;
 
-	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "±êÅĞ ¼Óµµ")
+	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "ê¹ƒí„¸ ì†ë„")
 	float FeatherSpeed;
 
-	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "³¯¸®´Â ±êÅĞ °¹¼ö")
+	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "ë‚ ë¦¬ëŠ” ê¹ƒí„¸ ê°¯ìˆ˜")
 	uint32 FeatherNum;
 
-
-	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "±êÅĞ »èÁ¦µÇ´Â ½Ã°£")
+	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "ê¹ƒí„¸ ì‚­ì œë˜ëŠ” ì‹œê°„")
 	float FeatherDeleteTime;
 
-	UPROPERTY(EditAnywhere, Category = Time, DisplayName = "´ÙÀ½ °ø°İ ½Ã°£")
-	float AttackNextTime;
+	// ë‚´ë¶€ ìˆ˜ì • ë³€ìˆ˜
+private:
+	UPROPERTY(EditDefaultsOnly, Category = FeatherAttack)
+	TSubclassOf<class ADW_FeatherProjectile> FeatherClass;
 };

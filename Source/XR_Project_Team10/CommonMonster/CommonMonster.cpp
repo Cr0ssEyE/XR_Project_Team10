@@ -13,8 +13,14 @@ ACommonMonster::ACommonMonster()
 	}
 }
 
+void ACommonMonster::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void ACommonMonster::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 void ACommonMonster::Research()
