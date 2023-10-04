@@ -23,7 +23,7 @@ protected:
 private:
 	
 private:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
 	UPROPERTY()
