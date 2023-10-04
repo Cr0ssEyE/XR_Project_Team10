@@ -9,6 +9,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
 
 AKWHohonuAIController::AKWHohonuAIController()
 {
@@ -47,6 +48,11 @@ void AKWHohonuAIController::SetTarget(const TArray<AActor*>& Actors)
 		if(PlayerCharacter)
 		{
 			Blackboard->SetValueAsObject(KEY_TARGET, PlayerCharacter);
+			AKWBossMonsterHohonu* ControllingPawn = Cast<AKWBossMonsterHohonu>(GetPawn());
+			if(ControllingPawn)
+			{
+				ControllingPawn->SetTarget(*PlayerCharacter);
+			}
 			return;
 		}
 	}

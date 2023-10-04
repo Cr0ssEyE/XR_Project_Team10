@@ -7,9 +7,23 @@
 #include "KWBossHohonuAnimInstance.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossHohonuDataAsset.h"
 #include "NiagaraComponent.h"
+#include "Engine/DamageEvents.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
+#include "XR_Project_Team10/Util/PPConstructorHelper.h"
 
 AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 {
+	BossMonsterStatusData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/21-Hohonu/Datas/Hohonu_DataAsset.Hohonu_DataAsset'"));
+
+	BossMonsterAnimData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossAnimDataAsset'/Game/21-Hohonu/Datas/Hohonu_AnimDataAsset.Hohonu_AnimDataAsset'"));
+
+	BossMonsterAIData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuAIDataAsset'/Game/21-Hohonu/Datas/Hohonu_AIDataAsset.Hohonu_AIDataAsset'"));
+
+	SetActorScale3D(FVector::OneVector * 2);
+	GetCapsuleComponent()->SetCapsuleSize(150.f, 200.f);
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -150.f));
+	
 	HohonuRingEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRing"));
 	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHead"));
 	HohonuRingEffect->SetupAttachment(GetMesh());
@@ -33,7 +47,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 		if(HohonuAnimInstance)
 		{
 			HohonuAnimInstance->OmenPatternDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternOmen);
-			HohonuAnimInstance->PatternToggleDelegate.AddUObject(this, &AKWBossMonsterHohonu::TogglePattern);
+			HohonuAnimInstance->PatternToggleDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternExecute);
 		}
 	}
 }
@@ -42,6 +56,7 @@ void AKWBossMonsterHohonu::BeginPlay()
 {
 	Super::BeginPlay();
 	InitData();
+	bIsPatternRunning = false;
 }
 
 void AKWBossMonsterHohonu::Tick(float DeltaSeconds)
@@ -56,8 +71,10 @@ void AKWBossMonsterHohonu::InitData()
 	if(HohonuData)
 	{
 		BossHp = HohonuData->HohonuHp;
+		
 		HohonuLunaticHp = HohonuData->HohonuLunaticHp;
-		MoveSpeed - HohonuData->HohonuMoveSpeed;
+		MoveSpeed = HohonuData->HohonuMoveSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		
 		SC_Count = HohonuData->SC_Count;
 		SC_Speed = HohonuData->SC_Speed;
@@ -118,6 +135,7 @@ void AKWBossMonsterHohonu::ReActivateInGame()
 
 void AKWBossMonsterHohonu::ActivatePatternOmen(EHohonuPattern Pattern)
 {
+	bIsPatternRunning = true;
 	switch (Pattern)
 	{
 	case EHohonuPattern::SummonCrystal:
@@ -143,27 +161,35 @@ void AKWBossMonsterHohonu::ActivatePatternOmen(EHohonuPattern Pattern)
 	}
 }
 
-void AKWBossMonsterHohonu::TogglePattern(EHohonuPattern Pattern, bool Value)
+void AKWBossMonsterHohonu::ActivatePatternExecute(EHohonuPattern Pattern)
 {
+	if(bIsPatternRunning)
+	{
+		bIsPatternRunning = false;
+		UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern End"));
+		return;
+	}
+	
+	UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern Start"));
 	switch (Pattern)
 	{
 	case EHohonuPattern::SummonCrystal:
-		ExecutePattern_SC(Value);
+		ExecutePattern_SC();
 		break;
 	case EHohonuPattern::SweepLaser:
-		ExecutePattern_SL(Value);
+		ExecutePattern_SL();
 		break;
 	case EHohonuPattern::MeleeAttack:
-		ExecutePattern_MA(Value);
+		ExecutePattern_MA();
 		break;
 	case EHohonuPattern::WhirlWind:
-		ExecutePattern_WW(Value);
+		ExecutePattern_WW();
 		break;
 	case EHohonuPattern::BackStep:
-		ExecutePattern_BS(Value);
+		ExecutePattern_BS();
 		break;
 	case EHohonuPattern::MultipleLaser:
-		ExecutePattern_ML(Value);
+		ExecutePattern_ML();
 		break;
 	default:
 		checkNoEntry();
@@ -200,32 +226,71 @@ void AKWBossMonsterHohonu::OmenPattern_ML()
 	
 }
 
-void AKWBossMonsterHohonu::ExecutePattern_SC(bool Value)
+void AKWBossMonsterHohonu::ExecutePattern_SC()
 {
 	
 }
 
-void AKWBossMonsterHohonu::ExecutePattern_SL(bool Value)
+void AKWBossMonsterHohonu::ExecutePattern_SL()
 {
 	
 }
 
-void AKWBossMonsterHohonu::ExecutePattern_MA(bool Value)
+void AKWBossMonsterHohonu::ExecutePattern_MA()
 {
 	
 }
 
-void AKWBossMonsterHohonu::ExecutePattern_WW(bool Value)
+void AKWBossMonsterHohonu::ExecutePattern_WW()
+{
+	UE_LOG(LogTemp, Log, TEXT("Hohonu WhirlWind Start"));
+	// 훨윈드 
+	while (true)
+	{
+		if(!bIsPatternRunning)
+		{
+			break;
+		}
+		GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([&]()
+		{
+			FHitResult HitResult;
+			FCollisionQueryParams Params(NAME_None, false, this);
+			
+			bool bResult = GetWorld()->SweepSingleByChannel(
+			HitResult,
+			GetActorLocation(),
+			GetActorLocation(),
+			FQuat::Identity,
+			ECollisionChannel::ECC_Pawn,
+			FCollisionShape::MakeBox(FVector(400.f, 400.f, 400.f)),
+			Params);
+			
+			if(bResult)
+			{
+				AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
+				if(Player)
+				{
+					FDamageEvent DamageEvent;
+					Player->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
+				}
+			}
+
+			FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+			AddMovementInput(MoveDirection);
+			if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
+			{
+				GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeed;
+			}
+		}));
+	}
+}
+
+void AKWBossMonsterHohonu::ExecutePattern_BS()
 {
 	
 }
 
-void AKWBossMonsterHohonu::ExecutePattern_BS(bool Value)
-{
-	
-}
-
-void AKWBossMonsterHohonu::ExecutePattern_ML(bool Value)
+void AKWBossMonsterHohonu::ExecutePattern_ML()
 {
 	
 }

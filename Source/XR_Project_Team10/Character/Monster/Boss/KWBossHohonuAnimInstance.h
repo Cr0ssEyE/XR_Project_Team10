@@ -8,7 +8,7 @@
 #include "KWBossHohonuAnimInstance.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOmenPatternDelegate, EHohonuPattern)
-DECLARE_MULTICAST_DELEGATE_TwoParams(FPatternToggleDelegate, EHohonuPattern, bool)
+DECLARE_MULTICAST_DELEGATE_OneParam(FActivePatternDelegate, EHohonuPattern)
 
 /**
  * 
@@ -22,7 +22,7 @@ public:
 	UKWBossHohonuAnimInstance();
 
 	FOmenPatternDelegate OmenPatternDelegate;
-	FPatternToggleDelegate PatternToggleDelegate;
+	FActivePatternDelegate PatternToggleDelegate;
 	
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -42,18 +42,18 @@ private:
 	FORCEINLINE void AnimNotify_OmenWhirlWind() { OmenPatternDelegate.Broadcast(EHohonuPattern::WhirlWind); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_SpawnCrystal() { PatternToggleDelegate.Broadcast(EHohonuPattern::SummonCrystal, true); }
+	FORCEINLINE void AnimNotify_SpawnCrystal() { PatternToggleDelegate.Broadcast(EHohonuPattern::SummonCrystal); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_FireLaser() { PatternToggleDelegate.Broadcast(EHohonuPattern::SweepLaser, true); }
+	FORCEINLINE void AnimNotify_FireLaser() { PatternToggleDelegate.Broadcast(EHohonuPattern::SweepLaser); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_BackStepBegin() { PatternToggleDelegate.Broadcast(EHohonuPattern::BackStep, true); }
+	FORCEINLINE void AnimNotify_BackStepBegin() { PatternToggleDelegate.Broadcast(EHohonuPattern::BackStep); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_WhirlWindHitCheckBegin() { PatternToggleDelegate.Broadcast(EHohonuPattern::WhirlWind, true); }
+	FORCEINLINE void AnimNotify_WhirlWindHitCheckBegin() { PatternToggleDelegate.Broadcast(EHohonuPattern::WhirlWind); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_WhirlWindHitCheckEnd() { PatternToggleDelegate.Broadcast(EHohonuPattern::WhirlWind, false); }
+	FORCEINLINE void AnimNotify_WhirlWindHitCheckEnd() { PatternToggleDelegate.Broadcast(EHohonuPattern::WhirlWind); }
 	
 };

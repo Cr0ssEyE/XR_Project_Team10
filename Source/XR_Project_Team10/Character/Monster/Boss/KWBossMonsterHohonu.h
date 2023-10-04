@@ -7,6 +7,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterBase.h"
 #include "XR_Project_Team10/Enumeration/KWHohonuPattern.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "KWBossMonsterHohonu.generated.h"
 
 /**
@@ -32,9 +33,12 @@ public:
 	virtual void DeActivateInGame() override;
 	virtual void ReActivateInGame() override;
 
+	// BT 및 AI 컨트롤러 호출용 함수
 public:
+	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
 	void ActivatePatternOmen(EHohonuPattern Pattern);
-	void TogglePattern(EHohonuPattern Pattern, bool Value);
+	void ActivatePatternExecute(EHohonuPattern Pattern);
+	
 	/**
 	* 호호누 패턴 구현 함수 \n
 	* 호호누 패턴 별 약자 \n
@@ -52,21 +56,32 @@ private:
 	void OmenPattern_WW();
 	void OmenPattern_BS();
 	void OmenPattern_ML();
-    void ExecutePattern_SC(bool Value);
-    void ExecutePattern_SL(bool Value);
-    void ExecutePattern_MA(bool Value);
-    void ExecutePattern_WW(bool Value);
-    void ExecutePattern_BS(bool Value);
-    void ExecutePattern_ML(bool Value);
+    void ExecutePattern_SC();
+    void ExecutePattern_SL();
+    void ExecutePattern_MA();
+    void ExecutePattern_WW();
+    void ExecutePattern_BS();
+    void ExecutePattern_ML();
 
 	// 호호누 패턴 관련 변수
 private:
-	float HohonuLunaticHp;
+	UPROPERTY()
+	TObjectPtr<class AKWPlayerCharacter> TargetPlayer;
 	
+	EHohonuPattern CurrentPattern;
+	
+	float HohonuLunaticHp;
+
+	uint8 bIsPatternRunning = 0;
+
+	// 수정 소환 관련 변수
+private:
 	float SC_Count;
 	
 	float SC_Speed;
-
+	
+	// 레이저 발사 관련 변수
+private:
 	float SL_Damage;
 
 	float SL_AttackDelay;
@@ -77,10 +92,14 @@ private:
 	
 	float SL_AttackRange;
 
+	// 근접 공격 관련 변수
+private:
 	float MA_Damage;
 	
 	float MA_AttackSpeed;
-	
+
+	// 훨윈드 관련 변수
+private:
 	float WW_Damage;
 
 	float WW_AttackDelay;
@@ -90,11 +109,15 @@ private:
 	float WW_IncreaseMoveSpeed;
 
 	float WW_MaxMoveSpeed;
-	
+
+	// 백스텝 관련 변수
+private:
 	float BS_Range;
 
 	float BS_MoveSpeed;
 
+	// 레이저 난사 관련 변수
+private:
 	float ML_Damage;
 
 	float ML_AttackTime;
