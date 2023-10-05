@@ -49,6 +49,18 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UStaticMeshComponent> RollingMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class USkeletalMesh> WalkingMesh;
+	
+	// UPROPERTY(VisibleAnywhere)
+	// TObjectPtr<class USkeletalMesh> RollingMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
+	
+	// UPROPERTY(VisibleAnywhere)
+	// TObjectPtr<class UAnimBlueprint> PlayerRollingAnimInstance;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
@@ -63,6 +75,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
+
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/
@@ -72,11 +86,20 @@ protected:
 	void JumpAddForceAction(const FInputActionValue& Value);
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
-	void RB_JustTimingAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
 	void VelocityDecelerateTimer();
-	
+
+	/**
+	 * 공격 입력 분기 함수 \n
+	 * RBD = 리바운드 대시
+	 * DA = 대시 어택
+	 * FD = 파일 드라이버
+	 **/
+private:
+	void RBD_JustTimingProceedAction();
+	void DA_ProceedAction();
+	void FD_ProceedAction();
 	/**
 	 * 유저 입력 관련 변수 리스트
 	 **/
@@ -96,24 +119,27 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UInputAction> AttackAction;
 
-	UPROPERTY()
-	TObjectPtr<class UInputAction> RBD_Action;
-	
 	/**
 	 * 캐릭터 움직임 관련 변수 리스트
 	 **/
 private:
 	UPROPERTY()
 	FVector2D MoveInputValue;
+
+	UPROPERTY()
+	float MovementScale;
 	
 	UPROPERTY()
 	float DefaultVelocityValue;
 
 	UPROPERTY()
 	float DefaultMaxVelocityValue;
+
+	UPROPERTY()
+	float CurrentMaxVelocityValue;
 	
 	UPROPERTY()
-	TArray<float> VelocityMultiplyValuesByGear;
+	TArray<float> MaxVelocityByGear;
 	
 	UPROPERTY()
 	TArray<float> MaxVelocityMagnificationByGear;
@@ -155,6 +181,9 @@ private:
 	UPROPERTY()
 	float DA_DurationTime;
 
+	UPROPERTY()
+	float DA_DecelerateValue;
+	
 	UPROPERTY()
 	float AttackCoolDownTime;
 
@@ -201,6 +230,8 @@ private:
 	 **/
 public:
 	void RB_ApplyReBoundByObjectType(FVector ReBoundResultValue, EReBoundObjectType ObjectType);
+
+private:
 	void RB_CheckContactToFloor();
 	void RBD_SuccessEvent();
 	void RBD_FailedEvent();

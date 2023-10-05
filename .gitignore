@@ -23,8 +23,8 @@
 *.lai
 *.la
 *.a
-# *.pdb
-# *.lib
+*.pdb
+*.lib
 
 # Executables
 # *.exe
