@@ -13,7 +13,8 @@
 
 AKWHohonuAIController::AKWHohonuAIController()
 {
-	
+	BlackboardData = FPPConstructorHelper::FindAndGetObject<UBlackboardData>(TEXT("/Script/AIModule.BlackboardData'/Game/21-Hohonu/AI/Hohonu/BB_BossHohonu.BB_BossHohonu'"));
+	BehaviorTree = FPPConstructorHelper::FindAndGetObject<UBehaviorTree>(TEXT("/Script/AIModule.BehaviorTree'/Game/21-Hohonu/AI/Hohonu/BT_BossHohonu.BT_BossHohonu'"));
 }
 
 void AKWHohonuAIController::ActivateAI()
@@ -42,8 +43,6 @@ void AKWHohonuAIController::SetTarget(const TArray<AActor*>& Actors)
 	UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
 	for(AActor* DetectActor : Actors)
 	{
-		FActorPerceptionBlueprintInfo PerceptionInfo;
-		PerceptionComponent->GetActorsPerception(DetectActor, PerceptionInfo);
 		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DetectActor);
 		if(PlayerCharacter)
 		{
@@ -55,6 +54,35 @@ void AKWHohonuAIController::SetTarget(const TArray<AActor*>& Actors)
 			}
 			return;
 		}
+	}
+}
+
+void AKWHohonuAIController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if(Blackboard->GetValueAsObject(KEY_TARGET) == nullptr)
+	{
+		TArray<FHitResult> HitResults;
+		FCollisionQueryParams Params(NAME_None, false, this);
+			
+		bool bResult = GetWorld()->SweepMultiByChannel(
+		HitResults,
+		GetPawn()->GetActorLocation(),
+		GetPawn()->GetActorLocation(),
+		FQuat::Identity,
+		ECollisionChannel::ECC_Pawn,
+		FCollisionShape::MakeBox(FVector(1000.f, 1000.f, 200.f)),
+		Params);
+
+		TArray<AActor*> Actors;
+		for(auto Result : HitResults)
+		{
+			if(AActor* ResultActor = Result.GetActor())
+			{
+				Actors.Emplace(ResultActor);
+			}
+		}
+		SetTarget(Actors);
 	}
 }
 

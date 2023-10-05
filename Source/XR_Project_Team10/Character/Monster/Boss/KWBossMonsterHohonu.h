@@ -36,8 +36,8 @@ public:
 	// BT 및 AI 컨트롤러 호출용 함수
 public:
 	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
-	void ActivatePatternOmen(EHohonuPattern Pattern);
-	void ActivatePatternExecute(EHohonuPattern Pattern);
+	void ActivatePatternOmen(const EHohonuPattern Pattern);
+	void ActivatePatternExecute(const EHohonuPattern Pattern);
 	
 	/**
 	* 호호누 패턴 구현 함수 \n
@@ -50,12 +50,15 @@ public:
 	* 연발 레이저 = MultipleLaser = ML_
 	**/
 private:
+	// 각 패턴 경고 / 전조 효과
 	void OmenPattern_SC();
 	void OmenPattern_SL();
 	void OmenPattern_MA();
 	void OmenPattern_WW();
 	void OmenPattern_BS();
 	void OmenPattern_ML();
+
+	// 각 패턴 구현부
     void ExecutePattern_SC();
     void ExecutePattern_SL();
     void ExecutePattern_MA();
@@ -71,8 +74,6 @@ private:
 	EHohonuPattern CurrentPattern;
 	
 	float HohonuLunaticHp;
-
-	uint8 bIsPatternRunning = 0;
 
 	// 수정 소환 관련 변수
 private:
@@ -100,13 +101,15 @@ private:
 
 	// 훨윈드 관련 변수
 private:
+	FTimerHandle WW_TimerHandle;
+	
 	float WW_Damage;
 
 	float WW_AttackDelay;
 	
 	float WW_AttackTime;
 	
-	float WW_IncreaseMoveSpeed;
+	float WW_IncreaseMoveSpeedPerSecond;
 
 	float WW_MaxMoveSpeed;
 

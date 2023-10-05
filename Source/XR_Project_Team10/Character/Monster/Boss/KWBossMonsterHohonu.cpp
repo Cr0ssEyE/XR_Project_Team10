@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
+#include "XR_Project_Team10/Util/PPTimerHelper.h"
 
 AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 {
@@ -35,7 +36,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 		GetMesh()->SetSkeletalMesh(HohonuData->HohonuMesh);
 		HohonuRingEffect->SetAsset(HohonuData->HohonuRingEffect);
 		HohonuHeadEffect->SetAsset(HohonuData->HohonuHeadEffect);
-		// 나중에 소켓 달아서 이펙트 위지 지정하기
+		// 나중에 소켓 달아서 이펙트 위치 지정하기
 	}
 	
 	UKWBossAnimDataAsset* BossAnimData = Cast<UKWBossAnimDataAsset>(BossMonsterAnimData);
@@ -62,6 +63,13 @@ void AKWBossMonsterHohonu::BeginPlay()
 void AKWBossMonsterHohonu::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	// 테스트용
+	if(!bIsPatternRunning)
+	{
+		TargetPlayer = CastChecked<AKWPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+		bIsPatternRunning = true;
+		ExecutePattern_WW();
+	}
 }
 
 void AKWBossMonsterHohonu::InitData()
@@ -91,7 +99,7 @@ void AKWBossMonsterHohonu::InitData()
 		WW_Damage = HohonuData->WW_Damage;
 		WW_AttackDelay = HohonuData->WW_AttackDelay;
 		WW_AttackTime = HohonuData->WW_AttackTime;
-		WW_IncreaseMoveSpeed = HohonuData->WW_IncreaseMoveSpeed;
+		WW_IncreaseMoveSpeedPerSecond = HohonuData->WW_IncreaseMoveSpeed;
 		WW_MaxMoveSpeed = HohonuData->WW_MaxMoveSpeed;
 		
 		BS_Range = HohonuData->BS_Range;
@@ -133,27 +141,33 @@ void AKWBossMonsterHohonu::ReActivateInGame()
 	
 }
 
-void AKWBossMonsterHohonu::ActivatePatternOmen(EHohonuPattern Pattern)
+void AKWBossMonsterHohonu::ActivatePatternOmen(const EHohonuPattern Pattern)
 {
 	bIsPatternRunning = true;
 	switch (Pattern)
 	{
 	case EHohonuPattern::SummonCrystal:
+		CurrentPattern = EHohonuPattern::SummonCrystal;
 		OmenPattern_SC();
 		break;
 	case EHohonuPattern::SweepLaser:
+		CurrentPattern = EHohonuPattern::SweepLaser;
 		OmenPattern_SL();
 		break;
 	case EHohonuPattern::MeleeAttack:
+		CurrentPattern = EHohonuPattern::MeleeAttack;
 		OmenPattern_MA();
 		break;
 	case EHohonuPattern::WhirlWind:
+		CurrentPattern = EHohonuPattern::WhirlWind;
 		OmenPattern_WW();
 		break;
 	case EHohonuPattern::BackStep:
+		CurrentPattern = EHohonuPattern::BackStep;
 		OmenPattern_BS();
 		break;
 	case EHohonuPattern::MultipleLaser:
+		CurrentPattern = EHohonuPattern::MultipleLaser;
 		OmenPattern_ML();
 		break;
 	default:
@@ -161,11 +175,12 @@ void AKWBossMonsterHohonu::ActivatePatternOmen(EHohonuPattern Pattern)
 	}
 }
 
-void AKWBossMonsterHohonu::ActivatePatternExecute(EHohonuPattern Pattern)
+void AKWBossMonsterHohonu::ActivatePatternExecute(const EHohonuPattern Pattern)
 {
 	if(bIsPatternRunning)
 	{
 		bIsPatternRunning = false;
+		CurrentPattern = EHohonuPattern::None;
 		UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern End"));
 		return;
 	}
@@ -244,7 +259,54 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 void AKWBossMonsterHohonu::ExecutePattern_WW()
 {
 	UE_LOG(LogTemp, Log, TEXT("Hohonu WhirlWind Start"));
-	// 훨윈드 
+	// 훨윈드
+	GetWorldTimerManager().SetTimer(WW_TimerHandle, FTimerDelegate::CreateLambda([&]()
+	{
+		if(!bIsPatternRunning)
+		{
+			GetWorldTimerManager().ClearTimer(WW_TimerHandle);
+			FPPTimerHelper::InvalidateTimerHandle(WW_TimerHandle);
+		}
+		if(FPPTimerHelper::IsDelayElapsed(WW_TimerHandle, 0.01f))
+		{
+			FHitResult HitResult;
+			FCollisionQueryParams Params(NAME_None, false, this);
+			
+			bool bResult = GetWorld()->SweepSingleByChannel(
+			HitResult,
+			GetActorLocation(),
+			GetActorLocation(),
+			FQuat::Identity,
+			ECollisionChannel::ECC_Pawn,
+			FCollisionShape::MakeBox(FVector(400.f, 400.f, 400.f)),
+			Params);
+			
+			if(bResult)
+			{
+				AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
+				if(Player)
+				{
+					FDamageEvent DamageEvent;
+					Player->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
+				}
+			}
+
+			FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+			AddActorLocalRotation(FRotator(0.f, 10.f, 0.f));
+			AddMovementInput(MoveDirection);
+			/*
+			if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
+			{
+				GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeedPerSecond * FPPTimerHelper::GetActualDeltaTime(WW_TimerHandle);
+				if(GetCharacterMovement()->MaxWalkSpeed > WW_MaxMoveSpeed)
+				{
+					GetCharacterMovement()->MaxWalkSpeed = WW_MaxMoveSpeed;
+				}
+			}
+			*/
+		}
+	}), 0.01f, true);
+	/*
 	while (true)
 	{
 		if(!bIsPatternRunning)
@@ -280,9 +342,14 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
 			{
 				GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeed;
+				if(GetCharacterMovement()->MaxWalkSpeed > WW_MaxMoveSpeed)
+				{
+					GetCharacterMovement()->MaxWalkSpeed = WW_MaxMoveSpeed;
+				}
 			}
 		}));
 	}
+	*/
 }
 
 void AKWBossMonsterHohonu::ExecutePattern_BS()

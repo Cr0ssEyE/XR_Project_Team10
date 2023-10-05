@@ -26,6 +26,7 @@ public:
 	void SetTarget(const TArray<AActor*>& Actors);
 	
 protected:
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	
 private:

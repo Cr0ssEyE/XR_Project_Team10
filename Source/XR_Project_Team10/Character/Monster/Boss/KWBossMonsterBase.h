@@ -59,4 +59,6 @@ protected:
 	uint8 bIsMoving = 0;
 	
 	uint8 bIsAttacking = 0;
+
+	uint8 bIsPatternRunning = 0;
 };
