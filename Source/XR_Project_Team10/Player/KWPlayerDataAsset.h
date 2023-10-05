@@ -25,29 +25,51 @@ public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 메시")
 	TObjectPtr<class UStaticMesh> PlayerRollingMesh;
 
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 애니메이션 블루프린트")
+	TObjectPtr<class UAnimBlueprint> PlayerRollingAnimBlueprint;
+	
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 메시")
 	TObjectPtr<class USkeletalMesh> PlayerWalkingMesh;
 
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트")
+	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
+
 public:
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "구르기 상태 기본 이동속도 증가 값")
+	UPROPERTY(EditAnywhere, Category = View, DisplayName = "카메라 FOV")
+	float CameraFOV;
+	
+	UPROPERTY(EditAnywhere, Category = View, DisplayName = "스프링 암 길이")
+	float SpringArmLength;
+
+	UPROPERTY(EditAnywhere, Category = View, DisplayName = "스프링 암 기울기")
+    float SpringArmAngle;
+public:
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 이동 속도")
+	float WakingStateMoveSpeed;
+	
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 점프 높이")
+	float WakingStateJumpValue;
+
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 중력 영향 배율")
+	float WakingStateGravityScale;
+	
+public:
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 증가 값")
 	float DefaultVelocityValue;
 
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "구르기 상태 기본 이동속도 최대 값")
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 최대 값")
 	float DefaultMaxVelocityValue;
 	
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "기어 별 구르기 상태 이동속도 증가 배율 값")
-	TArray<float> VelocityMultiplyValuesByGear;
-
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "기어 전환 이동속도 배율 값")
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "기어 전환 이동속도 배율 값")
 	TArray<float> MaxVelocityMagnificationByGear;
 
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "테스트용 기어 별 색상 값(최대 4개)")
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "테스트용 기어 별 색상 값(최대 4개)")
 	TArray<FLinearColor> ColorsByGear;
 
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "테스트용 점프 속도 값")
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 점프 높이")
 	float AddJumpForceValue;
 	
-	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "테스트용 점프 대기 시간")
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "점프 딜레이")
 	float JumpDelayTime;
 
 public:
@@ -56,6 +78,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 지속시간")
 	float DA_DurationTime;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 후 감속 배율")
+	float DA_DecelerateValue;
 	
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "내려찍기 공격 속도 값")
 	float DropDownVelocityValue;
@@ -97,7 +122,4 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 대시 입력 키")
 	TObjectPtr<class UInputAction> AttackAction;
-
-	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 리바운드 대시 입력 키")
-	TObjectPtr<class UInputAction> RBD_Action;
 };
