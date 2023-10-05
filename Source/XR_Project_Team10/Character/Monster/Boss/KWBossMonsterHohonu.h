@@ -21,6 +21,8 @@ class XR_PROJECT_TEAM10_API AKWBossMonsterHohonu : public AKWBossMonsterBase
 public:
 	AKWBossMonsterHohonu();
 
+	FAICharacterPatternFinished CharacterPatternFinished;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -28,7 +30,9 @@ protected:
 
 public:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	virtual void PlayEncounterAnimation() override;
+	virtual void SetAIPatternDelegate(const FAICharacterPatternFinished& PatternFinishedDelegate) override;
+	virtual void EndEncounterAnimation() override;
+	virtual void PlayPatternAnimMontage() override;
 	virtual void PlayDeadAnimation() override;
 	virtual void DeActivateInGame() override;
 	virtual void ReActivateInGame() override;
@@ -36,6 +40,7 @@ public:
 	// BT 및 AI 컨트롤러 호출용 함수
 public:
 	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
+	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	void ActivatePatternOmen(const EHohonuPattern Pattern);
 	void ActivatePatternExecute(const EHohonuPattern Pattern);
 	

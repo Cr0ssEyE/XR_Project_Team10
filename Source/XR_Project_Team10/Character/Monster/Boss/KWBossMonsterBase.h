@@ -23,8 +23,10 @@ public:
 	FORCEINLINE virtual UDataAsset* GetBossAIData() override { return BossMonsterAIData; }
 	
 	FORCEINLINE virtual void SetState(const EMonsterState State) override { CurrentState = State; }
-	
-	virtual void PlayEncounterAnimation() override { }
+
+	virtual void SetAIPatternDelegate(const FAICharacterPatternFinished& PatternFinishedDelegate) override { }
+	virtual void EndEncounterAnimation() override { }
+	virtual void PlayPatternAnimMontage() override { }
 	virtual void PlayDeadAnimation() override { }
 	virtual void DeActivateInGame() override { }
 	virtual void ReActivateInGame() override { }

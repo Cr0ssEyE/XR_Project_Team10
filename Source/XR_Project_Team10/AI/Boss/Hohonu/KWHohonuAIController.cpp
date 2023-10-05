@@ -60,30 +60,7 @@ void AKWHohonuAIController::SetTarget(const TArray<AActor*>& Actors)
 void AKWHohonuAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if(Blackboard->GetValueAsObject(KEY_TARGET) == nullptr)
-	{
-		TArray<FHitResult> HitResults;
-		FCollisionQueryParams Params(NAME_None, false, this);
-			
-		bool bResult = GetWorld()->SweepMultiByChannel(
-		HitResults,
-		GetPawn()->GetActorLocation(),
-		GetPawn()->GetActorLocation(),
-		FQuat::Identity,
-		ECollisionChannel::ECC_Pawn,
-		FCollisionShape::MakeBox(FVector(1000.f, 1000.f, 200.f)),
-		Params);
-
-		TArray<AActor*> Actors;
-		for(auto Result : HitResults)
-		{
-			if(AActor* ResultActor = Result.GetActor())
-			{
-				Actors.Emplace(ResultActor);
-			}
-		}
-		SetTarget(Actors);
-	}
+	
 }
 
 void AKWHohonuAIController::OnPossess(APawn* InPawn)

@@ -1,20 +1,24 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
-
-#include "KWBossAnimDataAsset.h"
-#include "KWBossHohonuAnimInstance.h"
+#include "XR_Project_Team10/Character/Monster/Boss/KWBossHohonuAnimInstance.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossHohonuDataAsset.h"
-#include "NiagaraComponent.h"
-#include "Engine/DamageEvents.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "XR_Project_Team10/Character/Monster/Boss/KWBossAnimDataAsset.h"
+#include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
+#include "XR_Project_Team10/AI/Boss/Hohonu/KWHohonuAIController.h"
+#include "XR_Project_Team10/Constant/KWAnimMontageSectionName.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
+#include "NiagaraComponent.h"
+#include "Engine/DamageEvents.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	AIControllerClass = AKWHohonuAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	
 	BossMonsterStatusData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/21-Hohonu/Datas/Hohonu_DataAsset.Hohonu_DataAsset'"));
 
 	BossMonsterAnimData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossAnimDataAsset'/Game/21-Hohonu/Datas/Hohonu_AnimDataAsset.Hohonu_AnimDataAsset'"));
@@ -48,7 +52,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 		if(HohonuAnimInstance)
 		{
 			HohonuAnimInstance->OmenPatternDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternOmen);
-			HohonuAnimInstance->PatternToggleDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternExecute);
+			HohonuAnimInstance->PatternActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternExecute);
 		}
 	}
 }
@@ -57,19 +61,20 @@ void AKWBossMonsterHohonu::BeginPlay()
 {
 	Super::BeginPlay();
 	InitData();
+	AKWHohonuAIController* AIController = Cast<AKWHohonuAIController>(GetController());
+	if(AIController)
+	{
+		// 인카운터 모션 나오면 적용 예정
+		// AIController->DeActivateAI();
+		// GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_ENCOUNTER, BossAnimMontage);
+	}
 	bIsPatternRunning = false;
 }
 
 void AKWBossMonsterHohonu::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	// 테스트용
-	if(!bIsPatternRunning)
-	{
-		TargetPlayer = CastChecked<AKWPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-		bIsPatternRunning = true;
-		ExecutePattern_WW();
-	}
+
 }
 
 void AKWBossMonsterHohonu::InitData()
@@ -117,10 +122,49 @@ float AKWBossMonsterHohonu::TakeDamage(float DamageAmount, FDamageEvent const& D
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
-void AKWBossMonsterHohonu::PlayEncounterAnimation()
+void AKWBossMonsterHohonu::SetAIPatternDelegate(const FAICharacterPatternFinished& PatternFinishedDelegate)
 {
-	Super::PlayEncounterAnimation();
-	
+	Super::SetAIPatternDelegate(PatternFinishedDelegate);
+	CharacterPatternFinished = PatternFinishedDelegate;
+}
+
+void AKWBossMonsterHohonu::EndEncounterAnimation()
+{
+	Super::EndEncounterAnimation();
+	AKWHohonuAIController* AIController = Cast<AKWHohonuAIController>(GetController());
+	if(AIController)
+	{
+		AIController->ActivateAI();
+	}
+}
+
+void AKWBossMonsterHohonu::PlayPatternAnimMontage()
+{
+	Super::PlayPatternAnimMontage();
+	GetMesh()->GetAnimInstance()->Montage_Play(BossAnimMontage);
+	switch (CurrentPattern)
+	{
+	case EHohonuPattern::SummonCrystal:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_SUMMON_CRYSTAL, BossAnimMontage);
+		break;
+	case EHohonuPattern::SweepLaser:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_SWEEP_LASER, BossAnimMontage);
+		break;
+	case EHohonuPattern::MeleeAttack:
+		// 애니메이션 나오면 추가
+		break;
+	case EHohonuPattern::WhirlWind:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_WHIRL_WIND, BossAnimMontage);
+		break;
+	case EHohonuPattern::BackStep:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_BACK_STEP, BossAnimMontage);
+		break;
+	case EHohonuPattern::MultipleLaser:
+		// 애니메이션 나오면 추가
+		break;
+	default:
+		checkNoEntry();
+	}
 }
 
 void AKWBossMonsterHohonu::PlayDeadAnimation()
@@ -143,31 +187,24 @@ void AKWBossMonsterHohonu::ReActivateInGame()
 
 void AKWBossMonsterHohonu::ActivatePatternOmen(const EHohonuPattern Pattern)
 {
-	bIsPatternRunning = true;
 	switch (Pattern)
 	{
 	case EHohonuPattern::SummonCrystal:
-		CurrentPattern = EHohonuPattern::SummonCrystal;
 		OmenPattern_SC();
 		break;
 	case EHohonuPattern::SweepLaser:
-		CurrentPattern = EHohonuPattern::SweepLaser;
 		OmenPattern_SL();
 		break;
 	case EHohonuPattern::MeleeAttack:
-		CurrentPattern = EHohonuPattern::MeleeAttack;
 		OmenPattern_MA();
 		break;
 	case EHohonuPattern::WhirlWind:
-		CurrentPattern = EHohonuPattern::WhirlWind;
 		OmenPattern_WW();
 		break;
 	case EHohonuPattern::BackStep:
-		CurrentPattern = EHohonuPattern::BackStep;
 		OmenPattern_BS();
 		break;
 	case EHohonuPattern::MultipleLaser:
-		CurrentPattern = EHohonuPattern::MultipleLaser;
 		OmenPattern_ML();
 		break;
 	default:
@@ -184,7 +221,7 @@ void AKWBossMonsterHohonu::ActivatePatternExecute(const EHohonuPattern Pattern)
 		UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern End"));
 		return;
 	}
-	
+	bIsPatternRunning = true;
 	UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern Start"));
 	switch (Pattern)
 	{
@@ -209,6 +246,7 @@ void AKWBossMonsterHohonu::ActivatePatternExecute(const EHohonuPattern Pattern)
 	default:
 		checkNoEntry();
 	}
+	
 }
 
 void AKWBossMonsterHohonu::OmenPattern_SC()
@@ -280,12 +318,15 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			ECollisionChannel::ECC_Pawn,
 			FCollisionShape::MakeBox(FVector(400.f, 400.f, 400.f)),
 			Params);
+
+			DrawDebugBox(GetWorld(), GetActorLocation(), FVector(400.f, 400.f, 400.f), FColor::Red);
 			
 			if(bResult)
 			{
 				AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
 				if(Player)
 				{
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
 					FDamageEvent DamageEvent;
 					Player->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
 				}

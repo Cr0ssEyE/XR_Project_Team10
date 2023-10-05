@@ -7,6 +7,7 @@
 #include "XR_Project_Team10/Enumeration/KWHohonuPattern.h"
 #include "KWBossHohonuAnimInstance.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FEndEncounterAnimDelegate)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOmenPatternDelegate, EHohonuPattern)
 DECLARE_MULTICAST_DELEGATE_OneParam(FActivePatternDelegate, EHohonuPattern)
 
@@ -21,8 +22,9 @@ class XR_PROJECT_TEAM10_API UKWBossHohonuAnimInstance : public UAnimInstance
 public:
 	UKWBossHohonuAnimInstance();
 
+	FEndEncounterAnimDelegate EndEncounterAnimDelegate;
 	FOmenPatternDelegate OmenPatternDelegate;
-	FActivePatternDelegate PatternToggleDelegate;
+	FActivePatternDelegate PatternActivateDelegate;
 	
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -33,6 +35,9 @@ protected:
 
 private:
 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void AnimNotify_EncounterEnd() { EndEncounterAnimDelegate.Broadcast(); }
+	
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_OmenSummonCrystal() { OmenPatternDelegate.Broadcast(EHohonuPattern::SummonCrystal); }
 	
 	UFUNCTION(BlueprintCallable)
@@ -42,18 +47,18 @@ private:
 	FORCEINLINE void AnimNotify_OmenWhirlWind() { OmenPatternDelegate.Broadcast(EHohonuPattern::WhirlWind); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_SpawnCrystal() { PatternToggleDelegate.Broadcast(EHohonuPattern::SummonCrystal); }
+	FORCEINLINE void AnimNotify_SpawnCrystal() { PatternActivateDelegate.Broadcast(EHohonuPattern::SummonCrystal); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_FireLaser() { PatternToggleDelegate.Broadcast(EHohonuPattern::SweepLaser); }
+	FORCEINLINE void AnimNotify_FireLaser() { PatternActivateDelegate.Broadcast(EHohonuPattern::SweepLaser); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_BackStepBegin() { PatternToggleDelegate.Broadcast(EHohonuPattern::BackStep); }
+	FORCEINLINE void AnimNotify_BackStepBegin() { PatternActivateDelegate.Broadcast(EHohonuPattern::BackStep); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_WhirlWindHitCheckBegin() { PatternToggleDelegate.Broadcast(EHohonuPattern::WhirlWind); }
+	FORCEINLINE void AnimNotify_WhirlWindHitCheckBegin() { PatternActivateDelegate.Broadcast(EHohonuPattern::WhirlWind); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_WhirlWindHitCheckEnd() { PatternToggleDelegate.Broadcast(EHohonuPattern::WhirlWind); }
+	FORCEINLINE void AnimNotify_WhirlWindHitCheckEnd() { PatternActivateDelegate.Broadcast(EHohonuPattern::WhirlWind); }
 	
 };
