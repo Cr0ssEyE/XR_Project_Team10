@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossHohonuAnimInstance.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossHohonuDataAsset.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossAnimDataAsset.h"
-#include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
 #include "XR_Project_Team10/AI/Boss/Hohonu/KWHohonuAIController.h"
 #include "XR_Project_Team10/Constant/KWAnimMontageSectionName.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
@@ -48,12 +48,6 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	{
 		GetMesh()->SetAnimInstanceClass(BossAnimData->BossAnimBlueprint->GetAnimBlueprintGeneratedClass());
 		BossAnimMontage = BossAnimData->BossAnimMontage;
-		UKWBossHohonuAnimInstance* HohonuAnimInstance = Cast<UKWBossHohonuAnimInstance>(GetMesh()->GetAnimInstance());
-		if(HohonuAnimInstance)
-		{
-			HohonuAnimInstance->OmenPatternDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternOmen);
-			HohonuAnimInstance->PatternActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternExecute);
-		}
 	}
 }
 
@@ -61,6 +55,16 @@ void AKWBossMonsterHohonu::BeginPlay()
 {
 	Super::BeginPlay();
 	InitData();
+	
+	HohonuAnimInstance = CastChecked<UKWBossHohonuAnimInstance>(GetMesh()->GetAnimInstance());
+	if(HohonuAnimInstance)
+	{
+		HohonuAnimInstance->OnMontageStarted.AddDynamic(this, &AKWBossMonsterHohonu::ActivatePatternOmen);
+		HohonuAnimInstance->OnMontageEnded.AddDynamic(this, &AKWBossMonsterHohonu::FinishAIPatternNode);
+		HohonuAnimInstance->PatternActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternExecute);
+		HohonuAnimInstance->PatternDeActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::StopPattern);
+	}
+	
 	AKWHohonuAIController* AIController = Cast<AKWHohonuAIController>(GetController());
 	if(AIController)
 	{
@@ -141,7 +145,14 @@ void AKWBossMonsterHohonu::EndEncounterAnimation()
 void AKWBossMonsterHohonu::PlayPatternAnimMontage()
 {
 	Super::PlayPatternAnimMontage();
+	if(bIsPatternRunning)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("패턴 진행중 패턴 실행 노드 진입 오류 발생")));
+		return;
+	}
+	
 	GetMesh()->GetAnimInstance()->Montage_Play(BossAnimMontage);
+	
 	switch (CurrentPattern)
 	{
 	case EHohonuPattern::SummonCrystal:
@@ -185,9 +196,10 @@ void AKWBossMonsterHohonu::ReActivateInGame()
 	
 }
 
-void AKWBossMonsterHohonu::ActivatePatternOmen(const EHohonuPattern Pattern)
+void AKWBossMonsterHohonu::ActivatePatternOmen(UAnimMontage* Montage)
 {
-	switch (Pattern)
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("패턴 전조 실행")));
+	switch (CurrentPattern)
 	{
 	case EHohonuPattern::SummonCrystal:
 		OmenPattern_SC();
@@ -216,9 +228,8 @@ void AKWBossMonsterHohonu::ActivatePatternExecute(const EHohonuPattern Pattern)
 {
 	if(bIsPatternRunning)
 	{
-		bIsPatternRunning = false;
-		CurrentPattern = EHohonuPattern::None;
-		UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern End"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("패턴 진행중 패턴 실행 노드 진입 오류 발생")));
+		UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern Still Running"));
 		return;
 	}
 	bIsPatternRunning = true;
@@ -246,7 +257,13 @@ void AKWBossMonsterHohonu::ActivatePatternExecute(const EHohonuPattern Pattern)
 	default:
 		checkNoEntry();
 	}
-	
+}
+
+void AKWBossMonsterHohonu::FinishAIPatternNode(UAnimMontage* Montage, bool IsInterrupted)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("패턴 노드 종료")));
+	bIsPatternRunning = false;
+	CharacterPatternFinished.Broadcast();
 }
 
 void AKWBossMonsterHohonu::OmenPattern_SC()
@@ -297,11 +314,13 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 void AKWBossMonsterHohonu::ExecutePattern_WW()
 {
 	UE_LOG(LogTemp, Log, TEXT("Hohonu WhirlWind Start"));
+	bIsAttacking = true;
 	// 훨윈드
 	GetWorldTimerManager().SetTimer(WW_TimerHandle, FTimerDelegate::CreateLambda([&]()
 	{
 		if(!bIsPatternRunning)
 		{
+			bIsAttacking = false;
 			GetWorldTimerManager().ClearTimer(WW_TimerHandle);
 			FPPTimerHelper::InvalidateTimerHandle(WW_TimerHandle);
 		}
@@ -347,50 +366,6 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			*/
 		}
 	}), 0.01f, true);
-	/*
-	while (true)
-	{
-		if(!bIsPatternRunning)
-		{
-			break;
-		}
-		GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([&]()
-		{
-			FHitResult HitResult;
-			FCollisionQueryParams Params(NAME_None, false, this);
-			
-			bool bResult = GetWorld()->SweepSingleByChannel(
-			HitResult,
-			GetActorLocation(),
-			GetActorLocation(),
-			FQuat::Identity,
-			ECollisionChannel::ECC_Pawn,
-			FCollisionShape::MakeBox(FVector(400.f, 400.f, 400.f)),
-			Params);
-			
-			if(bResult)
-			{
-				AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
-				if(Player)
-				{
-					FDamageEvent DamageEvent;
-					Player->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
-				}
-			}
-
-			FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-			AddMovementInput(MoveDirection);
-			if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
-			{
-				GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeed;
-				if(GetCharacterMovement()->MaxWalkSpeed > WW_MaxMoveSpeed)
-				{
-					GetCharacterMovement()->MaxWalkSpeed = WW_MaxMoveSpeed;
-				}
-			}
-		}));
-	}
-	*/
 }
 
 void AKWBossMonsterHohonu::ExecutePattern_BS()

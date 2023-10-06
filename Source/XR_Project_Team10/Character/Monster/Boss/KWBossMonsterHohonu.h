@@ -41,8 +41,15 @@ public:
 public:
 	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
-	void ActivatePatternOmen(const EHohonuPattern Pattern);
+	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
+	UFUNCTION()
+	void ActivatePatternOmen(UAnimMontage* Montage);
+	
+	UFUNCTION()
 	void ActivatePatternExecute(const EHohonuPattern Pattern);
+	
+	UFUNCTION()
+	void FinishAIPatternNode(UAnimMontage* Montage, bool IsInterrupted);
 	
 	/**
 	* 호호누 패턴 구현 함수 \n
@@ -73,6 +80,8 @@ private:
 
 	// 호호누 패턴 관련 변수
 private:
+	UPROPERTY()
+	TObjectPtr<class UKWBossHohonuAnimInstance> HohonuAnimInstance;
 	UPROPERTY()
 	TObjectPtr<class AKWPlayerCharacter> TargetPlayer;
 	
