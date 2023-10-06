@@ -4,6 +4,7 @@
 #include "XR_Project_Team10/AI/Boss/Hohonu/BTTask_KWHohonuPatterns.h"
 
 #include "AIController.h"
+#include "KWHohonuAIController.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
 
 UBTTask_KWHohonuPatterns::UBTTask_KWHohonuPatterns()
@@ -31,6 +32,7 @@ EBTNodeResult::Type UBTTask_KWHohonuPatterns::ExecuteTask(UBehaviorTreeComponent
 	FAICharacterPatternFinished PatternFinished;
 	PatternFinished.AddLambda([&]()
 	{
+		CastChecked<AKWHohonuAIController>(OwnerComp.GetAIOwner())->ResetCoolDown(TaskPattern);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	});
 	ControllingPawn->SetAIPatternDelegate(PatternFinished);

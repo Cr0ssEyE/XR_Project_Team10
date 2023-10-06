@@ -321,6 +321,7 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 		if(!bIsPatternRunning)
 		{
 			bIsAttacking = false;
+			GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 			GetWorldTimerManager().ClearTimer(WW_TimerHandle);
 			FPPTimerHelper::InvalidateTimerHandle(WW_TimerHandle);
 		}
@@ -354,7 +355,6 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 			AddActorLocalRotation(FRotator(0.f, 10.f, 0.f));
 			AddMovementInput(MoveDirection);
-			/*
 			if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
 			{
 				GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeedPerSecond * FPPTimerHelper::GetActualDeltaTime(WW_TimerHandle);
@@ -363,7 +363,6 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 					GetCharacterMovement()->MaxWalkSpeed = WW_MaxMoveSpeed;
 				}
 			}
-			*/
 		}
 	}), 0.01f, true);
 }

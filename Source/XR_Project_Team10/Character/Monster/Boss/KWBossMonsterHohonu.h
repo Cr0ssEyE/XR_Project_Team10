@@ -39,9 +39,11 @@ public:
 
 	// BT 및 AI 컨트롤러 호출용 함수
 public:
+	FORCEINLINE float GetHp() const { return BossHp; }
 	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
+	
 	UFUNCTION()
 	void ActivatePatternOmen(UAnimMontage* Montage);
 	
@@ -82,6 +84,7 @@ private:
 private:
 	UPROPERTY()
 	TObjectPtr<class UKWBossHohonuAnimInstance> HohonuAnimInstance;
+	
 	UPROPERTY()
 	TObjectPtr<class AKWPlayerCharacter> TargetPlayer;
 	
