@@ -24,8 +24,8 @@ class XR_PROJECT_TEAM10_API IKWMonsterAIInterface
 public:
 	virtual FVector GetAIBaseLocation() = 0;
 	virtual float GetAIMaximumMoveDistance() = 0;
-	virtual float GetAIPatrolRadius() = 0;
-	virtual float GetAIDetectRange() = 0;
-	virtual float GetAIAttackRange() = 0;
+	virtual float GetAIPatrolRadius() = 0;	//탐색 (돌아다니는 원 크기)
+	virtual float GetAIDetectRange() = 0;	//인지 (플레이어 인지)
+	virtual float GetAIAttackRange() = 0;	//공격 (플레이어 공격)
 	virtual float GetAITurnSpeed() = 0;
-};
+};	//추적범위 -> 벗어나면 다시 탐색

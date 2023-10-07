@@ -3,7 +3,7 @@
 
 #include "XR_Project_Team10/AI/Common/BTTask_KWCommonFindLocation.h"
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
-#include "XR_Project_Team10/Interface/KWMonsterAIInterface.h"
+#include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"
 
 #include "AIController.h"
 #include "NavigationSystem.h"
@@ -31,14 +31,14 @@ EBTNodeResult::Type UBTTask_KWCommonFindLocation::ExecuteTask(UBehaviorTreeCompo
 		return EBTNodeResult::Failed;
 	}
 	
-	IKWMonsterAIInterface* MonsterAIInterface = Cast<IKWMonsterAIInterface>(ControllingPawn);
-	if(!MonsterAIInterface)
+	IICommonMonsterBase* MonsterBase = Cast<IICommonMonsterBase>(ControllingPawn);
+	if(!MonsterBase)
 	{
 		return EBTNodeResult::Failed;
 	}
 	
 	const FVector OriginLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(KEY_BASE_LOCATION);
-	float PatrolRadius = MonsterAIInterface->GetAIPatrolRadius();
+	float PatrolRadius = MonsterBase->MonsterData->MonsterResearchRange;
 	FNavLocation NextPatrolLocation;
 	
 	if(NavSystem->GetRandomPointInNavigableRadius(OriginLocation, PatrolRadius, NextPatrolLocation))

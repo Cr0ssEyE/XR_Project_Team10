@@ -39,6 +39,7 @@ void ADW_FeatherProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 		UE_LOG(LogTemp, Log, TEXT("player hit"));
 	}
 	else {
+		// 피격되지 않으면 땅에 박히고 2초 뒤 사라짐
 		//작동 안함
 		UE_LOG(LogTemp, Log, TEXT("another hit"));
 	}
@@ -58,5 +59,3 @@ void ADW_FeatherProjectile::FireInDirection(const FVector& Direction)
 	ProjectileMovementComponent->Velocity = Direction * ProjectileMovementComponent->InitialSpeed;
 }
 
-
-// 피격되지 않으면 땅에 박히고 2초 뒤 사라짐

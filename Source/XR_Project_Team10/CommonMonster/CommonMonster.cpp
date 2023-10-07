@@ -2,10 +2,15 @@
 
 
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
+#include "XR_Project_Team10/AI/Common/KWCommonAIController.h"
+#include "XR_Project_Team10/Util/PPConstructorHelper.h"
 
 ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	AIControllerClass = AKWCommonAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	if (nullptr != MonsterData) {
 		MonsterCurrentHP = MonsterData->MonsterHP;
@@ -23,20 +28,9 @@ void ACommonMonster::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ACommonMonster::Research()
+void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAttackFinished)
 {
-}
-
-void ACommonMonster::Recognition()
-{
-}
-
-void ACommonMonster::Tracking()
-{
-}
-
-void ACommonMonster::AttackConfig()
-{
+	OnAttackFinished = InOnAttackFinished;
 }
 
 void ACommonMonster::AttackOmen()

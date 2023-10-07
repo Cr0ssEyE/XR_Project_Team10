@@ -23,10 +23,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void Research() override;
-	virtual void Recognition() override;
-	virtual void Tracking() override;
-	virtual void AttackConfig() override;
 	virtual void AttackOmen() override;
 	virtual void Attack() override;
 	virtual void Dead() override;
