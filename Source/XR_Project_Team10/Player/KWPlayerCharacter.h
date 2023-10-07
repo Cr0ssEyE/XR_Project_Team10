@@ -136,6 +136,9 @@ private:
 	float DefaultMaxVelocityValue;
 
 	UPROPERTY()
+	float SystemMaxVelocityValue;
+	
+	UPROPERTY()
 	float CurrentMaxVelocityValue;
 	
 	UPROPERTY()
@@ -174,6 +177,9 @@ private:
 	FTimerHandle DA_DurationTimerHandle;
 	
 	FTimerHandle AttackCoolDownTimerHandle;
+
+	UPROPERTY()
+	uint8 bCanDashOnFlying : 1;
 	
 	UPROPERTY()
 	float DA_AddVelocityValue;
@@ -215,7 +221,7 @@ private:
 	
 	uint32 bIsRolling : 1;
 
-	uint32 bIsJumping : 1;
+	uint32 bIsFlying : 1;
 
 	uint32 bIsReBounding : 1;
 

@@ -17,7 +17,8 @@ public:
 protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
-
+	void ActiveInteractionCoolDown();
+	
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> BaseMesh;
@@ -25,6 +26,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
+	FTimerHandle DisableInteractionTimerHandle;
+	
+	UPROPERTY(EditAnywhere, DisplayName = "상호작용 쿨타임")
+	float InteractionCoolDown;
+	
 	UPROPERTY(EditAnywhere, DisplayName = "바운드 높이 값")
 	float BoundHeight;
 	

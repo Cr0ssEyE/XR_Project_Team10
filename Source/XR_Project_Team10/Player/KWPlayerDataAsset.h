@@ -21,6 +21,8 @@ UCLASS()
 class XR_PROJECT_TEAM10_API UKWPlayerDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
+
+	// 캐릭터 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 메시")
 	TObjectPtr<class UStaticMesh> PlayerRollingMesh;
@@ -34,6 +36,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트")
 	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
 
+	// 카메라 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = View, DisplayName = "카메라 FOV")
 	float CameraFOV;
@@ -43,6 +46,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = View, DisplayName = "스프링 암 기울기")
     float SpringArmAngle;
+
+	// 기본 상태 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 이동 속도")
 	float WakingStateMoveSpeed;
@@ -52,13 +57,17 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 중력 영향 배율")
 	float WakingStateGravityScale;
-	
+
+	// 구르기 상태 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 증가 값")
 	float DefaultVelocityValue;
 
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 최대 값")
 	float DefaultMaxVelocityValue;
+
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 상호작용 관련 이동속도 최대 값")
+	float SystemMaxVelocityValue;
 	
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "기어 전환 이동속도 배율 값")
 	TArray<float> MaxVelocityMagnificationByGear;
@@ -72,7 +81,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "점프 딜레이")
 	float JumpDelayTime;
 
+	// 공격 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공중 대시 사용 여부")
+	uint8 bCanDashOnFlying : 1;
+	
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 이동속도")
 	float DA_AddVelocityValue;
 	
@@ -91,6 +104,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 대기 시간")
 	float AttackCoolDownTime;
 
+	// 리바운드 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = ReBound, DisplayName = "충돌체 별 리바운드 배수")
 	TArray<float> RB_MultiplyValuesByObjectType;
@@ -107,6 +121,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = ReBound, DisplayName = "리바운드 대시 이동속도")
 	float RBD_AddVelocityValue;
 
+	// 입력 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "키 입력 매핑 IMC")
 	TObjectPtr<class UInputMappingContext> PlayerInputMappingContext;

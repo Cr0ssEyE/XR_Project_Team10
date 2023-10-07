@@ -68,9 +68,11 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	MoveInputAction = CharacterData->MoveInputAction;
 	JumpAction = CharacterData->JumpAction;
 	AttackAction = CharacterData->AttackAction;
-	
+
+	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
 	DefaultMaxVelocityValue = CharacterData->DefaultMaxVelocityValue;
+	SystemMaxVelocityValue = CharacterData->SystemMaxVelocityValue;
 	CurrentMaxVelocityValue = DefaultMaxVelocityValue;
 	MaxVelocityMagnificationByGear = CharacterData->MaxVelocityMagnificationByGear;
 
@@ -120,7 +122,7 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsDead = false;
 	bIsMoving = false;
 	bIsRolling = false;
-	bIsJumping = false;
+	bIsFlying = false;
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
@@ -140,22 +142,34 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	{	
 		SpringArm->SetRelativeLocation(RootComponent->GetComponentToWorld().GetLocation());;
 	}
+	
 	if(!bIsMoving && bIsRolling && RollingMesh->GetPhysicsLinearVelocity().Length() > 100.f)
 	{
 		VelocityDecelerateTimer();
 	}
+	
 	if(bIsRolling)
 	{
 		CheckGearState();
 		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
 		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
+
+		FVector PlaneVelocityVector = RollingMesh->GetPhysicsLinearVelocity();
+		PlaneVelocityVector.Z = 0.f;
+		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2)
+		{
+			float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, RollingMesh->GetPhysicsLinearVelocity().Z));
+		}
+	
 	}
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
 	
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
 }
 
 // Called to bind functionality to input
@@ -263,7 +277,7 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 {
 	
-	if(bIsJumping || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
+	if(bIsFlying || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
 	{
 		return;
 	}
@@ -272,11 +286,11 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 	{
 		if(FPPTimerHelper::IsDelayElapsed(JumpDelayTimerHandle, JumpDelayTime))
 		{
-			bIsJumping = false;
+			bIsFlying = false;
 			GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
 		}
 	}), 0.01f, true);
-	bIsJumping = true;
+	bIsFlying = true;
 	if(bIsRolling)
 	{
 		const FVector JumpVelocityVector = FVector(0.f, 0.f, AddJumpForceValue);
@@ -330,12 +344,18 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 			return;
 		}
 	
-		if(bIsJumping && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+		if(bIsFlying && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
 		{
 			FD_ProceedAction();
 		}
 		else
 		{
+			if(bCanDashOnFlying)
+			{
+				DA_ProceedAction();
+				return;
+			}
+			
 			FHitResult HitResult;
 			FCollisionQueryParams Params(NAME_None, false, this);
 		
