@@ -7,6 +7,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterBase.h"
 #include "XR_Project_Team10/Enumeration/KWHohonuPattern.h"
+#include "XR_Project_Team10/Object/KWHohonuCrystal.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "KWBossMonsterHohonu.generated.h"
 
@@ -94,9 +95,17 @@ private:
 
 	// 수정 소환 관련 변수
 private:
-	float SC_Count;
+	// 수정 액터 만들기
+	UPROPERTY(EditAnywhere, DisplayName = "수정 인스턴스")
+	TArray<AKWHohonuCrystal*> SC_Instances;
 	
-	float SC_Speed;
+	FTimerHandle SC_SpawnTimerHandle;
+	
+	float SC_SpawnDelay;
+
+	float SC_SpawnHeight;
+
+	uint8 bIsCanSummon : 1;
 	
 	// 레이저 발사 관련 변수
 private:
@@ -122,6 +131,8 @@ private:
 	
 	float WW_Damage;
 
+	FVector WW_DamageRange;
+	
 	float WW_AttackDelay;
 	
 	float WW_AttackTime;
@@ -130,6 +141,8 @@ private:
 
 	float WW_MaxMoveSpeed;
 
+	float WW_RotateSpeed;
+	
 	// 백스텝 관련 변수
 private:
 	float BS_Range;

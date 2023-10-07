@@ -93,9 +93,9 @@ void AKWBossMonsterHohonu::InitData()
 		MoveSpeed = HohonuData->HohonuMoveSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		
-		SC_Count = HohonuData->SC_Count;
-		SC_Speed = HohonuData->SC_Speed;
-
+		SC_SpawnDelay = HohonuData->SC_SpawnDelay;
+		SC_SpawnHeight = HohonuData->SC_SpawnHeight;
+		
 		SL_Damage = HohonuData->SL_Damage;
 		SL_AttackDelay = HohonuData->SL_AttackDelay;
 		SL_Degree = HohonuData->SL_Degree;
@@ -106,10 +106,12 @@ void AKWBossMonsterHohonu::InitData()
 		MA_AttackSpeed = HohonuData->MA_AttackSpeed;
 		
 		WW_Damage = HohonuData->WW_Damage;
+		WW_DamageRange = HohonuData->WW_DamageRange;
 		WW_AttackDelay = HohonuData->WW_AttackDelay;
 		WW_AttackTime = HohonuData->WW_AttackTime;
 		WW_IncreaseMoveSpeedPerSecond = HohonuData->WW_IncreaseMoveSpeed;
 		WW_MaxMoveSpeed = HohonuData->WW_MaxMoveSpeed;
+		WW_RotateSpeed = HohonuData->WW_RotateSpeed;
 		
 		BS_Range = HohonuData->BS_Range;
 		BS_MoveSpeed = HohonuData->BS_MoveSpeed;
@@ -298,7 +300,34 @@ void AKWBossMonsterHohonu::OmenPattern_ML()
 
 void AKWBossMonsterHohonu::ExecutePattern_SC()
 {
+	if(!SC_Instances.Num())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Crystal Instance Blank!!! "));
+		return;
+	}
 	
+	UE_LOG(LogTemp, Log, TEXT("Hohonu SummonCrystal Start"));
+	bIsAttacking = true;
+	int SummonCount = 0;
+	GetWorldTimerManager().SetTimer(SC_SpawnTimerHandle, FTimerDelegate::CreateLambda([&]()
+	{
+		if(FPPTimerHelper::IsDelayElapsed(SC_SpawnTimerHandle, SC_SpawnDelay))
+		{
+			bIsCanSummon = true;
+		}
+	}), 0.01f, true);
+	
+	while (SummonCount == SC_Instances.Num() - 1)
+	{
+		if(bIsCanSummon)
+		{
+			SC_Instances[SummonCount]->SetActorLocation(TargetPlayer->GetActorLocation() + FVector(0.f, 0.f, SC_SpawnHeight));
+			SC_Instances[SummonCount]->ActivateAndDropDownSequence();
+			bIsCanSummon = false;
+			SummonCount++;
+		}
+	}
+	bIsAttacking = false;
 }
 
 void AKWBossMonsterHohonu::ExecutePattern_SL()
@@ -336,10 +365,10 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			GetActorLocation(),
 			FQuat::Identity,
 			ECollisionChannel::ECC_Pawn,
-			FCollisionShape::MakeBox(FVector(400.f, 400.f, 400.f)),
+			FCollisionShape::MakeBox(WW_DamageRange),
 			Params);
 
-			DrawDebugBox(GetWorld(), GetActorLocation(), FVector(400.f, 400.f, 400.f), FColor::Red);
+			DrawDebugBox(GetWorld(), GetActorLocation(), WW_DamageRange, FColor::Red);
 			
 			if(bResult)
 			{
@@ -353,7 +382,7 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			}
 
 			FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-			AddActorLocalRotation(FRotator(0.f, 10.f, 0.f));
+			AddActorLocalRotation(FRotator(0.f, WW_RotateSpeed, 0.f));
 			AddMovementInput(MoveDirection);
 			if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
 			{

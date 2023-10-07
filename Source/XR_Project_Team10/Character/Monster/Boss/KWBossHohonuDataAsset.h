@@ -46,28 +46,58 @@ public:
 	 * 연발 레이저 = MultipleLaser = ML_
 	 **/
 public:
-	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 수정 갯수")
-	float SC_Count;
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "수정 메시")
+	TObjectPtr<UStaticMesh> SC_Mesh;
+	
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "수정 소환 이펙트")
+	TObjectPtr<UNiagaraSystem> SC_CreateVFX;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "수정 낙하 이펙트")
+	TObjectPtr<UNiagaraSystem> SC_DropDownVFX;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "수정 파동 이펙트")
+	TObjectPtr<UNiagaraSystem> SC_WaveVFX;
+	
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "수정 파괴 이펙트")
+	TObjectPtr<UNiagaraSystem> SC_DestroyVFX;
+	
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 생성 간격")
+	float SC_SpawnDelay;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 생성 높이")
+	float SC_SpawnHeight;
 	
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 수정 체력")
 	float SC_Hp;
 	
-	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 데미지")
-	float SC_Damage;
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 낙하 대미지")
+	float SC_DropDownDamage;
 
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 낙하 속도")
-	float SC_Speed;
+	float SC_DropDownSpeed;
 
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 공격 파동 너비")
+	float SC_WaveLength;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 공격 파동 대미지")
+	float SC_WaveDamage;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 수정 공격 간격(초)")
 	float SC_AttackDelay;
-
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 공격 최대 범위")
 	float SC_MaxAttackRange;
 	
-	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 공격 범위 증가 속도")
-	float SC_IncreaseAttackRange;
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 초당 공격 범위 증가 속도")
+	float SC_IncreaseAttackRangePerSecond;
 
 public:
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 충전 이펙트")
+	TObjectPtr<UNiagaraSystem> SL_ChargeVFX;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 이펙트")
+	TObjectPtr<UNiagaraSystem> SL_LaserVFX;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 데미지")
 	float SL_Damage;
 
@@ -84,6 +114,9 @@ public:
 	float SL_AttackRange;
 
 public:
+	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 이펙트")
+	TObjectPtr<UNiagaraSystem> MA_HandVFX;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 데미지")
 	float MA_Damage;
 
@@ -91,9 +124,15 @@ public:
 	float MA_AttackSpeed;
 	
 public:
+	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 이펙트")
+	TObjectPtr<UNiagaraSystem> WW_WindVFX;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 데미지")
 	float WW_Damage;
 
+	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 판정 범위")
+	FVector WW_DamageRange;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 전조 시간(초)")
 	float WW_AttackDelay;
 
@@ -106,7 +145,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 최대 이동 속도")
 	float WW_MaxMoveSpeed;
 
+	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 회전 속도")
+	float WW_RotateSpeed;
+	
 public:
+	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 이펙트")
+	TObjectPtr<UNiagaraSystem> BS_WindVFX;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 거리")
 	float BS_Range;
 
@@ -114,6 +159,9 @@ public:
 	float BS_MoveSpeed;
 
 public:
+	UPROPERTY(EditAnywhere, Category = Pattern_F, DisplayName = "호호누 연발레이저 이펙트")
+	TObjectPtr<UNiagaraSystem> ML_LaserVFX;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_F, DisplayName = "호호누 연발 레이저 데미지")
 	float ML_Damage;
 
