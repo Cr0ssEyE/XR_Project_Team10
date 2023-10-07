@@ -1,24 +1,40 @@
 #include "XR_Project_Team10/Interaction/JumpPad.h"
 
+#include "XR_Project_Team10/Util/PPConstructorHelper.h"
+
 AJumpPad::AJumpPad()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	BaseMesh->SetStaticMesh(FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'")));
+	RootComponent = BaseMesh;
+	
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
+	CollisionBox->SetupAttachment(BaseMesh);
+	CollisionBox->SetBoxExtent(FVector(100.f, 100.f, 50.f));
+
+	bResetVelocity = false;
 }
 
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 void AJumpPad::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	auto playableCharacter = Cast<AKWPlayerCharacter>(OtherActor);
+	auto PlayableCharacter = Cast<AKWPlayerCharacter>(OtherActor);
 
-	if (nullptr != playableCharacter) {
+	if (PlayableCharacter)
+	{
 		UE_LOG(LogTemp, Log, TEXT("jump"));
 
-		auto CharacterMesh = playableCharacter->GetMeshComp();
+		auto CharacterMesh = PlayableCharacter->GetMeshComp();
 		FVector JumpVelocityVector = FVector(0.f, 0.f, JumpForceValue);
-
+		if(bResetVelocity)
+		{
+			CharacterMesh->SetPhysicsLinearVelocity(FVector::ZeroVector);
+		}
 		switch (JumpPadType)
 		{
-		case E_Contact: {
+		case EJumpPadType::E_Contact:
 			UE_LOG(LogTemp, Log, TEXT("contact jump"));
 
 			/*GetWorldTimerManager().SetTimer(JumpDelayTimerHandle, FTimerDelegate::CreateLambda([&]()
@@ -29,22 +45,22 @@ void AJumpPad::NotifyActorBeginOverlap(AActor* OtherActor)
 						GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
 					}
 				}), 0.01f, true);*/
-
-			CharacterMesh->SetPhysicsLinearVelocity(CharacterMesh->GetPhysicsLinearVelocity() + JumpVelocityVector * 100);
-		}
+			JumpVelocityVector += CharacterMesh->GetPhysicsLinearVelocity();
+			CharacterMesh->SetPhysicsLinearVelocity(JumpVelocityVector);
 			break;
-		case E_Timing:
+		case EJumpPadType::E_Timing:
 			break;
-		case E_Delay:
+		case EJumpPadType::E_Delay:
 			break;
-		case E_PileDriver:
+		case EJumpPadType::E_PileDriver:
 			break;
 		default:
-			break;
+			checkNoEntry();
 		}
 	}
 }
 
 void AJumpPad::NotifyActorEndOverlap(AActor* OtherActor)
 {
+	
 }

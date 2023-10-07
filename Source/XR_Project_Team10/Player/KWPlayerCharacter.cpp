@@ -20,7 +20,6 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -68,9 +67,12 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	MoveInputAction = CharacterData->MoveInputAction;
 	JumpAction = CharacterData->JumpAction;
 	AttackAction = CharacterData->AttackAction;
+	FileDriverAction = CharacterData->FileDriverAction;
 	
+	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
 	DefaultMaxVelocityValue = CharacterData->DefaultMaxVelocityValue;
+	SystemMaxVelocityValue = CharacterData->SystemMaxVelocityValue;
 	CurrentMaxVelocityValue = DefaultMaxVelocityValue;
 	MaxVelocityMagnificationByGear = CharacterData->MaxVelocityMagnificationByGear;
 
@@ -81,18 +83,22 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	
 	RB_MultiplyValuesByGear = CharacterData->RB_MultiplyValuesByGear;
 	RB_MultiplyValuesByObjectType = CharacterData->RB_MultiplyValuesByObjectType;
-	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	RBD_JustTimingValue = CharacterData->RBD_JustTimingValue;
 	RB_DisableMovementTime = CharacterData->RB_DisableMovementTime;
+	RBD_AddVelocityValue = CharacterData->RBD_AddVelocityValue;
+	
+	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
 	
 	DA_AddVelocityValue = CharacterData->DA_AddVelocityValue;
 	DA_DurationTime = CharacterData->DA_DurationTime;
 	DA_DecelerateValue = CharacterData->DA_DecelerateValue;
-	RBD_AddVelocityValue = CharacterData->RBD_AddVelocityValue;
+	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
+
 	DropDownVelocityValue = CharacterData->DropDownVelocityValue;
 	DropDownMinimumHeightValue = CharacterData->DropDownMinimumHeightValue;
-	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
+	DropDownCoolDownTime = CharacterData->DropDownCoolDownTime;
+	
 	ColorsByGear = CharacterData->ColorsByGear;
 }
 
@@ -120,7 +126,8 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsDead = false;
 	bIsMoving = false;
 	bIsRolling = false;
-	bIsJumping = false;
+	bIsFlying = false;
+	bIsUsedFlyDash = false;
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
@@ -140,22 +147,57 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	{	
 		SpringArm->SetRelativeLocation(RootComponent->GetComponentToWorld().GetLocation());;
 	}
+	
 	if(!bIsMoving && bIsRolling && RollingMesh->GetPhysicsLinearVelocity().Length() > 100.f)
 	{
 		VelocityDecelerateTimer();
 	}
+	
 	if(bIsRolling)
 	{
 		CheckGearState();
 		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
 		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
+		
+		FVector PlaneVelocityVector = RollingMesh->GetPhysicsLinearVelocity();
+		if(abs(PlaneVelocityVector.Z) > DropDownMinimumHeightValue)
+		{
+			bIsFlying = true;
+		}
+
+		// 체공 체크용 충돌 체크.
+		// 추후 공 모델링 적용시 소켓을 사용하여 바닥 위치 지정
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() - FVector(0.f, 0.f, 70.f),
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeBox(FVector(10.f, 10.f, 10.f)),
+		Params);
+			
+		if(bResult)
+		{
+			bIsFlying = false;
+			bIsUsedFlyDash = false;
+		}
+		
+		PlaneVelocityVector.Z = 0.f;
+		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2)
+		{
+			float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, RollingMesh->GetPhysicsLinearVelocity().Z));
+		}
 	}
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
 	
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
 }
 
 // Called to bind functionality to input
@@ -179,6 +221,8 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpAddForceAction);
 	
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::AttackActionSequence);
+
+	EnhancedInputComponent->BindAction(FileDriverAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::DropDownActionSequence);
 }
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
@@ -263,7 +307,7 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 {
 	
-	if(bIsJumping || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
+	if(bIsFlying || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
 	{
 		return;
 	}
@@ -272,11 +316,11 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 	{
 		if(FPPTimerHelper::IsDelayElapsed(JumpDelayTimerHandle, JumpDelayTime))
 		{
-			bIsJumping = false;
+			bIsFlying = false;
 			GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
 		}
 	}), 0.01f, true);
-	bIsJumping = true;
+	bIsFlying = true;
 	if(bIsRolling)
 	{
 		const FVector JumpVelocityVector = FVector(0.f, 0.f, AddJumpForceValue);
@@ -329,30 +373,43 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 		{
 			return;
 		}
-	
-		if(bIsJumping && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+
+		if(bCanDashOnFlying && !bIsUsedFlyDash)
 		{
-			FD_ProceedAction();
+			bIsUsedFlyDash = true;
+			DA_ProceedAction();
+			return;
 		}
-		else
-		{
-			FHitResult HitResult;
-			FCollisionQueryParams Params(NAME_None, false, this);
-		
-			bool bResult = GetWorld()->SweepSingleByChannel(
-			HitResult,
-			GetActorLocation(),
-			GetActorLocation(),
-			FQuat::Identity,
-			ECollisionChannel::ECC_GameTraceChannel1,
-			FCollisionShape::MakeSphere(70.0f),
-			Params);
 			
-			if(bResult)
-			{
-				DA_ProceedAction();
-			}
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
+		
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation(),
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(70.0f),
+		Params);
+			
+		if(bResult)
+		{
+			DA_ProceedAction();
 		}
+	}
+}
+
+void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
+{
+	if(bIsReBounding || GetWorldTimerManager().IsTimerActive(DropDownTimerHandle) || GetWorldTimerManager().IsTimerActive(DropDownCoolDownTimerHandle))
+	{
+		return;
+	}
+
+	if(bIsFlying && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+	{
+		FD_ProceedAction();
 	}
 }
 
@@ -364,6 +421,18 @@ void AKWPlayerCharacter::AttackCoolDownTimer()
 			{
 				GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
+			}
+		}), 0.01f, true);
+}
+
+void AKWPlayerCharacter::DropDownCoolDownTimer()
+{
+	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			if(FPPTimerHelper::IsDelayElapsed(DropDownCoolDownTimerHandle, DropDownCoolDownTime))
+			{
+				GetWorldTimerManager().ClearTimer(DropDownCoolDownTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(DropDownCoolDownTimerHandle);
 			}
 		}), 0.01f, true);
 }
@@ -486,7 +555,7 @@ void AKWPlayerCharacter::FD_ProceedAction()
 				RollingMesh->SetSimulatePhysics(true);
 				const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
 				RollingMesh->SetPhysicsLinearVelocity(DroppingVelocity);
-				AttackCoolDownTimer();
+				DropDownCoolDownTimer();
 				GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(DropDownTimerHandle);
 			}

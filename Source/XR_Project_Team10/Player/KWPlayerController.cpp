@@ -2,6 +2,7 @@
 
 
 #include "XR_Project_Team10/Player/KWPlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 AKWPlayerController::AKWPlayerController()
 {
@@ -12,7 +13,9 @@ void AKWPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const FInputModeGameOnly GameOnlyInputMode;
+	UGameplayStatics::SetViewportMouseCaptureMode(this, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown);
+	FInputModeGameOnly GameOnlyInputMode;
+	GameOnlyInputMode.SetConsumeCaptureMouseDown(false);
 	SetShowMouseCursor(true);
 	SetInputMode(GameOnlyInputMode);
 }
