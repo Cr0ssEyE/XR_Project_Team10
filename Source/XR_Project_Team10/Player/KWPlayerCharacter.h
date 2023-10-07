@@ -87,6 +87,7 @@ protected:
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
+	void FileDriverActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
 	void VelocityDecelerateTimer();
 
@@ -119,6 +120,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UInputAction> AttackAction;
 
+	UPROPERTY()
+	TObjectPtr<class UInputAction> FileDriverAction;
+	
 	/**
 	 * 캐릭터 움직임 관련 변수 리스트
 	 **/
@@ -171,7 +175,10 @@ private:
 	FVector VelocityDecelerateTarget;
 
 	/** 공격 관련 변수 리스트 \n
-	 * AttackDash를 AD_ 와 같은 형태로 축약해서 표현한다.
+	* 약어 정리 \n
+	* DA = DashAttack \n 
+	* RB = ReBound \n
+	* RBD = ReBoundDash \n
 	**/
 private:
 	FTimerHandle DA_DurationTimerHandle;
@@ -199,6 +206,9 @@ private:
 	UPROPERTY()
 	float DropDownMinimumHeightValue;
 
+	UPROPERTY()
+	float DropDownCoolDownTime;
+	
 	/**
 	 *	플레이어 상태 관련 함수 리스트
 	 **/

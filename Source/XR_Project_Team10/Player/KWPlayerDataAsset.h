@@ -94,15 +94,19 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 후 감속 배율")
 	float DA_DecelerateValue;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 대기 시간")
+	float AttackCoolDownTime;
 	
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "내려찍기 공격 속도 값")
+public:
+	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 속도 값")
 	float DropDownVelocityValue;
 
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "내려찍기 공격 최소 높이 값")
+	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 최소 높이 값")
 	float DropDownMinimumHeightValue;
 	
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 대기 시간")
-	float AttackCoolDownTime;
+	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 대기 시간")
+	float DropDownCoolDownTime;
 
 	// 리바운드 관련 변수
 public:
@@ -132,9 +136,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 이동 입력 키")
 	TObjectPtr<class UInputAction> MoveInputAction;
 
-	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "테스트용 점프 입력 키")
+	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "점프 입력 키")
 	TObjectPtr<class UInputAction> JumpAction;
 
-	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 대시 입력 키")
+	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 대시 및 리바운드 입력 키")
 	TObjectPtr<class UInputAction> AttackAction;
+
+	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 파일 드라이버 입력 키")
+	TObjectPtr<class UInputAction> FileDriverAction;
 };

@@ -68,7 +68,8 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	MoveInputAction = CharacterData->MoveInputAction;
 	JumpAction = CharacterData->JumpAction;
 	AttackAction = CharacterData->AttackAction;
-
+	FileDriverAction = CharacterData->FileDriverAction;
+	
 	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
 	DefaultMaxVelocityValue = CharacterData->DefaultMaxVelocityValue;
@@ -83,18 +84,22 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	
 	RB_MultiplyValuesByGear = CharacterData->RB_MultiplyValuesByGear;
 	RB_MultiplyValuesByObjectType = CharacterData->RB_MultiplyValuesByObjectType;
-	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	RBD_JustTimingValue = CharacterData->RBD_JustTimingValue;
 	RB_DisableMovementTime = CharacterData->RB_DisableMovementTime;
+	RBD_AddVelocityValue = CharacterData->RBD_AddVelocityValue;
+	
+	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
 	
 	DA_AddVelocityValue = CharacterData->DA_AddVelocityValue;
 	DA_DurationTime = CharacterData->DA_DurationTime;
 	DA_DecelerateValue = CharacterData->DA_DecelerateValue;
-	RBD_AddVelocityValue = CharacterData->RBD_AddVelocityValue;
+	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
+
 	DropDownVelocityValue = CharacterData->DropDownVelocityValue;
 	DropDownMinimumHeightValue = CharacterData->DropDownMinimumHeightValue;
-	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
+	DropDownCoolDownTime = CharacterData->DropDownCoolDownTime;
+	
 	ColorsByGear = CharacterData->ColorsByGear;
 }
 
@@ -193,6 +198,8 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpAddForceAction);
 	
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::AttackActionSequence);
+
+	EnhancedInputComponent->BindAction(FileDriverAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::FileDriverActionSequence);
 }
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
@@ -373,6 +380,24 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 				DA_ProceedAction();
 			}
 		}
+	}
+}
+
+void AKWPlayerCharacter::FileDriverActionSequence(const FInputActionValue& Value)
+{
+	if(bIsReBounding)
+	{
+		return;
+	}
+
+	if(GetWorldTimerManager().IsTimerActive(DropDownTimerHandle))
+	{
+		return;
+	}
+	
+	if(bIsFlying && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+	{
+		FD_ProceedAction();
 	}
 }
 
