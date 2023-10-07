@@ -25,7 +25,7 @@ void AKWHohonuAIController::ActivateAI()
 	if(UseBlackboard(BlackboardData, BlackboardComponent) && ControllingPawn)
 	{
 		Blackboard->SetValueAsVector(KEY_BASE_LOCATION, GetPawn()->GetActorLocation());
-		Blackboard->SetValueAsFloat(KEY_HOHONU_HP, ControllingPawn->GetHp());
+		Blackboard->SetValueAsFloat(KEY_MONSTER_HP, ControllingPawn->GetHp());
 		Blackboard->SetValueAsFloat(KEY_HOHONU_SC_COOLDOWN, 0.f);
 		Blackboard->SetValueAsFloat(KEY_HOHONU_SL_COOLDOWN, 0.f);
 		Blackboard->SetValueAsFloat(KEY_HOHONU_MA_COOLDOWN, 0.f);
@@ -70,7 +70,7 @@ void AKWHohonuAIController::SetTarget(const TArray<AActor*>& Actors)
 void AKWHohonuAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	Blackboard->SetValueAsFloat(KEY_HOHONU_HP, ControllingPawn->GetHp());
+	Blackboard->SetValueAsFloat(KEY_MONSTER_HP, ControllingPawn->GetHp());
 	CheckCoolDown(KEY_HOHONU_SC_COOLDOWN);
 	CheckCoolDown(KEY_HOHONU_SL_COOLDOWN);
 	CheckCoolDown(KEY_HOHONU_MA_COOLDOWN);

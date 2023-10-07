@@ -87,7 +87,9 @@ protected:
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
+	void DropDownActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
+	void DropDownCoolDownTimer();
 	void VelocityDecelerateTimer();
 
 	/**
@@ -119,6 +121,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UInputAction> AttackAction;
 
+	UPROPERTY()
+	TObjectPtr<class UInputAction> FileDriverAction;
+	
 	/**
 	 * 캐릭터 움직임 관련 변수 리스트
 	 **/
@@ -135,6 +140,9 @@ private:
 	UPROPERTY()
 	float DefaultMaxVelocityValue;
 
+	UPROPERTY()
+	float SystemMaxVelocityValue;
+	
 	UPROPERTY()
 	float CurrentMaxVelocityValue;
 	
@@ -168,12 +176,20 @@ private:
 	FVector VelocityDecelerateTarget;
 
 	/** 공격 관련 변수 리스트 \n
-	 * AttackDash를 AD_ 와 같은 형태로 축약해서 표현한다.
+	* 약어 정리 \n
+	* DA = DashAttack \n 
+	* RB = ReBound \n
+	* RBD = ReBoundDash \n
 	**/
 private:
 	FTimerHandle DA_DurationTimerHandle;
 	
 	FTimerHandle AttackCoolDownTimerHandle;
+
+	FTimerHandle DropDownCoolDownTimerHandle;
+	
+	UPROPERTY()
+	uint8 bCanDashOnFlying : 1;
 	
 	UPROPERTY()
 	float DA_AddVelocityValue;
@@ -193,6 +209,9 @@ private:
 	UPROPERTY()
 	float DropDownMinimumHeightValue;
 
+	UPROPERTY()
+	float DropDownCoolDownTime;
+	
 	/**
 	 *	플레이어 상태 관련 함수 리스트
 	 **/
@@ -209,19 +228,21 @@ private:
 
 	TArray<FLinearColor> ColorsByGear;
 	
-	uint32 bIsDead : 1;
+	uint8 bIsDead : 1;
 	
-	uint32 bIsMoving : 1;
+	uint8 bIsMoving : 1;
 	
-	uint32 bIsRolling : 1;
+	uint8 bIsRolling : 1;
 
-	uint32 bIsJumping : 1;
+	uint8 bIsFlying : 1;
 
-	uint32 bIsReBounding : 1;
-
-	uint32 bIsInputJustAction : 1;
+	uint8 bIsUsedFlyDash : 1;
 	
-	uint32 bIsAttackOnGoing : 1;
+	uint8 bIsReBounding : 1;
+
+	uint8 bIsInputJustAction : 1;
+	
+	uint8 bIsAttackOnGoing : 1;
 
 	/** 리바운드 관련 함수 리스트\n
 	 * 캐릭터에서 너무 많은 기능을 수행해서는 안되므로 \n

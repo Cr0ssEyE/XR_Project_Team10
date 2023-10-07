@@ -24,7 +24,7 @@ void UBTService_KWHohonuLunaticCheck::TickNode(UBehaviorTreeComponent& OwnerComp
 	UKWBossHohonuDataAsset* DataAsset = Cast<UKWBossHohonuDataAsset>(ControllingPawn->GetBossStatusData());
 	ensure(DataAsset);
 
-	if(Blackboard->GetValueAsFloat(KEY_HOHONU_HP) < DataAsset->HohonuLunaticHp)
+	if(Blackboard->GetValueAsFloat(KEY_MONSTER_HP) < DataAsset->HohonuLunaticHp)
 	{
 		Blackboard->SetValueAsBool(KEY_HOHONU_LUNATIC_BOOLEAN, true);
 	}
