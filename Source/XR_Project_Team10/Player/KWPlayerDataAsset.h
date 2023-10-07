@@ -105,7 +105,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 최소 높이 값")
 	float DropDownMinimumHeightValue;
 	
-	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 대기 시간")
+	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 재사용 대기 시간")
 	float DropDownCoolDownTime;
 
 	// 리바운드 관련 변수

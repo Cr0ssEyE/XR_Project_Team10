@@ -87,8 +87,9 @@ protected:
 
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
-	void FileDriverActionSequence(const FInputActionValue& Value);
+	void DropDownActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
+	void DropDownCoolDownTimer();
 	void VelocityDecelerateTimer();
 
 	/**
@@ -185,6 +186,8 @@ private:
 	
 	FTimerHandle AttackCoolDownTimerHandle;
 
+	FTimerHandle DropDownCoolDownTimerHandle;
+	
 	UPROPERTY()
 	uint8 bCanDashOnFlying : 1;
 	
@@ -225,19 +228,21 @@ private:
 
 	TArray<FLinearColor> ColorsByGear;
 	
-	uint32 bIsDead : 1;
+	uint8 bIsDead : 1;
 	
-	uint32 bIsMoving : 1;
+	uint8 bIsMoving : 1;
 	
-	uint32 bIsRolling : 1;
+	uint8 bIsRolling : 1;
 
-	uint32 bIsFlying : 1;
+	uint8 bIsFlying : 1;
 
-	uint32 bIsReBounding : 1;
-
-	uint32 bIsInputJustAction : 1;
+	uint8 bIsUsedFlyDash : 1;
 	
-	uint32 bIsAttackOnGoing : 1;
+	uint8 bIsReBounding : 1;
+
+	uint8 bIsInputJustAction : 1;
+	
+	uint8 bIsAttackOnGoing : 1;
 
 	/** 리바운드 관련 함수 리스트\n
 	 * 캐릭터에서 너무 많은 기능을 수행해서는 안되므로 \n

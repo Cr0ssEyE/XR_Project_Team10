@@ -20,7 +20,6 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -128,6 +127,7 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsMoving = false;
 	bIsRolling = false;
 	bIsFlying = false;
+	bIsUsedFlyDash = false;
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
@@ -159,8 +159,32 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
 		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
-
+		
 		FVector PlaneVelocityVector = RollingMesh->GetPhysicsLinearVelocity();
+		if(abs(PlaneVelocityVector.Z) > DropDownMinimumHeightValue)
+		{
+			bIsFlying = true;
+		}
+
+		// 체공 체크용 충돌 체크.
+		// 추후 공 모델링 적용시 소켓을 사용하여 바닥 위치 지정
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() - FVector(0.f, 0.f, 70.f),
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeBox(FVector(10.f, 10.f, 10.f)),
+		Params);
+			
+		if(bResult)
+		{
+			bIsFlying = false;
+			bIsUsedFlyDash = false;
+		}
+		
 		PlaneVelocityVector.Z = 0.f;
 		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2)
 		{
@@ -168,7 +192,6 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 			float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
 			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, RollingMesh->GetPhysicsLinearVelocity().Z));
 		}
-	
 	}
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
@@ -199,7 +222,7 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::AttackActionSequence);
 
-	EnhancedInputComponent->BindAction(FileDriverAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::FileDriverActionSequence);
+	EnhancedInputComponent->BindAction(FileDriverAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::DropDownActionSequence);
 }
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
@@ -350,51 +373,40 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 		{
 			return;
 		}
-	
-		if(bIsFlying && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+
+		if(bCanDashOnFlying && !bIsUsedFlyDash)
 		{
-			FD_ProceedAction();
+			bIsUsedFlyDash = true;
+			DA_ProceedAction();
+			return;
 		}
-		else
-		{
-			if(bCanDashOnFlying)
-			{
-				DA_ProceedAction();
-				return;
-			}
 			
-			FHitResult HitResult;
-			FCollisionQueryParams Params(NAME_None, false, this);
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
 		
-			bool bResult = GetWorld()->SweepSingleByChannel(
-			HitResult,
-			GetActorLocation(),
-			GetActorLocation(),
-			FQuat::Identity,
-			ECollisionChannel::ECC_GameTraceChannel1,
-			FCollisionShape::MakeSphere(70.0f),
-			Params);
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation(),
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(70.0f),
+		Params);
 			
-			if(bResult)
-			{
-				DA_ProceedAction();
-			}
+		if(bResult)
+		{
+			DA_ProceedAction();
 		}
 	}
 }
 
-void AKWPlayerCharacter::FileDriverActionSequence(const FInputActionValue& Value)
+void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
 {
-	if(bIsReBounding)
+	if(bIsReBounding || GetWorldTimerManager().IsTimerActive(DropDownTimerHandle) || GetWorldTimerManager().IsTimerActive(DropDownCoolDownTimerHandle))
 	{
 		return;
 	}
 
-	if(GetWorldTimerManager().IsTimerActive(DropDownTimerHandle))
-	{
-		return;
-	}
-	
 	if(bIsFlying && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
 	{
 		FD_ProceedAction();
@@ -409,6 +421,18 @@ void AKWPlayerCharacter::AttackCoolDownTimer()
 			{
 				GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
+			}
+		}), 0.01f, true);
+}
+
+void AKWPlayerCharacter::DropDownCoolDownTimer()
+{
+	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			if(FPPTimerHelper::IsDelayElapsed(DropDownCoolDownTimerHandle, DropDownCoolDownTime))
+			{
+				GetWorldTimerManager().ClearTimer(DropDownCoolDownTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(DropDownCoolDownTimerHandle);
 			}
 		}), 0.01f, true);
 }
@@ -531,7 +555,7 @@ void AKWPlayerCharacter::FD_ProceedAction()
 				RollingMesh->SetSimulatePhysics(true);
 				const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
 				RollingMesh->SetPhysicsLinearVelocity(DroppingVelocity);
-				AttackCoolDownTimer();
+				DropDownCoolDownTimer();
 				GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(DropDownTimerHandle);
 			}
