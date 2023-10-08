@@ -133,7 +133,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	// SpringArm->SetRelativeLocation(RootComponent->GetRelativeLocation());
-	
+
 	if(PlayerComponent->GetRelativeScale3D() != FVector::ZeroVector)
 	{
 		SpringArm->SetRelativeLocation(PlayerComponent->GetComponentToWorld().GetLocation());
@@ -146,20 +146,41 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	{
 		VelocityDecelerateTimer();
 	}
+
 	if(bIsRolling)
 	{
 		CheckGearState();
 		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
 		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
+
 	}
+	else {
+
+	}
+
+	/*UE_LOG(LogTemp, Log, TEXT("Rolling : %f, %f, %f"),
+		RollingMesh->GetOwner()->GetActorTransform().GetLocation().X,
+		RollingMesh->GetOwner()->GetActorTransform().GetLocation().Y,
+		RollingMesh->GetOwner()->GetActorTransform().GetLocation().Z);
+	UE_LOG(LogTemp, Log, TEXT("Player : %f, %f, %f"),
+		PlayerComponent->GetRelativeLocation().X,
+		PlayerComponent->GetRelativeLocation().Y,
+		PlayerComponent->GetRelativeLocation().Z);*/
+
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
 }
-
+//
+//PlayerComponent->SetRelativeLocation(RollingMesh->GetOwner()->GetActorLocation());
+//
+//	}
+//	else {
+//		this->SetActorLocation(PlayerComponent->GetRelativeLocation());
+//	}
 // Called to bind functionality to input
 void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

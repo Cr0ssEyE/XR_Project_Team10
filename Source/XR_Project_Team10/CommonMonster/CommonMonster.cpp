@@ -3,7 +3,7 @@
 
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/AI/Common/KWCommonAIController.h"
-#include "XR_Project_Team10/Util/PPConstructorHelper.h"
+#include "XR_Project_Team10/Util/PPTimerHelper.h"
 
 ACommonMonster::ACommonMonster()
 {
@@ -33,15 +33,34 @@ void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAt
 	OnAttackFinished = InOnAttackFinished;
 }
 
-void ACommonMonster::AttackOmen()
+void ACommonMonster::AttackOmen(AActor* Target)
 {
 }
 
-void ACommonMonster::Attack()
+void ACommonMonster::Attack(AActor* Target)
 {
 }
 
-void ACommonMonster::Dead()
+void ACommonMonster::CommonMonsterAttack(AActor* Target)
+{
+	if (GetWorldTimerManager().IsTimerActive(AttackCoolDownTimerHandle)) {
+		return;
+	}
+
+	AttackOmen(Target);
+	Attack(Target);
+
+	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]() {
+		if (FPPTimerHelper::IsDelayElapsed(AttackCoolDownTimerHandle, MonsterAttackCoolDownTime)) {
+			GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
+			FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
+		}
+		}), 0.01f, true);
+
+	OnAttackFinished.ExecuteIfBound();
+}
+
+void ACommonMonster::CommonMonsterDead()
 {
 }
 

@@ -23,9 +23,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void AttackOmen() override;
-	virtual void Attack() override;
-	virtual void Dead() override;
+	virtual void AttackOmen(AActor* Target) override;
+	virtual void Attack(AActor* Target) override;
 	
 	// 외부 수정 변수
 private:
@@ -34,9 +33,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리")
 	float AttackRange;
-
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "다음 공격 시간")
-	float AttackNextTime;
 
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 시작 위치")
 	TArray<FVector> AttackOffsets;

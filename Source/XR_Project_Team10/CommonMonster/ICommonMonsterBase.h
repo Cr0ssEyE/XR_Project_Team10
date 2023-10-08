@@ -21,10 +21,13 @@ class XR_PROJECT_TEAM10_API IICommonMonsterBase
 
 	public:
 	virtual void SetCommonAttackDelegate(const FCommonAttackFinished& InOnAttackFinished) = 0;
+	virtual void CommonMonsterAttack(AActor* Target) = 0;
+	virtual void CommonMonsterDead() = 0;			//사망
 
-	virtual void AttackOmen() = 0;		//공격 전조
-	virtual void Attack() = 0;			//공격
-	virtual void Dead() = 0;			//사망
+protected:
+	virtual void AttackOmen(AActor* Target) = 0;		//공격 전조
+	virtual void Attack(AActor* Target) = 0;			//공격
+
 
 protected:
 	// AI에 필요한 변수

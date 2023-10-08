@@ -6,7 +6,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"
-#include "XR_Project_Team10/Interface/KWMonsterAIInterface.h"
 
 UBTTask_CommonAttack::UBTTask_CommonAttack()
 {
@@ -25,7 +24,13 @@ EBTNodeResult::Type UBTTask_CommonAttack::ExecuteTask(UBehaviorTreeComponent& Ow
 	if (nullptr == AIPawn) {
 		return EBTNodeResult::Failed;
 	}
-	
+
+	AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(KEY_TARGET));
+	if (nullptr == TargetActor) {
+		return EBTNodeResult::Failed;
+	}
+
+
 	FCommonAttackFinished OnAttackFinished;
 	OnAttackFinished.BindLambda(
 		[&]() {
@@ -33,6 +38,6 @@ EBTNodeResult::Type UBTTask_CommonAttack::ExecuteTask(UBehaviorTreeComponent& Ow
 		}
 	);
 	AIPawn->SetCommonAttackDelegate(OnAttackFinished);
-	AIPawn->Attack();
+	AIPawn->CommonMonsterAttack(TargetActor);
 	return EBTNodeResult::InProgress;
 }

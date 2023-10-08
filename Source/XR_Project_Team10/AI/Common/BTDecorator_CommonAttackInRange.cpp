@@ -15,7 +15,6 @@ UBTDecorator_CommonAttackInRange::UBTDecorator_CommonAttackInRange()
 
 bool UBTDecorator_CommonAttackInRange::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	UE_LOG(LogTemp, Log, TEXT("Attack"));
 	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 
 	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();

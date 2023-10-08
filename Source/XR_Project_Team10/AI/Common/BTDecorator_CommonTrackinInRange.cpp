@@ -33,9 +33,10 @@ bool UBTDecorator_CommonTrackinInRange::CalculateRawConditionValue(UBehaviorTree
 		return false;
 	}
 
+	//UE_LOG(LogTemp, Log, TEXT("%d %d %d"), Target->GetOwner()->GetActorLocation().X, Target->GetOwner()->GetActorLocation().Y, Target->GetOwner()->GetActorLocation().Z);
 	float DistanceToTarget = ControllingPawn->GetDistanceTo(Target);
 	float TrackingRangeWithRadius = AIPawn->MonsterData->MonsterTrackingRange;
 	bResult = (DistanceToTarget <= TrackingRangeWithRadius);
-	UE_LOG(LogTemp, Log, TEXT("Distance : %f, Tracking : %f, Bool : %d"),DistanceToTarget,TrackingRangeWithRadius,bResult ? 1 : 0);
+	//UE_LOG(LogTemp, Log, TEXT("Distance : %f, Tracking : %f, Bool : %d"),DistanceToTarget,TrackingRangeWithRadius,bResult ? 1 : 0);
 	return bResult;
 }

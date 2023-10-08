@@ -17,14 +17,8 @@ ADarkWing::ADarkWing()
 			FeatherClass = Feather.Object->GeneratedClass;
 	}
 
-		//깃털 생성 위치 오프셋 설정
-		FVector OffsetVector = GetActorLocation();
 		if (AttackOffsets.Num() == 0) {
 			AttackOffsets.Add(FVector(0, 0, 0));
-		}
-		
-		for (FVector vec : AttackOffsets) {
-			vec = vec + OffsetVector;
 		}
 }
 
@@ -86,35 +80,39 @@ void ADarkWing::BeginPlay()
 //}
 
 //공격 전조
-void ADarkWing::AttackOmen()
+void ADarkWing::AttackOmen(AActor* Target)
 {
 	// 전조
+	UE_LOG(LogTemp, Log, TEXT("DarkWing Attack Omen"));
 }
 
 //공격
-void ADarkWing::Attack()
+void ADarkWing::Attack(AActor* Target)
 {
 	// 플레이어를 향해 깃털 n개 발사
 	if (nullptr != FeatherClass) {
-		FVector MuzzleLocation = AttackOffsets[0] + GetActorLocation();
-		FRotator MuzzleRotation;
+
+		UE_LOG(LogTemp, Log, TEXT("Target :: %s"), *Target->GetName());
+		FVector TargetLocation = Target->GetActorLocation();
+		TargetLocation.Z = 0;
 
 		UWorld* World = GetWorld();
 		if (World) {
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			for (uint32 i = 0; i < FeatherNum; i++) {
+				FVector MuzzleLocation = AttackOffsets[i] + this->GetActorLocation();
+				FRotator MuzzleRotation;
+
 				ADW_FeatherProjectile* Feather = World->SpawnActor<ADW_FeatherProjectile>(FeatherClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+				Feather->SetVariables(FeatherPower, FeatherSpeed, FeatherDeleteTime);
+
 				if (Feather) {
-					FVector LaunchDirection = MuzzleRotation.Vector();
-					Feather->FireInDirection(FVector(0, 10, 0));
+					FVector LaunchDirection = (TargetLocation - MuzzleLocation).GetSafeNormal();
+
+					Feather->FireInDirection(LaunchDirection);
 				}
 			}
 		}
 	}
-	OnAttackFinished.ExecuteIfBound();
-}
-
-void ADarkWing::Dead()
-{
 }

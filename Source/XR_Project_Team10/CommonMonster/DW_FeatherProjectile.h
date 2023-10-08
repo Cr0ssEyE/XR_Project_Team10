@@ -22,6 +22,9 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
+	// 초기 설정
+	void SetVariables(uint32 Damage, float Speed, float DeleteTime);
+
 	// 발사 방향 설정
 	void FireInDirection(const FVector& Direction);
 
@@ -31,6 +34,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = Movement)
 	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComponent;
+
+	FTimerHandle DeleteTimerHandle;
 
 private:
 	UPROPERTY()

@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"
 #include "XR_Project_Team10/CommonMonster/CommonMonsterDataAsset.h"
+#include "XR_Project_Team10/Util/PPTimerHelper.h"
 #include "UObject/ConstructorHelpers.h"
 #include "CommonMonster.generated.h"
 
@@ -44,9 +45,11 @@ protected:
 
 	virtual void SetCommonAttackDelegate(const FCommonAttackFinished& InOnAttackFinished) override;
 
-	virtual void AttackOmen() override;
-	virtual void Attack() override;
-	virtual void Dead() override;
+	virtual void AttackOmen(AActor* Target) override;
+	virtual void Attack(AActor* Target) override;
+
+	virtual void CommonMonsterAttack(AActor* Target) override;
+	virtual void CommonMonsterDead() override;
 
 protected:
 	//DataAsset MonsterData => IICommonMonsterBase
@@ -67,6 +70,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	float MonsterCurrentMoveSpeed;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 쿨타임")
+	float MonsterAttackCoolDownTime;
+
+	FTimerHandle AttackCoolDownTimerHandle;
 	
 	//Getter Setter
 public:
