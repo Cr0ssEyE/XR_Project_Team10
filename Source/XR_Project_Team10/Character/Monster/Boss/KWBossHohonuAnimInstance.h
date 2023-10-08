@@ -60,6 +60,9 @@ private:
 	FORCEINLINE void AnimNotify_FireLaser() { PatternActivateDelegate.Broadcast(EHohonuPattern::SweepLaser); }
 
 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void AnimNotify_MeleeAttack() { PatternActivateDelegate.Broadcast(EHohonuPattern::MeleeAttack); }
+	
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_BackStepBegin() { PatternActivateDelegate.Broadcast(EHohonuPattern::BackStep); }
 	
 	UFUNCTION(BlueprintCallable)

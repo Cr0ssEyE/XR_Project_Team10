@@ -36,16 +36,16 @@ private:
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNiagaraComponent> CreateNiagaraComponent;
+	TObjectPtr<UNiagaraComponent> SummonVFX;
 	
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNiagaraComponent> DropDownNiagaraComponent;
+	TObjectPtr<UNiagaraComponent> DropDownVFX;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNiagaraComponent> WaveNiagaraComponent;
+	TObjectPtr<UNiagaraComponent> WaveVFX;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNiagaraComponent> DestroyNiagaraComponent;
+	TObjectPtr<UNiagaraComponent> DestroyVFX;
 
 	UPROPERTY()
 	TObjectPtr<UKWBossHohonuDataAsset> BossHohonuDataAsset;
@@ -61,9 +61,13 @@ private:
 
 	FTimerHandle WaveAttackDelayTimerHandle;
 
+	FTimerHandle DestroyEventTimerHandle;
+	
 	float SC_DropDownDamage;
 	
 	float SC_DropDownSpeed;
+
+	float SC_DropDownDelay;
 	
 	float SC_WaveLength;
 
@@ -82,4 +86,6 @@ private:
 	uint8 bIsPlaceInGround : 1;
 
 	uint8 bIsDamageCaused : 1;
+
+	uint8 bIsSpawnDelayOnGoing : 1;
 };
