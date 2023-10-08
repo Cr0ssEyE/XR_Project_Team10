@@ -1,15 +1,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "JumpPad.generated.h"
 
 UENUM()
-enum EJumpPadType : uint8 {
-	E_Contact,	//Á¢ÃËÇÏ¸é Á¡ÇÁ
-	E_Timing,		//Å¸ÀÌ¹Ö¿¡ ¸Â°Ô Á¡ÇÁ ´©¸£¸é ´õ Å« Á¡ÇÁ
-	E_Delay,		//ÀÏÁ¤ ½Ã°£ ÈÄ Á¡ÇÁ
-	E_PileDriver	//Âï±â
+enum class EJumpPadType : uint8
+{
+	E_Contact UMETA(DisplayName = "ì ‘ì´‰"),//ì ‘ì´‰í•˜ë©´ ì í”„
+	E_Timing UMETA(DisplayName = "íƒ€ì´ë°"),	//íƒ€ì´ë°ì— ë§ê²Œ ì í”„ ëˆ„ë¥´ë©´ ë” í° ì í”„
+	E_Delay UMETA(DisplayName = "ì§€ì—°"),	//ì¼ì • ì‹œê°„ í›„ ì í”„
+	E_PileDriver UMETA(DisplayName = "íŒŒì¼ ë“œë¼ì´ë²„")	//ì°ê¸°
 };
 
 UCLASS()
@@ -26,8 +28,17 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	float JumpForceValue = 5;
+	TObjectPtr<UStaticMeshComponent> BaseMesh;
 
 	UPROPERTY(EditAnywhere)
-	TEnumAsByte<EJumpPadType> JumpPadType;
+	TObjectPtr<UBoxComponent> CollisionBox;
+	
+	UPROPERTY(EditAnywhere, DisplayName = "ì í”„ í¬ê¸°ê°’")
+	float JumpForceValue;
+
+	UPROPERTY(EditAnywhere, DisplayName = "ì í”„ëŒ€ íŠ¸ë¦¬ê±° ì¢…ë¥˜(í˜„ì¬ ì ‘ì´‰ë§Œ ë™ì‘)")
+	EJumpPadType JumpPadType;
+
+	UPROPERTY(EditAnywhere, DisplayName = "íŠ¸ë¦¬ê±°ì‹œ ê¸°ì¡´ ì†ë„ ì´ˆê¸°í™”")
+	uint8 bResetVelocity : 1;
 };
