@@ -50,7 +50,7 @@ public:
 	TObjectPtr<UStaticMesh> SC_Mesh;
 	
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "수정 소환 이펙트")
-	TObjectPtr<UNiagaraSystem> SC_CreateVFX;
+	TObjectPtr<UNiagaraSystem> SC_SummonVFX;
 
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "수정 낙하 이펙트")
 	TObjectPtr<UNiagaraSystem> SC_DropDownVFX;
@@ -76,6 +76,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 낙하 속도")
 	float SC_DropDownSpeed;
 
+	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 낙하 지연 시간")
+	float SC_DropDownDelay;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_A, DisplayName = "호호누 수정 소환 공격 파동 너비")
 	float SC_WaveLength;
 

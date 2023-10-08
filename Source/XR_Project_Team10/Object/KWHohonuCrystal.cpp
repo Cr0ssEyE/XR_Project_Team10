@@ -18,19 +18,19 @@ AKWHohonuCrystal::AKWHohonuCrystal()
 	
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CrystalMesh"));
 
-	CreateNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("CreateVFX"));
+	SummonVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("CreateVFX"));
 	
-	DropDownNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DropDownVFX"));
+	DropDownVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DropDownVFX"));
 
-	WaveNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("WaveVFX"));
+	WaveVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("WaveVFX"));
 	
-	DestroyNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DestroyVFX"));
+	DestroyVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DestroyVFX"));
 
 	RootComponent = StaticMeshComponent;
-	CreateNiagaraComponent->SetupAttachment(RootComponent);
-	DropDownNiagaraComponent->SetupAttachment(RootComponent);
-	WaveNiagaraComponent->SetupAttachment(RootComponent);
-	DestroyNiagaraComponent->SetupAttachment(RootComponent);
+	SummonVFX->SetupAttachment(RootComponent);
+	DropDownVFX->SetupAttachment(RootComponent);
+	WaveVFX->SetupAttachment(RootComponent);
+	DestroyVFX->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +42,7 @@ void AKWHohonuCrystal::BeginPlay()
 	
 	SC_DropDownDamage = BossHohonuDataAsset->SC_DropDownDamage;
 	SC_DropDownSpeed = BossHohonuDataAsset->SC_DropDownSpeed;
+	SC_DropDownDelay = BossHohonuDataAsset->SC_DropDownDelay;
 	
 	SC_WaveLength = BossHohonuDataAsset->SC_WaveLength;
 	SC_WaveDamage = BossHohonuDataAsset->SC_WaveDamage;
@@ -66,15 +67,98 @@ float AKWHohonuCrystal::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	CurrentHp -= DamageAmount;
 	if(CurrentHp <= 0)
 	{
-		SetDeActivate();
+		DestroyVFX->Activate();
+		GetWorldTimerManager().SetTimer(DestroyEventTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			if(FPPTimerHelper::IsDelayElapsed(DestroyEventTimerHandle, 1.f))
+			{
+				SetDeActivate();
+				GetWorldTimerManager().ClearTimer(DestroyEventTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(DestroyEventTimerHandle);
+			}
+		}),0.01f, true);
 	}
-
 	return Result;
 }
 
 void AKWHohonuCrystal::ActivateAndDropDownSequence()
 {
 	CurrentHp = SC_Hp;
+	SummonVFX->Activate(true);
+	GetWorldTimerManager().SetTimer(DropDownTimerHandle, FTimerDelegate::CreateLambda([&]()
+	{
+		if(FPPTimerHelper::IsDelayElapsed(DropDownTimerHandle, SC_DropDownDelay) && bIsSpawnDelayOnGoing)
+		{
+			bIsSpawnDelayOnGoing = false;
+		}
+
+		if(bIsSpawnDelayOnGoing)
+		{
+			return;
+		}
+		
+		if(FPPTimerHelper::IsDelayElapsed(DropDownTimerHandle, 0.01f) && !bIsPlaceInGround)
+		{
+			SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, SC_DropDownSpeed));
+			
+			FHitResult HitResult;
+			FCollisionQueryParams Params(NAME_None, false, this);
+
+			FVector BoxCollision = FVector(10.f, 10.f, 10.f);
+
+			// 크리스탈 정중앙으로 충돌체크 위치 조정하기
+			bool bResult = GetWorld()->SweepSingleByChannel(
+			HitResult,
+			GetActorLocation(),
+			GetActorLocation(),
+			FQuat::Identity,
+			ECollisionChannel::ECC_EngineTraceChannel1,
+			FCollisionShape::MakeBox(BoxCollision),
+			Params);
+			DrawDebugBox(GetWorld(), GetActorLocation(), BoxCollision, FColor::Red);
+
+			if(bResult)
+			{
+				bIsPlaceInGround = true;
+				GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(DropDownTimerHandle);
+			}
+
+			TArray<FHitResult> PlayerHitResult;
+			
+			// 낙하 함수에서 체크하는 방법 vs 콜리전 컴포넌트 만들고 오버랩 이벤트에서 체크하는 방법 고민 중
+			// 추후 크리스탈 사이즈에 맞춰 충돌 처리 범위 조절해야 함
+			bResult = GetWorld()->SweepMultiByChannel(
+			PlayerHitResult,
+			GetActorLocation(),
+			GetActorLocation(),
+			FQuat::Identity,
+			ECollisionChannel::ECC_Pawn,
+			FCollisionShape::MakeCapsule(45.f, 90.f),
+			Params);
+
+			if(bResult)
+			{
+				for (auto Result : PlayerHitResult)
+				{
+					AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(Result.GetActor());
+					if(PlayerCharacter)
+					{
+						FDamageEvent DamageEvent;
+						PlayerCharacter->TakeDamage(SC_DropDownDamage, DamageEvent, GetController(), this);
+						
+						FVector PlayerDirection = (GetActorLocation() - PlayerCharacter->GetActorLocation()).GetSafeNormal();
+						PlayerDirection.Z = -10.f;
+						FVector ReBoundVector = PlayerDirection * -100.f;
+						
+						PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+					}
+				}
+			}
+		}
+		
+	}), 0.01f, true);
+	
 }
 
 void AKWHohonuCrystal::ActivateWaveAttack()
@@ -122,6 +206,12 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 							FDamageEvent DamageEvent;
 							PlayerCharacter->TakeDamage(SC_WaveDamage, DamageEvent, GetController(), this);
 							bIsDamageCaused = true;
+
+							FVector PlayerDirection = (GetActorLocation() - PlayerCharacter->GetActorLocation()).GetSafeNormal();
+							PlayerDirection.Z = -10.f;
+							FVector ReBoundVector = PlayerDirection * -100.f;
+						
+							PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 						}
 					}
 				}
@@ -152,10 +242,13 @@ void AKWHohonuCrystal::ActivateWaveAttackTimer()
 void AKWHohonuCrystal::SetDeActivate()
 {
 	StaticMeshComponent->SetVisibility(false);
-	CreateNiagaraComponent->Deactivate();
-	DropDownNiagaraComponent->Deactivate();
-	WaveNiagaraComponent->Deactivate();
-	DestroyNiagaraComponent->Deactivate();
+	SummonVFX->Deactivate();
+	DropDownVFX->Deactivate();
+	WaveVFX->Deactivate();
+	DestroyVFX->Deactivate();
 	bIsDamageCaused = false;
+	bIsAttackOnGoing = false;
+	bIsPlaceInGround = false;
+	bIsSpawnDelayOnGoing = true;
 }
 
