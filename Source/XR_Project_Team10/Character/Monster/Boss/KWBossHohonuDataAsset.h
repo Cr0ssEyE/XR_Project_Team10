@@ -155,8 +155,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 이펙트")
 	TObjectPtr<UNiagaraSystem> BS_WindVFX;
 	
-	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 거리")
-	float BS_Range;
+	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 지속 시간(초)")
+	float BS_Time;
 
 	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 이동 속도(초)")
 	float BS_MoveSpeed;

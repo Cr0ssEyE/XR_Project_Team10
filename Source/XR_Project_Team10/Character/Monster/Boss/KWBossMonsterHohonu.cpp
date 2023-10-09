@@ -121,7 +121,7 @@ void AKWBossMonsterHohonu::InitData()
 		WW_MaxMoveSpeed = HohonuData->WW_MaxMoveSpeed;
 		WW_RotateSpeed = HohonuData->WW_RotateSpeed;
 		
-		BS_Range = HohonuData->BS_Range;
+		BS_Range = HohonuData->BS_Time;
 		BS_MoveSpeed = HohonuData->BS_MoveSpeed;
 		
 		ML_Damage = HohonuData->ML_Damage;
@@ -473,7 +473,19 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 
 void AKWBossMonsterHohonu::ExecutePattern_BS()
 {
-	
+	UE_LOG(LogTemp, Log, TEXT("Hohonu Backstep Start"));
+	GetWorldTimerManager().SetTimer(BackStepTimerHandle, FTimerDelegate::CreateLambda([&]()
+	{
+		if(FPPTimerHelper::IsDelayElapsed(BackStepTimerHandle, BS_Range))
+		{
+			GetWorldTimerManager().ClearTimer(BackStepTimerHandle);
+			FPPTimerHelper::InvalidateTimerHandle(BackStepTimerHandle);
+		}
+		if(FPPTimerHelper::IsDelayElapsed(BackStepTimerHandle, 0.01f))
+		{
+			SetActorLocation( GetActorLocation() + GetActorForwardVector() * - BS_MoveSpeed * 0.01f);
+		}
+	}), 0.01f, true);
 }
 
 void AKWBossMonsterHohonu::ExecutePattern_ML()

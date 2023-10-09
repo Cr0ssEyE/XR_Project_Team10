@@ -153,6 +153,8 @@ private:
 	
 	// 백스텝 관련 변수
 private:
+	FTimerHandle BackStepTimerHandle;
+	
 	float BS_Range;
 
 	float BS_MoveSpeed;
@@ -178,4 +180,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuRightHandEffect;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraComponent> HohonuLaserEffect;
 };
