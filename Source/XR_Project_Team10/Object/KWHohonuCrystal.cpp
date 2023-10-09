@@ -94,22 +94,21 @@ void AKWHohonuCrystal::NotifyActorBeginOverlap(AActor* OtherActor)
 		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(OtherActor);
 		if(PlayerCharacter)
 		{
-			//TODO: 나중에 매직넘버 수정하기 
+			//TODO: 나중에 매직넘버 수정하기
 			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("낙하 도중 플레이어 충돌")));
 			FDamageEvent DamageEvent;
 			PlayerCharacter->TakeDamage(SC_DropDownDamage, DamageEvent, GetController(), this);
 			bIsDropDownDamageCaused = true;
-			FVector PlayerDirection = (GetActorLocation() - PlayerCharacter->GetActorLocation()).GetSafeNormal();
+			FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f , %f"), PlayerDirection.X, PlayerDirection.Y));
+
+			// 높이 체크 필요
 			if(GetActorLocation().Z > PlayerCharacter->GetActorLocation().Z)
 			{
-				PlayerDirection.Z = 0;
+				PlayerDirection.Z *= -1.f;
 			}
-			else
-			{
-				PlayerDirection.Z = -0.03f;
-			}
-			FVector ReBoundVector = PlayerDirection * -3000.f;
+			
+			ReBoundVector = PlayerDirection * 100.f;
 			PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 		}
 	}
@@ -265,8 +264,8 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 							bIsWaveDamageCaused = true;
 							//TODO: 나중에 매직넘버 처리
 							FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-							PlayerDirection.Z = -3.f;
-							FVector ReBoundVector = PlayerDirection * 300.f;
+							PlayerDirection.Z = 10.f;
+							ReBoundVector = PlayerDirection * 100.f;
 							PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 						}
 					}

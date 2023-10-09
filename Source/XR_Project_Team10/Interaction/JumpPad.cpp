@@ -1,5 +1,6 @@
 #include "XR_Project_Team10/Interaction/JumpPad.h"
 
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 
 AJumpPad::AJumpPad()
@@ -13,7 +14,7 @@ AJumpPad::AJumpPad()
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
 	CollisionBox->SetupAttachment(BaseMesh);
 	CollisionBox->SetBoxExtent(FVector(100.f, 100.f, 50.f));
-
+	CollisionBox->SetCollisionProfileName(CP_GIMMICK);
 	bResetVelocity = false;
 }
 

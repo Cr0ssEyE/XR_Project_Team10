@@ -18,7 +18,9 @@ protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 	void ActiveInteractionCoolDown();
-	
+
+private:
+	FVector ReBoundVector;
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> BaseMesh;
@@ -33,10 +35,13 @@ private:
 	
 	UPROPERTY(EditAnywhere, DisplayName = "바운드 높이 값")
 	float BoundHeight;
+
+	UPROPERTY(EditAnywhere, DisplayName = "바운드 XY축 배율 값")
+	float MultiplyValue;
 	
 	UPROPERTY(EditAnywhere, DisplayName = "고정 방향 벡터")
 	FVector TrapVector;
-
+	
 	UPROPERTY(EditAnywhere, DisplayName = "고정 방향 벡터 사용(기본 설정값: 충돌 방향 반대 방향)")
 	uint8 bUseTrapVector : 1;
 };

@@ -93,9 +93,10 @@ private:
 	
 	float HohonuLunaticHp;
 
+	FVector ReBoundVector;
+	
 	// 수정 소환 관련 변수
 private:
-	// 수정 액터 만들기
 	UPROPERTY(EditAnywhere, DisplayName = "수정 인스턴스")
 	TArray<AKWHohonuCrystal*> SC_Instances;
 	
@@ -131,6 +132,8 @@ private:
 
 	FVector MA_DamageRange;
 
+	FVector MA_ExplodeDamageRange;
+	
 	uint8 bIsMeleeAttackDamageCaused : 1;
 	
 	// 훨윈드 관련 변수

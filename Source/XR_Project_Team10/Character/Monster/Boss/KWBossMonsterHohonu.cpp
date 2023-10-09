@@ -61,7 +61,7 @@ void AKWBossMonsterHohonu::BeginPlay()
 {
 	Super::BeginPlay();
 	InitData();
-	GetMesh()->SetCollisionEnabled(::ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionEnabled(::ECollisionEnabled::NoCollision);
 	HohonuAnimInstance = CastChecked<UKWBossHohonuAnimInstance>(GetMesh()->GetAnimInstance());
 	if(HohonuAnimInstance)
 	{
@@ -113,6 +113,7 @@ void AKWBossMonsterHohonu::InitData()
 		
 		MA_Damage = HohonuData->MA_Damage;
 		MA_DamageRange = HohonuData->MA_DamageRange;
+		MA_ExplodeDamageRange = HohonuData->MA_ExplodeDamageRange;
 		
 		WW_Damage = HohonuData->WW_Damage;
 		WW_DamageRange = HohonuData->WW_DamageRange;
@@ -364,6 +365,31 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 	{
 		if(!bIsPatternRunning)
 		{
+			FHitResult HitResult;
+			FCollisionQueryParams Params(NAME_None, false, this);
+			bool bResult = GetWorld()->SweepSingleByChannel(
+			HitResult,
+			GetMesh()->GetSocketLocation(HOHONU_VFX_FRONT),
+			GetMesh()->GetSocketLocation(HOHONU_VFX_FRONT),
+			FQuat::Identity,
+			ECC_PLAYER_ONLY,
+			FCollisionShape::MakeBox(MA_ExplodeDamageRange),
+			Params);
+			DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_VFX_FRONT), MA_ExplodeDamageRange, FColor::Blue, false, 0.3f);
+			if(bResult)
+			{
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
+				if(PlayerCharacter)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+					FDamageEvent DamageEvent;
+					PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
+					FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
+					PlayerDirection.Z = 100.f;
+					ReBoundVector = PlayerDirection * 10.f;
+					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				}
+			}
 			GetWorldTimerManager().ClearTimer(MA_TimerHandle);
 			FPPTimerHelper::InvalidateTimerHandle(MA_TimerHandle);
 		}
@@ -406,8 +432,9 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 				bIsMeleeAttackDamageCaused = true;
 				FDamageEvent DamageEvent;
 				PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
-				FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-				FVector ReBoundVector = PlayerDirection * 300.f;
+				FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
+				PlayerDirection.Z = 100.f;
+				ReBoundVector = PlayerDirection * 10.f;
 				PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 			}
 		}
@@ -454,8 +481,9 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 					bIsWhirlWindDamageCaused = true;
 					FDamageEvent DamageEvent;
 					PlayerCharacter->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
-					FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation());
-					FVector ReBoundVector = PlayerDirection * 30.f;
+					FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
+					ReBoundVector = PlayerDirection * 10.f;
+					ReBoundVector.Z = 1000.f;
 					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				}
 			}

@@ -68,6 +68,8 @@ private:
 	FTimerHandle WaveAttackDelayTimerHandle;
 
 	FTimerHandle DestroyEventTimerHandle;
+
+	FVector ReBoundVector;
 	
 	float SC_DropDownDamage;
 	

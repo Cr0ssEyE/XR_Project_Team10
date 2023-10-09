@@ -201,7 +201,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 			
 			if (bIsReBounding)
 			{
-				float ReBoundingClampValue = SystemMaxVelocityValue / 2;
+				float ReBoundingClampValue = SystemMaxVelocityValue;
 				LengthX = FMath::Clamp(PlaneVelocityVector.X, -ReBoundingClampValue, ReBoundingClampValue);
 				LengthY = FMath::Clamp(PlaneVelocityVector.Y, -ReBoundingClampValue, ReBoundingClampValue);
 				LengthZ = FMath::Clamp(LengthZ, -ReBoundingClampValue, ReBoundingClampValue);
@@ -674,7 +674,7 @@ void AKWPlayerCharacter::CheckGearState()
 	}), 1.0f, true);
 }
 
-void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector ReBoundResultValue, EReBoundObjectType ObjectType)
+void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)
 {
 	if(!bIsRolling || bIsReBounding || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
 	{
@@ -693,9 +693,7 @@ void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector ReBoundResultValue,
 			{
 				// RollingMesh->SetSimulatePhysics(true);
 				// RollingMesh->SetAllPhysicsLinearVelocity(ReBoundResultValue);
-				FVector ReBoundVector = -RollingMesh->GetPhysicsLinearVelocity() * 10;
-				ReBoundVector.Z = 1500.f;
-				RollingMesh->SetPhysicsLinearVelocity(ReBoundVector);
+				RollingMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
 				RB_CheckContactToFloor();
 				GetWorldTimerManager().ClearTimer(RB_DelayTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(RB_DelayTimerHandle);

@@ -123,9 +123,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 데미지")
 	float MA_Damage;
 
-	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 판정 범위")
+	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 손 판정 범위")
 	FVector MA_DamageRange;
-	
+
+	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 폭발 판정 범위")
+	FVector MA_ExplodeDamageRange;
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 이펙트")
 	TObjectPtr<UNiagaraSystem> WW_WindVFX;
