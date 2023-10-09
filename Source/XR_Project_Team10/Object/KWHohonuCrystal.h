@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "NiagaraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Pawn.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossHohonuDataAsset.h"
 #include "KWHohonuCrystal.generated.h"
@@ -21,7 +22,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
+	virtual void Destroyed() override;
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	
 public:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	void ActivateAndDropDownSequence();
@@ -35,6 +38,9 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UCapsuleComponent> CollisionCapsule;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> SummonVFX;
 	
@@ -79,13 +85,17 @@ private:
 	
 	float SC_MaxAttackRange;
 
-	float SC_IncreaseAttackRangePerSecond;
+	float SC_IncreaseAttackRange;
 
+	uint8 bIsActivate : 1;
+	
 	uint8 bIsAttackOnGoing : 1;
 
 	uint8 bIsPlaceInGround : 1;
 
-	uint8 bIsDamageCaused : 1;
+	uint8 bIsDropDownDamageCaused : 1;
+	
+	uint8 bIsWaveDamageCaused : 1;
 
 	uint8 bIsSpawnDelayOnGoing : 1;
 };

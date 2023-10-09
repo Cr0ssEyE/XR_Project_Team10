@@ -12,6 +12,7 @@
 #include "NiagaraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "XR_Project_Team10/Constant/KWMeshSocketName.h"
 
 AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 {
@@ -40,7 +41,6 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 		GetMesh()->SetSkeletalMesh(HohonuData->HohonuMesh);
 		HohonuRingEffect->SetAsset(HohonuData->HohonuRingEffect);
 		HohonuHeadEffect->SetAsset(HohonuData->HohonuHeadEffect);
-		// 나중에 소켓 달아서 이펙트 위치 지정하기
 	}
 	
 	UKWBossAnimDataAsset* BossAnimData = Cast<UKWBossAnimDataAsset>(BossMonsterAnimData);
@@ -78,7 +78,10 @@ void AKWBossMonsterHohonu::BeginPlay()
 void AKWBossMonsterHohonu::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
+	HohonuRingEffect->SetWorldLocation(GetMesh()->GetSocketLocation(HOHONU_VFX_RING));
+	HohonuRingEffect->SetWorldRotation(GetMesh()->GetSocketRotation(HOHONU_VFX_RING));
+	HohonuHeadEffect->SetWorldLocation(GetMesh()->GetSocketLocation(HOHONU_VFX_HEAD));
+	HohonuHeadEffect->SetWorldRotation(GetMesh()->GetSocketRotation(HOHONU_VFX_HEAD));
 }
 
 void AKWBossMonsterHohonu::InitData()
@@ -103,7 +106,6 @@ void AKWBossMonsterHohonu::InitData()
 		SL_AttackRange = HohonuData->SL_AttackRange;
 		
 		MA_Damage = HohonuData->MA_Damage;
-		MA_AttackSpeed = HohonuData->MA_AttackSpeed;
 		
 		WW_Damage = HohonuData->WW_Damage;
 		WW_DamageRange = HohonuData->WW_DamageRange;
@@ -300,33 +302,42 @@ void AKWBossMonsterHohonu::OmenPattern_ML()
 
 void AKWBossMonsterHohonu::ExecutePattern_SC()
 {
+	if(!TargetPlayer)
+	{
+		return;
+	}
+	
 	if(!SC_Instances.Num())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Crystal Instance Blank!!! "));
 		return;
 	}
 	
+	SC_SpawnCount = 0;
 	UE_LOG(LogTemp, Log, TEXT("Hohonu SummonCrystal Start"));
 	bIsAttacking = true;
-	int SummonCount = 0;
+
+	if(SC_SpawnCount < SC_Instances.Num())
+	{
+		SC_Instances[SC_SpawnCount]->SetActorLocation(FVector(TargetPlayer->GetActorLocation().X, TargetPlayer->GetActorLocation().Y, SC_SpawnHeight));
+		SC_Instances[SC_SpawnCount]->ActivateAndDropDownSequence();
+		SC_SpawnCount++;
+	}
 	GetWorldTimerManager().SetTimer(SC_SpawnTimerHandle, FTimerDelegate::CreateLambda([&]()
 	{
-		if(FPPTimerHelper::IsDelayElapsed(SC_SpawnTimerHandle, SC_SpawnDelay))
+		if(SC_SpawnCount < SC_Instances.Num())
 		{
-			bIsCanSummon = true;
+			SC_Instances[SC_SpawnCount]->ActivateAndDropDownSequence();
+			SC_Instances[SC_SpawnCount]->SetActorLocation(FVector(TargetPlayer->GetActorLocation().X, TargetPlayer->GetActorLocation().Y, SC_SpawnHeight));
+			SC_SpawnCount++;
+			if(SC_SpawnCount == SC_Instances.Num())
+			{
+				SC_SpawnCount = 0;
+				GetWorldTimerManager().ClearTimer(SC_SpawnTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(SC_SpawnTimerHandle);
+			}
 		}
-	}), 0.01f, true);
-	
-	while (SummonCount == SC_Instances.Num() - 1)
-	{
-		if(bIsCanSummon)
-		{
-			SC_Instances[SummonCount]->SetActorLocation(TargetPlayer->GetActorLocation() + FVector(0.f, 0.f, SC_SpawnHeight));
-			SC_Instances[SummonCount]->ActivateAndDropDownSequence();
-			bIsCanSummon = false;
-			SummonCount++;
-		}
-	}
+	}), SC_SpawnDelay, true);
 	bIsAttacking = false;
 }
 
@@ -382,7 +393,7 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			}
 
 			FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-			AddActorLocalRotation(FRotator(0.f, WW_RotateSpeed, 0.f));
+			AddActorLocalRotation(FRotator(0.f, WW_RotateSpeed * 0.01f, 0.f));
 			AddMovementInput(MoveDirection);
 			if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
 			{

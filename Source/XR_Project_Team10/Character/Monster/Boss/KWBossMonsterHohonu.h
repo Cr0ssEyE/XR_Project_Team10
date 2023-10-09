@@ -100,6 +100,8 @@ private:
 	TArray<AKWHohonuCrystal*> SC_Instances;
 	
 	FTimerHandle SC_SpawnTimerHandle;
+
+	int SC_SpawnCount;
 	
 	float SC_SpawnDelay;
 
@@ -159,10 +161,10 @@ private:
 
 	// 기타 효과 관련 컴포넌트
 private:
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuRingEffect;
 	
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuHeadEffect;
 	
 };

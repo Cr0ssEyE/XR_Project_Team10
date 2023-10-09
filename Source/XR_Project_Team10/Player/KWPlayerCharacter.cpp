@@ -186,18 +186,32 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		}
 		
 		PlaneVelocityVector.Z = 0.f;
-		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2)
+		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2 && !bIsAttackOnGoing)
 		{
 			float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
 			float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
-			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, RollingMesh->GetPhysicsLinearVelocity().Z));
+			float LengthZ = RollingMesh->GetPhysicsLinearVelocity().Z;
+			
+			if (bIsReBounding)
+			{
+				float ReBoundingClampValue = SystemMaxVelocityValue / 2;
+				LengthX = FMath::Clamp(PlaneVelocityVector.X, -ReBoundingClampValue, ReBoundingClampValue);
+				LengthY = FMath::Clamp(PlaneVelocityVector.Y, -ReBoundingClampValue, ReBoundingClampValue);
+				LengthZ = FMath::Clamp(LengthZ, -ReBoundingClampValue, ReBoundingClampValue);
+			}
+			
+			if (LengthZ > SystemMaxVelocityValue)
+			{
+				LengthZ = FMath::Clamp(LengthZ, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			}
+			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
 		}
 	}
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
 	
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
 }
 
 // Called to bind functionality to input
@@ -655,7 +669,7 @@ void AKWPlayerCharacter::CheckGearState()
 
 void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector ReBoundResultValue, EReBoundObjectType ObjectType)
 {
-	if(!bIsRolling || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
+	if(!bIsRolling || bIsReBounding || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
 	{
 		return;
 	}
