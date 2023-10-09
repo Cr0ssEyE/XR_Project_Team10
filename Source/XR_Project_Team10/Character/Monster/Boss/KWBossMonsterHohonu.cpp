@@ -12,6 +12,7 @@
 #include "NiagaraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Constant/KWMeshSocketName.h"
 
 AKWBossMonsterHohonu::AKWBossMonsterHohonu()
@@ -376,7 +377,7 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 		GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT),
 		GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT),
 		FQuat::Identity,
-		ECollisionChannel::ECC_Pawn,
+		ECC_PLAYER_ONLY,
 		FCollisionShape::MakeBox(MA_DamageRange),
 		Params);
 		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT), MA_DamageRange, FColor::Red, false, 0.1f);
@@ -387,7 +388,7 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 		GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT),
 		GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT),
 		FQuat::Identity,
-		ECollisionChannel::ECC_Pawn,
+		ECC_PLAYER_ONLY,
 		FCollisionShape::MakeBox(MA_DamageRange),
 		Params);
 		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT), MA_DamageRange, FColor::Red, false, 0.1f);
@@ -415,7 +416,7 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 
 void AKWBossMonsterHohonu::ExecutePattern_WW()
 {
-	UE_LOG(LogTemp, Log, TEXT("Hohonu WhirlWind Start"));
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("훨윈드 시작")));
 	bIsAttacking = true;
 	bIsWhirlWindDamageCaused = false;
 	// 훨윈드
@@ -438,7 +439,7 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			GetActorLocation(),
 			GetActorLocation(),
 			FQuat::Identity,
-			ECollisionChannel::ECC_Pawn,
+			ECC_PLAYER_ONLY,
 			FCollisionShape::MakeBox(WW_DamageRange),
 			Params);
 
@@ -446,16 +447,18 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			
 			if(bResult)
 			{
-				AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
-				if(Player && !bIsWhirlWindDamageCaused)
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
+				if(PlayerCharacter && !bIsWhirlWindDamageCaused)
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
 					bIsWhirlWindDamageCaused = true;
 					FDamageEvent DamageEvent;
-					Player->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
+					PlayerCharacter->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
+					FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation());
+					FVector ReBoundVector = PlayerDirection * 30.f;
+					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				}
 			}
-
 			FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 			AddActorLocalRotation(FRotator(0.f, WW_RotateSpeed * 0.01f, 0.f));
 			AddMovementInput(MoveDirection);

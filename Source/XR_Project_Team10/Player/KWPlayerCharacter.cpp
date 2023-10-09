@@ -13,6 +13,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
@@ -106,8 +107,14 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 void AKWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
+	GetMesh()->UpdateCollisionProfile();
+	GetMesh()->SetCollisionProfileName(TEXT("Player"), true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
 	GetMesh()->SetAnimClass(PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass());
+	RollingMesh->SetCollisionObjectType(ECC_PLAYER);
+	RollingMesh->UpdateCollisionProfile();
+	RollingMesh->SetCollisionProfileName(TEXT("Player"), true);
 	RollingMesh->SetMassOverrideInKg(NAME_None, 50.f);
 	RollingMesh->SetStaticMesh(nullptr);
 	RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 
 UBTService_KWPlayerDetect::UBTService_KWPlayerDetect()
 {
@@ -39,7 +40,7 @@ void UBTService_KWPlayerDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 		OverlapResults,
 		Center,
 		FQuat::Identity,
-		ECollisionChannel::ECC_Pawn,
+		ECC_PLAYER_ONLY,
 		FCollisionShape::MakeSphere(DetectRadius),
 		CollisionQueryParams
 		);

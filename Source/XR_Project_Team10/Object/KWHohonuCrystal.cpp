@@ -4,6 +4,7 @@
 #include "XR_Project_Team10/Object/KWHohonuCrystal.h"
 
 #include "Engine/DamageEvents.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
@@ -234,7 +235,7 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 			GetActorLocation(),
 			GetActorLocation(),
 			FQuat::Identity,
-			ECollisionChannel::ECC_Pawn,
+			ECC_PLAYER_ONLY,
 			FCollisionShape::MakeSphere(SC_CurrentAttackRange),
 			Params);
 			DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.1f);

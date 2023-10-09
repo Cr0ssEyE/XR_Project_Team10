@@ -111,6 +111,8 @@ private:
 	
 	// 레이저 발사 관련 변수
 private:
+	FTimerHandle SL_SweepTimerHandle;
+	
 	float SL_Damage;
 
 	float SL_AttackDelay;
@@ -160,6 +162,7 @@ private:
 	float BS_MoveSpeed;
 
 	// 레이저 난사 관련 변수
+	// 중간 시연 이후에 작업
 private:
 	float ML_Damage;
 
