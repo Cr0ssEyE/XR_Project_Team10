@@ -40,20 +40,22 @@ void ADW_FeatherProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 		this->Destroy();
 		UE_LOG(LogTemp, Log, TEXT("player hit"));
 	}
-	else {
-		// 땅에 박혔는지 확인하는 부분 작성 필요
-		UE_LOG(LogTemp, Log, TEXT("another hit : %s"), *OtherActor->GetName());
-
-		GetWorld()->GetTimerManager().SetTimer(DeleteTimerHandle, FTimerDelegate::CreateLambda([&]() {
-			this->Destroy();
-			GetWorld()->GetTimerManager().ClearTimer(DeleteTimerHandle);
-			}), FeatherDeleteTime, false);
-
-	}
 }
 
 void ADW_FeatherProjectile::NotifyActorEndOverlap(AActor* OtherActor)
 {
+}
+
+void ADW_FeatherProjectile::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Log, TEXT("another hit : %s"), *Other->GetName());
+
+	ProjectileMovementComponent->Velocity = FVector(0, 0, 0);
+
+	GetWorld()->GetTimerManager().SetTimer(DeleteTimerHandle, FTimerDelegate::CreateLambda([&]() {
+		this->Destroy();
+		GetWorld()->GetTimerManager().ClearTimer(DeleteTimerHandle);
+		}), FeatherDeleteTime, false);
 }
 
 void ADW_FeatherProjectile::Tick(float DeltaTime)
