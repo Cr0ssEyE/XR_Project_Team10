@@ -123,10 +123,14 @@ private:
 
 	// 근접 공격 관련 변수
 private:
-	float MA_Damage;
+	FTimerHandle MA_TimerHandle;
 	
-	float MA_AttackSpeed;
+	float MA_Damage;
 
+	FVector MA_DamageRange;
+
+	uint8 bIsMeleeAttackDamageCaused : 1;
+	
 	// 훨윈드 관련 변수
 private:
 	FTimerHandle WW_TimerHandle;
@@ -144,6 +148,8 @@ private:
 	float WW_MaxMoveSpeed;
 
 	float WW_RotateSpeed;
+
+	uint8 bIsWhirlWindDamageCaused : 1;
 	
 	// 백스텝 관련 변수
 private:
@@ -166,5 +172,10 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuHeadEffect;
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraComponent> HohonuLeftHandEffect;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraComponent> HohonuRightHandEffect;
 };

@@ -34,6 +34,11 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHead"));
 	HohonuRingEffect->SetupAttachment(GetMesh());
 	HohonuHeadEffect->SetupAttachment(GetMesh());
+
+	HohonuLeftHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLeftHand"));
+	HohonuRightHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRightHand"));
+	HohonuLeftHandEffect->SetupAttachment(GetMesh());
+	HohonuRightHandEffect->SetupAttachment(GetMesh());
 	
 	UKWBossHohonuDataAsset* HohonuData = Cast<UKWBossHohonuDataAsset>(BossMonsterStatusData);
 	if(HohonuData)
@@ -55,7 +60,7 @@ void AKWBossMonsterHohonu::BeginPlay()
 {
 	Super::BeginPlay();
 	InitData();
-	
+	GetMesh()->SetCollisionEnabled(::ECollisionEnabled::QueryOnly);
 	HohonuAnimInstance = CastChecked<UKWBossHohonuAnimInstance>(GetMesh()->GetAnimInstance());
 	if(HohonuAnimInstance)
 	{
@@ -106,6 +111,7 @@ void AKWBossMonsterHohonu::InitData()
 		SL_AttackRange = HohonuData->SL_AttackRange;
 		
 		MA_Damage = HohonuData->MA_Damage;
+		MA_DamageRange = HohonuData->MA_DamageRange;
 		
 		WW_Damage = HohonuData->WW_Damage;
 		WW_DamageRange = HohonuData->WW_DamageRange;
@@ -166,7 +172,9 @@ void AKWBossMonsterHohonu::PlayPatternAnimMontage()
 		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_SWEEP_LASER, BossAnimMontage);
 		break;
 	case EHohonuPattern::MeleeAttack:
-		// 애니메이션 나오면 추가
+		HohonuLeftHandEffect->Activate();
+		HohonuRightHandEffect->Activate();
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_MELEE_ATTACK, BossAnimMontage);
 		break;
 	case EHohonuPattern::WhirlWind:
 		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_WHIRL_WIND, BossAnimMontage);
@@ -230,7 +238,7 @@ void AKWBossMonsterHohonu::ActivatePatternOmen(UAnimMontage* Montage)
 
 void AKWBossMonsterHohonu::ActivatePatternExecute(const EHohonuPattern Pattern)
 {
-	if(bIsPatternRunning)
+	if(bIsPatternRunning && Pattern != EHohonuPattern::MeleeAttack)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("패턴 진행중 패턴 실행 노드 진입 오류 발생")));
 		UE_LOG(LogTemp, Log, TEXT("Hohonu Pattern Still Running"));
@@ -348,13 +356,68 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 
 void AKWBossMonsterHohonu::ExecutePattern_MA()
 {
-	
+	UE_LOG(LogTemp, Log, TEXT("Hohonu MeleeAttack Start"));
+	bIsAttacking = true;
+	bIsMeleeAttackDamageCaused = false;
+	GetWorldTimerManager().SetTimer(MA_TimerHandle, FTimerDelegate::CreateLambda([&]()
+	{
+		if(!bIsPatternRunning)
+		{
+			GetWorldTimerManager().ClearTimer(MA_TimerHandle);
+			FPPTimerHelper::InvalidateTimerHandle(MA_TimerHandle);
+		}
+		FHitResult HitResultL;
+		FHitResult HitResultR;
+		FCollisionQueryParams Params(NAME_None, false, this);
+
+		HohonuLeftHandEffect->SetWorldLocation(GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT));
+		bool bResultL = GetWorld()->SweepSingleByChannel(
+		HitResultL,
+		GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT),
+		GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT),
+		FQuat::Identity,
+		ECollisionChannel::ECC_Pawn,
+		FCollisionShape::MakeBox(MA_DamageRange),
+		Params);
+		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT), MA_DamageRange, FColor::Red, false, 0.1f);
+
+		HohonuRightHandEffect->SetWorldLocation(GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT));
+		bool bResultR = GetWorld()->SweepSingleByChannel(
+		HitResultR,
+		GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT),
+		GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT),
+		FQuat::Identity,
+		ECollisionChannel::ECC_Pawn,
+		FCollisionShape::MakeBox(MA_DamageRange),
+		Params);
+		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT), MA_DamageRange, FColor::Red, false, 0.1f);
+		
+		if(bResultL || bResultR)
+		{
+			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResultL.GetActor());
+			if(!PlayerCharacter)
+			{
+				PlayerCharacter = Cast<AKWPlayerCharacter>(HitResultR.GetActor());
+			}
+			if(PlayerCharacter && !bIsMeleeAttackDamageCaused)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+				bIsMeleeAttackDamageCaused = true;
+				FDamageEvent DamageEvent;
+				PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
+				FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+				FVector ReBoundVector = PlayerDirection * 300.f;
+				PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+			}
+		}
+	}), 0.01f, true);
 }
 
 void AKWBossMonsterHohonu::ExecutePattern_WW()
 {
 	UE_LOG(LogTemp, Log, TEXT("Hohonu WhirlWind Start"));
 	bIsAttacking = true;
+	bIsWhirlWindDamageCaused = false;
 	// 훨윈드
 	GetWorldTimerManager().SetTimer(WW_TimerHandle, FTimerDelegate::CreateLambda([&]()
 	{
@@ -384,9 +447,10 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			if(bResult)
 			{
 				AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
-				if(Player)
+				if(Player && !bIsWhirlWindDamageCaused)
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+					bIsWhirlWindDamageCaused = true;
 					FDamageEvent DamageEvent;
 					Player->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
 				}

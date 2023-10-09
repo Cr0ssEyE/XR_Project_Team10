@@ -263,10 +263,9 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 							PlayerCharacter->TakeDamage(SC_WaveDamage, DamageEvent, GetController(), this);
 							bIsWaveDamageCaused = true;
 							//TODO: 나중에 매직넘버 처리
-							FVector PlayerDirection = (GetActorLocation() - PlayerCharacter->GetActorLocation()).GetSafeNormal();
+							FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 							PlayerDirection.Z = -3.f;
-							FVector ReBoundVector = PlayerDirection * -300.f;
-						
+							FVector ReBoundVector = PlayerDirection * 300.f;
 							PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 						}
 					}
