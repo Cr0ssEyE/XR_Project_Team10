@@ -113,17 +113,23 @@ private:
 	// 레이저 발사 관련 변수
 private:
 	FTimerHandle SL_SweepTimerHandle;
+
+	uint8 SL_bIsRandomStart : 1;
 	
 	float SL_Damage;
 
-	float SL_AttackDelay;
-	
 	float SL_Degree;
 
-	float SL_TurnSpeed;
-	
-	float SL_AttackRange;
+	float SL_ActiveTime;
 
+	float SL_Distance;
+	
+	FVector SL_DamageRange;
+
+	uint8 bIsSweepLaserDamageCaused : 1;
+
+	uint8 bIsSweepLeftToRight : 1;
+	
 	// 근접 공격 관련 변수
 private:
 	FTimerHandle MA_TimerHandle;
@@ -188,5 +194,8 @@ private:
 	TObjectPtr<UNiagaraComponent> HohonuRightHandEffect;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNiagaraComponent> HohonuLaserEffect;
+	TObjectPtr<UNiagaraComponent> HohonuLaserChargeEffect;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraComponent> HohonuLaserSweepEffect;
 };

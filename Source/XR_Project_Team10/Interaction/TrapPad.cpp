@@ -38,7 +38,7 @@ void ATrapPad::NotifyActorBeginOverlap(AActor* OtherActor)
 		
 		if(bUseTrapVector)
 		{
-			ReBoundVector = (PlayableCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * (TrapVector);
+			ReBoundVector = (PlayableCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * TrapVector;
 			PlayableCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Gimmick);
 		}
 		else

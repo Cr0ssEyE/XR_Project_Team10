@@ -100,21 +100,24 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 이펙트")
 	TObjectPtr<UNiagaraSystem> SL_LaserVFX;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 좌우 무작위 시작(기본 값 왼쪽에서 오른쪽)")
+	uint8 SL_bIsRandomStart : 1;
 	
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 데미지")
 	float SL_Damage;
 
-	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 전조 시간(초)")
-	float SL_AttackDelay;
-	
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 부채꼴 각도")
 	float SL_Degree;
 
-	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 회전 속도(초)")
-	float SL_TurnSpeed;
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 지속 시간(초)")
+	float SL_ActiveTime;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 길이")
+	float SL_Distance;
 	
-	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 범위")
-	float SL_AttackRange;
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 판정 범위")
+	FVector SL_DamageRange;
 
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 이펙트")
@@ -128,6 +131,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 폭발 판정 범위")
 	FVector MA_ExplodeDamageRange;
+	
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 이펙트")
 	TObjectPtr<UNiagaraSystem> WW_WindVFX;

@@ -17,3 +17,4 @@
 #define KEY_HOHONU_WW_COOLDOWN TEXT("WhirlWind_CoolDown")
 #define KEY_HOHONU_BS_COOLDOWN TEXT("BackStep_CoolDown")
 #define KEY_HOHONU_ML_COOLDOWN TEXT("MultipleLaser_CoolDown")
+#define KEY_HOHONU_SL_TURN TEXT("SweepLaser_Turning")
