@@ -7,6 +7,7 @@
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "KWPlayerAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -62,6 +63,11 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
 	WalkingMesh = CharacterData-> PlayerWalkingMesh;
 	PlayerWalkingAnimBlueprint = CharacterData->PlayerWalkingAnimBlueprint;
+
+	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
+	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
+	GetMesh()->SetSkeletalMesh(WalkingMesh);
+	GetMesh()->SetAnimInstanceClass(FPPConstructorHelper::FindAndGetClass<UKWPlayerAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/11-Player-Anim/Animations/ABP_Player_Kiwi.ABP_Player_Kiwi_C'"), EAssertionLevel::Check));
 	
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
@@ -107,13 +113,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 void AKWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
-	GetMesh()->UpdateCollisionProfile();
-	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
-	GetMesh()->SetSkeletalMesh(WalkingMesh);
-	GetMesh()->SetAnimClass(PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass());
 	RollingMesh->SetCollisionObjectType(ECC_PLAYER);
-	RollingMesh->UpdateCollisionProfile();
 	RollingMesh->SetCollisionProfileName(CP_PLAYER, true);
 	RollingMesh->SetMassOverrideInKg(NAME_None, 50.f);
 	RollingMesh->SetStaticMesh(nullptr);
@@ -138,6 +138,7 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
+	bIsCanInputJustAction = true;
 }
 
 // Called every frame
@@ -328,19 +329,13 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 {
 	
-	if(bIsFlying || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
+	if(bIsFlying || bIsJumpCoolDown)
 	{
 		return;
 	}
+	bIsJumpCoolDown = true;
+	GetWorldTimerManager().SetTimer(JumpDelayTimerHandle, this, &AKWPlayerCharacter::JumpCoolDownEnd, JumpDelayTime, false);
 	
-	GetWorldTimerManager().SetTimer(JumpDelayTimerHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		if(FPPTimerHelper::IsDelayElapsed(JumpDelayTimerHandle, JumpDelayTime))
-		{
-			bIsFlying = false;
-			GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
-		}
-	}), 0.01f, true);
 	bIsFlying = true;
 	if(bIsRolling)
 	{
@@ -351,6 +346,12 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 	{
 		Jump();
 	}
+}
+
+void AKWPlayerCharacter::JumpCoolDownEnd()
+{
+	bIsJumpCoolDown = false;
+	bIsFlying = false;
 }
 
 void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Value)
@@ -380,17 +381,22 @@ void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Valu
 
 void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 {
+	if(!bIsRolling)
+	{
+		return;
+	}
 	if(bIsReBounding)
 	{
-		if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
+		if(!bIsCanInputJustAction)
 		{
 			return;
 		}
+		bIsCanInputJustAction = false;
 		RBD_JustTimingProceedAction();
 	}
 	else
 	{
-		if(GetWorldTimerManager().IsTimerActive(AttackCoolDownTimerHandle))
+		if(bIsAttackCoolDown)
 		{
 			return;
 		}
@@ -423,7 +429,7 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
 {
-	if(bIsReBounding || GetWorldTimerManager().IsTimerActive(DropDownTimerHandle) || GetWorldTimerManager().IsTimerActive(DropDownCoolDownTimerHandle))
+	if(bIsReBounding || bIsDropDownOnGoing || bIsDropDownCoolDown)
 	{
 		return;
 	}
@@ -436,97 +442,87 @@ void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::AttackCoolDownTimer()
 {
-	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(AttackCoolDownTimerHandle, AttackCoolDownTime))
-			{
-				GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
-			}
-		}), 0.01f, true);
+	bIsAttackCoolDown = false;
 }
 
 void AKWPlayerCharacter::DropDownCoolDownTimer()
 {
-	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(DropDownCoolDownTimerHandle, DropDownCoolDownTime))
-			{
-				GetWorldTimerManager().ClearTimer(DropDownCoolDownTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DropDownCoolDownTimerHandle);
-			}
-		}), 0.01f, true);
+	bIsDropDownCoolDown = false;
 }
 
 void AKWPlayerCharacter::VelocityDecelerateTimer()
 {
-	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle) || bIsReBounding)
+	if(bIsDeceleration || bIsReBounding)
 	{
 		return;
 	}
+	bIsDeceleration = true;
 	if(CurrentGearState == EGearState::GearThree)
 	{
 		CurrentGearState = EGearState::GearTwo;
 	}
 
-	GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerationExecute, 0.001f, true);
+}
+
+void AKWPlayerCharacter::VelocityDecelerationExecute()
+{
+	if(bIsAttackOnGoing)
+	{
+		RollingMesh->AddForce(RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000 * (1 + DA_DecelerateValue));
+	}
+	else
+	{
+		RollingMesh->AddForce(RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000);
+	}
+		
+	if(abs(RollingMesh->GetPhysicsLinearVelocity().X) <= abs(VelocityDecelerateTarget.X) && abs(RollingMesh->GetPhysicsLinearVelocity().Y) <= abs(VelocityDecelerateTarget.Y))
+	{
+		if(bIsAttackOnGoing)
 		{
-			if(FPPTimerHelper::IsDelayElapsed(VelocityDecelerationTimerHandle, 0.01f))
-			{
-				// GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Green, FString::Printf(TEXT("Decelerate Work")));
-				if(bIsAttackOnGoing)
-				{
-					RollingMesh->AddForce(RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000 * (1 + DA_DecelerateValue));
-				}
-				else
-				{
-					RollingMesh->AddForce(RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000);
-				}
-			}
+			bIsAttackOnGoing = false;
+		}
+		VelocityDecelerateTarget = FVector::ZeroVector;
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
+		bIsDeceleration = false;
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+	}
 		
-			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) <= abs(VelocityDecelerateTarget.X) && abs(RollingMesh->GetPhysicsLinearVelocity().Y) <= abs(VelocityDecelerateTarget.Y))
-			{
-				if(bIsAttackOnGoing)
-				{
-					bIsAttackOnGoing = false;
-				}
-				VelocityDecelerateTarget = FVector::ZeroVector;
-				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
-				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(VelocityDecelerationTimerHandle);
-			}
-		
-			if(!bIsRolling || (!bIsAttackOnGoing && bIsMoving) || abs(RollingMesh->GetPhysicsLinearVelocity().Z) > 20.f)
-			{
-				if(bIsAttackOnGoing)
-				{
-					bIsAttackOnGoing = false;
-				}
-				VelocityDecelerateTarget = FVector::ZeroVector;
-				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
-				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(VelocityDecelerationTimerHandle);
-			}
-		}), 0.001f, true);
+	if(!bIsRolling || (!bIsAttackOnGoing && bIsMoving) || abs(RollingMesh->GetPhysicsLinearVelocity().Z) > 20.f)
+	{
+		if(bIsAttackOnGoing)
+		{
+			bIsAttackOnGoing = false;
+		}
+		VelocityDecelerateTarget = FVector::ZeroVector;
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
+		bIsDeceleration = false;
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+	}
 }
 
 void AKWPlayerCharacter::RBD_JustTimingProceedAction()
 {
 	bIsInputJustAction = true;
-	GetWorldTimerManager().SetTimer(RBD_JustTimingCheckHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorldTimerManager().SetTimer(RBD_ReBoundCheckHandle,this, &AKWPlayerCharacter::RBD_Check, 0.01f, true);
+	GetWorldTimerManager().SetTimer(RBD_JustTimingCheckHandle,this, &AKWPlayerCharacter::RBD_TimeOut, RBD_JustTimingValue, false);
+}
+
+void AKWPlayerCharacter::RBD_Check()
+{
+	if(!bIsReBounding)
 	{
-		if(!bIsReBounding)
+		bIsCanInputJustAction = false;
+		if(GetWorldTimerManager().IsTimerActive(RBD_ReBoundCheckHandle))
 		{
-			GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
+			GetWorldTimerManager().ClearTimer(RBD_ReBoundCheckHandle);
 		}
-		if(FPPTimerHelper::IsDelayElapsed(RBD_JustTimingCheckHandle, RBD_JustTimingValue))
-		{
-			bIsInputJustAction = false;
-			GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
-		}
-	}), 0.001f, true);
+	}
+}
+
+void AKWPlayerCharacter::RBD_TimeOut()
+{
+	bIsInputJustAction = false;
 }
 
 void AKWPlayerCharacter::DA_ProceedAction()
@@ -552,35 +548,32 @@ void AKWPlayerCharacter::DA_ProceedAction()
 	{
 		VelocityDecelerateTarget = FVector(100.f, 100.f, 0.f);
 	}
-	GetWorldTimerManager().SetTimer(DA_DurationTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(DA_DurationTimerHandle, DA_DurationTime))
-			{
-				CurrentGearState = EGearState::GearTwo;
-				AttackCoolDownTimer();
-				VelocityDecelerateTimer();
-				GetWorldTimerManager().ClearTimer(DA_DurationTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DA_DurationTimerHandle);
-			}
-		}), 0.01f, true);
+	GetWorldTimerManager().SetTimer(DA_DurationTimerHandle, this, &AKWPlayerCharacter::DA_EndAction, DA_DurationTime, false);
 	RollingMesh->SetPhysicsLinearVelocity(AD_Direction);
+}
+
+void AKWPlayerCharacter::DA_EndAction()
+{
+	CurrentGearState = EGearState::GearTwo;
+	bIsAttackCoolDown = true;
+	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &AKWPlayerCharacter::AttackCoolDownTimer, AttackCoolDownTime, false);
+	VelocityDecelerateTimer();
 }
 
 void AKWPlayerCharacter::FD_ProceedAction()
 {
-	GetWorldTimerManager().SetTimer(DropDownTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			RollingMesh->SetSimulatePhysics(false);
-			if(FPPTimerHelper::IsDelayElapsed(DropDownTimerHandle, 0.2f))
-			{
-				RollingMesh->SetSimulatePhysics(true);
-				const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
-				RollingMesh->SetPhysicsLinearVelocity(DroppingVelocity);
-				DropDownCoolDownTimer();
-				GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DropDownTimerHandle);
-			}
-		}), 0.01f, true);
+	RollingMesh->SetSimulatePhysics(false);
+	bIsDropDownOnGoing = true;
+	GetWorldTimerManager().SetTimer(DropDownTimerHandle, this, &AKWPlayerCharacter::FD_Execute, 0.1f, false);
+}
+
+void AKWPlayerCharacter::FD_Execute()
+{
+	RollingMesh->SetSimulatePhysics(true);
+	const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
+	RollingMesh->SetPhysicsLinearVelocity(DroppingVelocity);
+	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, this, &AKWPlayerCharacter::DropDownCoolDownTimer, DropDownCoolDownTime, false);
+	bIsDropDownOnGoing = false;
 }
 
 void AKWPlayerCharacter::CheckGearState()
@@ -589,89 +582,92 @@ void AKWPlayerCharacter::CheckGearState()
 	{
 		return;
 	}
-	GetWorldTimerManager().SetTimer(CheckGearStateTimerHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorldTimerManager().SetTimer(CheckGearStateTimerHandle, this, &AKWPlayerCharacter::CheckGearStateExecute, 1.0f, true);
+}
+
+void AKWPlayerCharacter::CheckGearStateExecute()
+{
+	if(!bIsRolling)
 	{
-		if(!bIsRolling)
-		{
-			GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
-			FPPTimerHelper::InvalidateTimerHandle(CheckGearStateTimerHandle);
-		}
-		float LowerGearValue = 0.f;
-		if(static_cast<uint8>(CurrentGearState) - 1 >= 0)
-		{
-			LowerGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState) - 1];
-		}
+		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
+		FPPTimerHelper::InvalidateTimerHandle(CheckGearStateTimerHandle);
+	}
 	
-		float UpperGearValue = 0.f;
-		if(static_cast<uint8>(CurrentGearState) + 1 < static_cast<uint8>(EGearState::EndOfGearState))
+	float LowerGearValue = 0.f;
+	if(static_cast<uint8>(CurrentGearState) - 1 >= 0)
+	{
+		LowerGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState) - 1];
+	}
+	
+	float UpperGearValue = 0.f;
+	if(static_cast<uint8>(CurrentGearState) + 1 < static_cast<uint8>(EGearState::EndOfGearState))
+	{
+		UpperGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+	}
+	
+	if(LowerGearValue != 0.f && (abs(RollingMesh->GetPhysicsLinearVelocity().Size2D() / 2) < LowerGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().X) < LowerGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) < LowerGearValue))
+	{
+		switch (CurrentGearState)
 		{
-			UpperGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+		case EGearState::GearTwo:
+			CurrentGearState = EGearState::GearOne;
+			break;
+		case EGearState::GearThree:
+			CurrentGearState = EGearState::GearTwo;
+			break;
+		case EGearState::GearFour:
+			CurrentGearState = EGearState::GearThree;
+			break;
+		default:
+			checkNoEntry();
 		}
-		
-		if(LowerGearValue != 0.f && (abs(RollingMesh->GetPhysicsLinearVelocity().Size2D() / 2) < LowerGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().X) < LowerGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) < LowerGearValue))
+		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
+		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
+		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
+		CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+		return;
+	}
+	
+	// 왜 직선 기어값 변경은 두번 체크해야 하는지 이유 불명
+	{	
+		if(abs(RollingMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
 		{
 			switch (CurrentGearState)
 			{
-			case EGearState::GearTwo:
-				CurrentGearState = EGearState::GearOne;
-				break;
-			case EGearState::GearThree:
+			case EGearState::GearOne:
 				CurrentGearState = EGearState::GearTwo;
 				break;
+			case EGearState::GearTwo:
+				// CurrentGearState = EGearState::GearThree;
+				break;
+			case EGearState::GearThree:
+				break;
 			case EGearState::GearFour:
-				CurrentGearState = EGearState::GearThree;
 				break;
 			default:
 				checkNoEntry();
 			}
-			const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
-			const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
-			RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
+		}
+		if(abs(RollingMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
+		{
+			switch (CurrentGearState)
+			{
+			case EGearState::GearOne:
+				CurrentGearState = EGearState::GearTwo;
+				break;
+			case EGearState::GearTwo:
+				// CurrentGearState = EGearState::GearThree;
+				break;
+			case EGearState::GearThree:
+				break;
+			case EGearState::GearFour:
+				break;
+			default:
+				checkNoEntry();
+			}
 			CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
-			return;
 		}
-		
-		// 왜 직선 기어값 변경은 두번 체크해야 하는지 이유 불명
-		{	
-			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
-			{
-				switch (CurrentGearState)
-				{
-				case EGearState::GearOne:
-					CurrentGearState = EGearState::GearTwo;
-					break;
-				case EGearState::GearTwo:
-					// CurrentGearState = EGearState::GearThree;
-					break;
-				case EGearState::GearThree:
-					break;
-				case EGearState::GearFour:
-					break;
-				default:
-					checkNoEntry();
-				}
-			}
-			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
-			{
-				switch (CurrentGearState)
-				{
-				case EGearState::GearOne:
-					CurrentGearState = EGearState::GearTwo;
-					break;
-				case EGearState::GearTwo:
-					// CurrentGearState = EGearState::GearThree;
-					break;
-				case EGearState::GearThree:
-					break;
-				case EGearState::GearFour:
-					break;
-				default:
-					checkNoEntry();
-				}
-				CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
-			}
-		}
-	}), 1.0f, true);
+	}
 }
 
 void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)
@@ -682,63 +678,43 @@ void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue
 	}
 	bIsReBounding = true;
 	RollingMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
-	// RollingMesh->SetSimulatePhysics(false);
 
 	ReBoundResultValue *= RB_MultiplyValuesByObjectType[static_cast<uint8>(ObjectType)];
 	ReBoundResultValue *= RB_MultiplyValuesByGear[static_cast<uint8>(CurrentGearState)];
-	float ReBoundDelayTime = 0.01f;
-	GetWorldTimerManager().SetTimer(RB_DelayTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(RB_DelayTimerHandle, ReBoundDelayTime))
-			{
-				// RollingMesh->SetSimulatePhysics(true);
-				// RollingMesh->SetAllPhysicsLinearVelocity(ReBoundResultValue);
-				RollingMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
-				RB_CheckContactToFloor();
-				GetWorldTimerManager().ClearTimer(RB_DelayTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(RB_DelayTimerHandle);
-			}
-		}), 0.01f, true);
+	RollingMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
+	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle,this , &AKWPlayerCharacter::RB_CheckContactToFloor, 0.01f, true);
 }
 
 void AKWPlayerCharacter::RB_CheckContactToFloor()
 {
-	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		FHitResult HitResult;
-		FCollisionQueryParams Params(NAME_None, false, this);
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
 		
-		bool bResult = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		GetActorLocation(),
-		GetActorLocation(),
-		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel1,
-		FCollisionShape::MakeSphere(70.0f),
-		Params);
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation(),
+	FQuat::Identity,
+	ECollisionChannel::ECC_GameTraceChannel1,
+	FCollisionShape::MakeSphere(70.0f),
+	Params);
 
-		if(bResult)
+	if(bResult)
+	{
+		bIsReBounding = false;
+		if(bIsInputJustAction)
 		{
 			bIsReBounding = false;
-			if(bIsInputJustAction)
-			{
-				bIsReBounding = false;
-				bIsInputJustAction = false;
-				if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
-				{
-					GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-					FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
-				}
-				RBD_SuccessEvent();
-			}
-			else
-			{
-				RBD_FailedEvent();
-			}
-			GetWorldTimerManager().ClearTimer(RB_ContactCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RB_ContactCheckHandle);
+			bIsInputJustAction = false;
+			RBD_SuccessEvent();
 		}
-	}), 0.01f, true);
+		else
+		{
+			RBD_FailedEvent();
+		}
+		bIsCanInputJustAction = true;
+		GetWorldTimerManager().ClearTimer(RB_ContactCheckHandle);
+	}
 }
 
 void AKWPlayerCharacter::RBD_SuccessEvent()
@@ -760,27 +736,26 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 
 	VelocityDecelerateTarget = RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue * 0.75;
 	
-	GetWorldTimerManager().SetTimer(RBD_SucceedTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(RBD_SucceedTimerHandle, DA_DurationTime))
-			{
-				CurrentGearState = EGearState::GearTwo;
-				VelocityDecelerateTimer();
-				GetWorldTimerManager().ClearTimer(RBD_SucceedTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(RBD_SucceedTimerHandle);
-			}
-		}), 0.01f, true);
+	GetWorldTimerManager().SetTimer(RBD_SucceedTimerHandle, this,&AKWPlayerCharacter::RBD_SuccessEventExecute,DA_DurationTime, false);
 	RollingMesh->SetPhysicsLinearVelocity(AD_Direction * RBD_AddVelocityValue);
+}
+
+void AKWPlayerCharacter::RBD_SuccessEventExecute()
+{
+	CurrentGearState = EGearState::GearTwo;
+	VelocityDecelerateTimer();
 }
 
 void AKWPlayerCharacter::RBD_FailedEvent()
 {
 	// 입력 실패로 간주하고 실패 애니메이션 적용 및 입력 비활성화
 	DisableInput(Cast<APlayerController>(GetController()));
-	GetWorldTimerManager().SetTimer(RBD_FailedTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			EnableInput(Cast<APlayerController>(GetController()));
-		}), RB_DisableMovementTime, false);
+	GetWorldTimerManager().SetTimer(RBD_FailedTimerHandle,this , &AKWPlayerCharacter::RBD_FailedEventExecute, RB_DisableMovementTime, false);
+}
+
+void AKWPlayerCharacter::RBD_FailedEventExecute()
+{
+	EnableInput(Cast<APlayerController>(GetController()));
 }
 
 

@@ -48,10 +48,10 @@ void AKWHohonuCrystal::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CollisionCapsule->SetCapsuleSize(40.f, 50.f);
-	CollisionCapsule->SetRelativeLocation(FVector(0.f, 0.f, -50.f));
+	CollisionCapsule->SetCapsuleSize(50.f, 110.f);
+	CollisionCapsule->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 	CollisionCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	
+	CollisionCapsule->SetCollisionProfileName(CP_GIMMICK);
 	SC_Hp = BossHohonuDataAsset->SC_Hp;
 	CurrentHp = SC_Hp;
 	bIsDebugEnable = BossHohonuDataAsset->bIsDebugEnable;
@@ -110,6 +110,14 @@ void AKWHohonuCrystal::NotifyActorBeginOverlap(AActor* OtherActor)
 			
 			ReBoundVector = PlayerDirection * 100.f;
 			PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+		}
+	}
+	if(bIsPlaceInGround)
+	{
+		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(OtherActor);
+		if(PlayerCharacter && PlayerCharacter->GetGearState() > 1)
+		{
+			SetDeActivate();
 		}
 	}
 }
@@ -257,7 +265,7 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 						FVector XYDistance = GetActorLocation() - TargetLocation;
 						XYDistance.Z = 0.f;
 						
-						if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && TargetLocation.Z < GetActorLocation().Z + 80.f)
+						if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && TargetLocation.Z < GetActorLocation().Z + 100.f)
 						{
 							if(!bIsActivate)
 							{
@@ -270,8 +278,8 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 							bIsWaveDamageCaused = true;
 							//TODO: 나중에 매직넘버 처리
 							FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-							PlayerDirection.Z = 10.f;
-							ReBoundVector = PlayerDirection * 100.f;
+							PlayerDirection.Z = 1.5f;
+							ReBoundVector = PlayerDirection * 1000.f;
 							PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 						}
 					}

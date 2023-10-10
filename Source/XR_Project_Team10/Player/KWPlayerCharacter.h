@@ -82,6 +82,7 @@ public:
 
 	FORCEINLINE TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
 	FORCEINLINE int GetHp() const { return Hp; }
+	FORCEINLINE int GetGearState() { return static_cast<int>(CurrentGearState); }
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/
@@ -89,14 +90,14 @@ protected:
 	void MoveAction(const FInputActionValue& Value);
 	void MoveActionCompleted(const FInputActionValue& Value);
 	void JumpAddForceAction(const FInputActionValue& Value);
-
+	void JumpCoolDownEnd();
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
 	void DropDownActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
 	void DropDownCoolDownTimer();
 	void VelocityDecelerateTimer();
-
+	void VelocityDecelerationExecute();
 	/**
 	 * 공격 입력 분기 함수 \n
 	 * RBD = 리바운드 대시
@@ -105,8 +106,12 @@ protected:
 	 **/
 private:
 	void RBD_JustTimingProceedAction();
+	void RBD_Check();
+	void RBD_TimeOut();
 	void DA_ProceedAction();
+	void DA_EndAction();
 	void FD_ProceedAction();
+	void FD_Execute();
 	/**
 	 * 유저 입력 관련 변수 리스트
 	 **/
@@ -159,13 +164,17 @@ private:
 
 	UPROPERTY()
 	float AddJumpForceValue;
-	
+
+	UPROPERTY()
 	FTimerHandle JumpDelayTimerHandle;
-	
+
+	UPROPERTY()
 	FTimerHandle DropDownTimerHandle;
-	
+
+	UPROPERTY()
 	FTimerHandle JustTimingTimerHandle;
-	
+
+	UPROPERTY()
 	FTimerHandle VelocityDecelerationTimerHandle;
 	
 	UPROPERTY()
@@ -187,10 +196,13 @@ private:
 	* RBD = ReBoundDash \n
 	**/
 private:
+	UPROPERTY()
 	FTimerHandle DA_DurationTimerHandle;
-	
+
+	UPROPERTY()
 	FTimerHandle AttackCoolDownTimerHandle;
 
+	UPROPERTY()
 	FTimerHandle DropDownCoolDownTimerHandle;
 	
 	UPROPERTY()
@@ -222,33 +234,63 @@ private:
 	 **/
 private:
 	void CheckGearState();
+	void CheckGearStateExecute();
 	
 	/**
 	 * 플레이어 상태 관련 변수 리스트
 	 **/
 private:
+	UPROPERTY()
 	FTimerHandle CheckGearStateTimerHandle;
-	
+
+	UPROPERTY()
 	EGearState CurrentGearState;
 
+	UPROPERTY()
 	TArray<FLinearColor> ColorsByGear;
-	
+
+	UPROPERTY()
 	uint8 bIsDead : 1;
-	
+
+	UPROPERTY()
 	uint8 bIsMoving : 1;
-	
+
+	UPROPERTY()
 	uint8 bIsRolling : 1;
 
+	UPROPERTY()
 	uint8 bIsFlying : 1;
 
+	UPROPERTY()
 	uint8 bIsUsedFlyDash : 1;
-	
+
+	UPROPERTY()
 	uint8 bIsReBounding : 1;
 
-	uint8 bIsInputJustAction : 1;
+	UPROPERTY()
+	uint8 bIsCanInputJustAction : 1;
 	
+	UPROPERTY()
+	uint8 bIsInputJustAction : 1;
+
+	UPROPERTY()
 	uint8 bIsAttackOnGoing : 1;
 
+	UPROPERTY()
+	uint8 bIsJumpCoolDown : 1;
+	
+	UPROPERTY()
+	uint8 bIsAttackCoolDown : 1;
+
+	UPROPERTY()
+	uint8 bIsDropDownCoolDown : 1;
+
+	UPROPERTY()
+	uint8 bIsDropDownOnGoing : 1;
+	
+	UPROPERTY()
+	uint8 bIsDeceleration : 1;
+	
 	/** 리바운드 관련 함수 리스트\n
 	 * 캐릭터에서 너무 많은 기능을 수행해서는 안되므로 \n
 	 * 가급적이면 리바운드는 충돌하는 대상에서 각도, 충격량 등을 계산하고 \n
@@ -260,21 +302,30 @@ public:
 private:
 	void RB_CheckContactToFloor();
 	void RBD_SuccessEvent();
+	void RBD_SuccessEventExecute();
 	void RBD_FailedEvent();
-	
+	void RBD_FailedEventExecute();
 	/** 리바운드 관련 변수 리스트 \n
 	 * ReBound를 RB_와 같은 형태로 축약해서 표현한다. \n
 	 * ReBoundDash를 RBD_와 같은 형태로 축약해서 표현한다.
 	**/
 private:
+	UPROPERTY()
 	FTimerHandle RB_DelayTimerHandle;
 
+	UPROPERTY()
 	FTimerHandle RB_ContactCheckHandle;
-	
+
+	UPROPERTY()
 	FTimerHandle RBD_JustTimingCheckHandle;
 
-	FTimerHandle RBD_SucceedTimerHandle;
+	UPROPERTY()
+	FTimerHandle RBD_ReBoundCheckHandle;
 	
+	UPROPERTY()
+	FTimerHandle RBD_SucceedTimerHandle;
+
+	UPROPERTY()
 	FTimerHandle RBD_FailedTimerHandle;
 	
 	UPROPERTY()

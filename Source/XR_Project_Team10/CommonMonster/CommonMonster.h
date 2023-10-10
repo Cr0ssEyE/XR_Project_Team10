@@ -62,12 +62,12 @@ protected:
 	
 	//Getter Setter
 public:
-	__forceinline uint32 GetMonsterHP() { return MonsterCurrentHP; }
-	__forceinline void SetMonsterHP(uint32 hp) { MonsterCurrentHP = hp; }
+	FORCEINLINE uint32 GetMonsterHP() { return MonsterCurrentHP; }
+	FORCEINLINE void SetMonsterHP(uint32 hp) { MonsterCurrentHP = hp; }
 
-	__forceinline float GetMonsterSpeed() { return MonsterCurrentMoveSpeed; }
-	__forceinline void SetMonsterSpeed(float sp) { MonsterCurrentMoveSpeed = sp; }
+	FORCEINLINE float GetMonsterSpeed() { return MonsterCurrentMoveSpeed; }
+	FORCEINLINE void SetMonsterSpeed(float sp) { MonsterCurrentMoveSpeed = sp; }
 
-	__forceinline TEnumAsByte<EState> GetMonsterState() { return MonsterState; }
+	FORCEINLINE EState GetMonsterState() { return MonsterState; }
 
 };
