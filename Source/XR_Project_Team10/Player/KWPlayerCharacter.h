@@ -67,6 +67,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;
+
+
+private:
+	UPROPERTY()
+	int Hp;
 	
 public:	
 	// Called every frame
@@ -75,8 +80,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
-
+	FORCEINLINE TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
+	FORCEINLINE int GetHp() const { return Hp; }
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/

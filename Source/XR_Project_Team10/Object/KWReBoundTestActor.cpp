@@ -2,6 +2,8 @@
 
 
 #include "XR_Project_Team10/Object/KWReBoundTestActor.h"
+
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 // Sets default values
@@ -10,6 +12,7 @@ AKWReBoundTestActor::AKWReBoundTestActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox->SetCollisionProfileName(CP_GIMMICK);
 	CollisionBox->SetupAttachment(RootComponent);
 }
 
@@ -27,8 +30,9 @@ void AKWReBoundTestActor::NotifyActorBeginOverlap(AActor* OtherActor)
 	AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(OtherActor);
 	if(Player)
 	{
-		FVector CollisionDirection = (GetActorLocation() - Player->GetActorLocation()).GetSafeNormal();
-		CollisionDirection.Z = 0.f;
+		CollisionDirection = (Player->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+		CollisionDirection.Z = 1.5f;
+		CollisionDirection *= 1000.f;
 		Player->RB_ApplyReBoundByObjectType(CollisionDirection, ReBoundObject);
 	}
 }
