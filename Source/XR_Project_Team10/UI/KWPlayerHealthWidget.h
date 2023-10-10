@@ -8,6 +8,13 @@
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "KWPlayerHealthWidget.generated.h"
 
+UENUM()
+enum class EVitalImageType
+{
+	Empty,
+	Half,
+	Fill
+};
 /**
  * 
  */
@@ -43,6 +50,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UImage> FocusedImage;
+
+	UPROPERTY()
+	EVitalImageType ImageType;
 	
 	UPROPERTY()
 	float PlayerMaximumHealth;
@@ -51,12 +61,5 @@ private:
 	float PlayerCurrentHealth;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UImage> FilledVitalImageSample;
-
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UImage> HalfVitalImageSample;
-
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UImage> EmptyVitalImageSample;
-	
+	TArray<UTexture2D*> VitalImageSample;
 };

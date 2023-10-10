@@ -10,6 +10,7 @@ void UKWPlayerHealthWidget::NativeConstruct()
 	FocusedImage = VitalImageE;
 	PlayerMaximumHealth = PlayerCharacter->GetHp();
 	PlayerCurrentHealth = PlayerMaximumHealth;
+	ImageType = EVitalImageType::Fill;
 }
 
 void UKWPlayerHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -24,4 +25,80 @@ void UKWPlayerHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDelt
 void UKWPlayerHealthWidget::ChangeImageState()
 {
 	int NewHealth = PlayerCharacter->GetHp();
+	// 반칸 까임
+	if(PlayerCurrentHealth - PlayerCharacter->GetHp() == 1)
+	{
+		if(ImageType == EVitalImageType::Fill)
+		{
+			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
+			ImageType = EVitalImageType::Half;
+		}
+		if(ImageType == EVitalImageType::Half)
+		{
+			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
+			if(FocusedImage == VitalImageB)
+			{
+				FocusedImage = VitalImageA;
+			}
+			else if(FocusedImage == VitalImageC)
+			{
+				FocusedImage = VitalImageB;
+			}
+			else if(FocusedImage == VitalImageD)
+			{
+				FocusedImage = VitalImageC;
+			}
+			else if(FocusedImage == VitalImageE)
+			{
+				FocusedImage = VitalImageD;
+			}
+			ImageType = EVitalImageType::Fill;
+		}
+	}
+	else if(PlayerCurrentHealth - PlayerCharacter->GetHp() == 2) // 한번에 한칸 까임
+	{
+		if(ImageType == EVitalImageType::Fill)
+		{
+			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 2]);
+			if(FocusedImage == VitalImageB)
+			{
+				FocusedImage = VitalImageA;
+			}
+			else if(FocusedImage == VitalImageC)
+			{
+				FocusedImage = VitalImageB;
+			}
+			else if(FocusedImage == VitalImageD)
+			{
+				FocusedImage = VitalImageC;
+			}
+			else if(FocusedImage == VitalImageE)
+			{
+				FocusedImage = VitalImageD;
+			}
+		}
+		if(ImageType == EVitalImageType::Half)
+		{
+			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
+			if(FocusedImage == VitalImageB)
+			{
+				FocusedImage = VitalImageA;
+			}
+			else if(FocusedImage == VitalImageC)
+			{
+				FocusedImage = VitalImageB;
+			}
+			else if(FocusedImage == VitalImageD)
+			{
+				FocusedImage = VitalImageC;
+			}
+			else if(FocusedImage == VitalImageE)
+			{
+				FocusedImage = VitalImageD;
+			}
+			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
+		}
+	}
+	
+	PlayerCurrentHealth = PlayerCharacter->GetHp();
 }

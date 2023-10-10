@@ -172,7 +172,7 @@ void AKWHohonuCrystal::ActivateAndDropDownSequence()
 			FHitResult HitResult;
 			FCollisionQueryParams Params(NAME_None, false, this);
 
-			FVector BoxCollision = FVector(1.f, 1.f, 1.f);
+			FVector BoxCollision = FVector(3.f, 3.f, 3.f);
 
 			// 크리스탈 정중앙으로 바닥에 고정되는 위치 조정하기
 			bool bResult = GetWorld()->SweepSingleByChannel(
@@ -180,7 +180,7 @@ void AKWHohonuCrystal::ActivateAndDropDownSequence()
 			GetActorLocation(),
 			GetActorLocation(),
 			FQuat::Identity,
-			ECollisionChannel::ECC_WorldStatic,
+			ECC_GameTraceChannel1,
 			FCollisionShape::MakeBox(BoxCollision),
 			Params);
 			if(bIsDebugEnable)

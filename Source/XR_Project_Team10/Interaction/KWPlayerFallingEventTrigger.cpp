@@ -30,6 +30,7 @@ void AKWPlayerFallingEventTrigger::NotifyActorBeginOverlap(AActor* OtherActor)
 	if(PlayerCharacter)
 	{
 		PlayerCharacter->SetActorLocation(ReSpawnPosition->GetActorLocation());
+		PlayerCharacter->GetMeshComp()->SetPhysicsLinearVelocity(FVector(0.f, 0.f, 0.f));
 	}
 }
 

@@ -414,7 +414,7 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 			FVector DrawCenter = FVector(DrawCenterX, DrawCenterY, DrawCenterZ);
 			if (bIsDebugEnable)
 			{
-				DrawDebugBox(GetWorld(), DrawCenter, SL_DamageRange, FColor::Blue, false, 0.3f);
+				// DrawDebugBox(GetWorld(), DrawCenter, SL_DamageRange, FColor::Blue, false, 0.3f);
 			}
 			i += 0.1;
 		}
