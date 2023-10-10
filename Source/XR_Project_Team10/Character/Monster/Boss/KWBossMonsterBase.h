@@ -22,8 +22,11 @@ public:
 	
 	FORCEINLINE virtual UDataAsset* GetBossAIData() override { return BossMonsterAIData; }
 	
-	virtual void SetState(EMonsterState State) override { }
-	virtual void PlayEncounterAnimation() override { }
+	FORCEINLINE virtual void SetState(const EMonsterState State) override { CurrentState = State; }
+
+	virtual void SetAIPatternDelegate(const FAICharacterPatternFinished& PatternFinishedDelegate) override { }
+	virtual void EndEncounterAnimation() override { }
+	virtual void PlayPatternAnimMontage() override { }
 	virtual void PlayDeadAnimation() override { }
 	virtual void DeActivateInGame() override { }
 	virtual void ReActivateInGame() override { }
@@ -32,10 +35,10 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-private:
+protected:
 	virtual void InitData() override { }
 	
-private:
+protected:
 	UPROPERTY()
 	TObjectPtr<class UDataAsset> BossMonsterStatusData;
 
@@ -44,22 +47,20 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UDataAsset> BossMonsterAIData;
-	
-	UPROPERTY()
-	TObjectPtr<class UAnimMontage> BossEncounterMontage;
-	
-	UPROPERTY()
-	TObjectPtr<class UAnimMontage> BossPatternMontage;
 
 	UPROPERTY()
-	TObjectPtr<class UAnimMontage> BossDeadMontage;
+	TObjectPtr<class UAnimMontage> BossAnimMontage;
 	
-private:
+protected:
 	float BossHp;
 
+	float MoveSpeed;
+	
 	EMonsterState CurrentState;
 
 	uint8 bIsMoving = 0;
 	
 	uint8 bIsAttacking = 0;
+
+	uint8 bIsPatternRunning = 0;
 };

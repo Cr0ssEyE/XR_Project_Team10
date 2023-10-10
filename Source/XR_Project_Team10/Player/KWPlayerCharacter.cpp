@@ -13,6 +13,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
@@ -106,8 +107,14 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 void AKWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
+	GetMesh()->UpdateCollisionProfile();
+	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
 	GetMesh()->SetAnimClass(PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass());
+	RollingMesh->SetCollisionObjectType(ECC_PLAYER);
+	RollingMesh->UpdateCollisionProfile();
+	RollingMesh->SetCollisionProfileName(CP_PLAYER, true);
 	RollingMesh->SetMassOverrideInKg(NAME_None, 50.f);
 	RollingMesh->SetStaticMesh(nullptr);
 	RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -186,18 +193,32 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		}
 		
 		PlaneVelocityVector.Z = 0.f;
-		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2)
+		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2 && !bIsAttackOnGoing)
 		{
 			float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
 			float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
-			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, RollingMesh->GetPhysicsLinearVelocity().Z));
+			float LengthZ = RollingMesh->GetPhysicsLinearVelocity().Z;
+			
+			if (bIsReBounding)
+			{
+				float ReBoundingClampValue = SystemMaxVelocityValue;
+				LengthX = FMath::Clamp(PlaneVelocityVector.X, -ReBoundingClampValue, ReBoundingClampValue);
+				LengthY = FMath::Clamp(PlaneVelocityVector.Y, -ReBoundingClampValue, ReBoundingClampValue);
+				LengthZ = FMath::Clamp(LengthZ, -ReBoundingClampValue, ReBoundingClampValue);
+			}
+			
+			if (LengthZ > SystemMaxVelocityValue)
+			{
+				LengthZ = FMath::Clamp(LengthZ, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			}
+			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
 		}
 	}
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
 	
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
 }
 
 // Called to bind functionality to input
@@ -653,9 +674,9 @@ void AKWPlayerCharacter::CheckGearState()
 	}), 1.0f, true);
 }
 
-void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector ReBoundResultValue, EReBoundObjectType ObjectType)
+void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)
 {
-	if(!bIsRolling || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
+	if(!bIsRolling || bIsReBounding || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
 	{
 		return;
 	}
@@ -672,9 +693,7 @@ void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector ReBoundResultValue,
 			{
 				// RollingMesh->SetSimulatePhysics(true);
 				// RollingMesh->SetAllPhysicsLinearVelocity(ReBoundResultValue);
-				FVector ReBoundVector = -RollingMesh->GetPhysicsLinearVelocity() * 10;
-				ReBoundVector.Z = 1500.f;
-				RollingMesh->SetPhysicsLinearVelocity(ReBoundVector);
+				RollingMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
 				RB_CheckContactToFloor();
 				GetWorldTimerManager().ClearTimer(RB_DelayTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(RB_DelayTimerHandle);

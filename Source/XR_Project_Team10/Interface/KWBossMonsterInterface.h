@@ -14,6 +14,8 @@ class UKWBossMonsterInterface : public UInterface
 	GENERATED_BODY()
 };
 
+DECLARE_MULTICAST_DELEGATE(FAICharacterPatternFinished)
+
 /**
  * 보스 몬스터 전반에 필수적으로 들어가야 할 함수 인터페이스
  **/
@@ -28,7 +30,10 @@ public:
 	virtual UDataAsset* GetBossAnimData() = 0;
 	virtual UDataAsset* GetBossAIData() = 0;
 	virtual void SetState(EMonsterState State) = 0;
-	virtual void PlayEncounterAnimation() = 0;
+
+	virtual void SetAIPatternDelegate(const FAICharacterPatternFinished& PatternFinishedDelegate) = 0;
+	virtual void EndEncounterAnimation() = 0;
+	virtual void PlayPatternAnimMontage() = 0;
 	virtual void PlayDeadAnimation() = 0;
 	virtual void DeActivateInGame() = 0;
 	virtual void ReActivateInGame() = 0;

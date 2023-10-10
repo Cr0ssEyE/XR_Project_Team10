@@ -250,7 +250,7 @@ private:
 	 * 리바운드 실행 함수에서는 기어에 따른 배율을 적용해 리바운드를 수행하는 역할만을 한다.
 	 **/
 public:
-	void RB_ApplyReBoundByObjectType(FVector ReBoundResultValue, EReBoundObjectType ObjectType);
+	void RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType);
 
 private:
 	void RB_CheckContactToFloor();

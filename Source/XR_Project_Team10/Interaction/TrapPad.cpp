@@ -1,4 +1,6 @@
 #include "XR_Project_Team10/Interaction/TrapPad.h"
+
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
@@ -16,7 +18,7 @@ ATrapPad::ATrapPad()
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
 	CollisionBox->SetupAttachment(BaseMesh);
 	CollisionBox->SetBoxExtent(FVector(100.f, 100.f, 100.f));
-
+	CollisionBox->SetCollisionProfileName(CP_GIMMICK);
 	InteractionCoolDown = 1.f;
 	bUseTrapVector = false;
 }
@@ -28,21 +30,21 @@ void ATrapPad::NotifyActorBeginOverlap(AActor* OtherActor)
 		UE_LOG(LogTemp, Log, TEXT("상호작용 쿨타임"));
 		return;
 	}
-	auto PlayableCharacter = Cast<AKWPlayerCharacter>(OtherActor);
+	AKWPlayerCharacter* PlayableCharacter = Cast<AKWPlayerCharacter>(OtherActor);
 
 	if (PlayableCharacter)
 	{
 		UE_LOG(LogTemp, Log, TEXT("trapOverlapBegin"));
-
-		auto CharacterMesh = PlayableCharacter->GetMeshComp();
-
+		
 		if(bUseTrapVector)
 		{
-			PlayableCharacter->RB_ApplyReBoundByObjectType(CharacterMesh->GetPhysicsLinearVelocity() + TrapVector * 100, EReBoundObjectType::Gimmick);
+			ReBoundVector = (PlayableCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal() * TrapVector;
+			PlayableCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Gimmick);
 		}
 		else
 		{
-			FVector ReBoundVector = CharacterMesh->GetPhysicsLinearVelocity() + FVector(0.f, 0.f, -BoundHeight);
+			ReBoundVector = (PlayableCharacter->GetActorLocation() - GetActorLocation()) * MultiplyValue;
+			ReBoundVector.Z = BoundHeight;
 			PlayableCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Gimmick);
 		}
 		ActiveInteractionCoolDown();
