@@ -13,7 +13,7 @@ ADW_FeatherProjectile::ADW_FeatherProjectile()
 	// 루트 컴포넌트를 콜리전 컴포넌트로 설정
 	RootComponent = CollisionComponent;
 
-	// 발사체 운동
+	//// 발사체 운동
 	ProjectileMovementComponent = CreateDefaultSubobject<class UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
 	ProjectileMovementComponent->InitialSpeed = 0;
@@ -48,8 +48,6 @@ void ADW_FeatherProjectile::NotifyActorEndOverlap(AActor* OtherActor)
 
 void ADW_FeatherProjectile::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Log, TEXT("another hit : %s"), *Other->GetName());
-
 	ProjectileMovementComponent->Velocity = FVector(0, 0, 0);
 
 	GetWorld()->GetTimerManager().SetTimer(DeleteTimerHandle, FTimerDelegate::CreateLambda([&]() {

@@ -44,6 +44,7 @@ void ACommonMonster::Attack(AActor* Target)
 void ACommonMonster::CommonMonsterAttack(AActor* Target)
 {
 	if (GetWorldTimerManager().IsTimerActive(AttackCoolDownTimerHandle)) {
+		OnAttackFinished.ExecuteIfBound();
 		return;
 	}
 

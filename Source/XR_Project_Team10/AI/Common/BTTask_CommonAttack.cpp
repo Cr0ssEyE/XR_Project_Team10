@@ -15,8 +15,6 @@ EBTNodeResult::Type UBTTask_CommonAttack::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	UE_LOG(LogTemp, Log, TEXT("Attack"));
-
 	APawn* ControllingPawn = Cast<APawn>(OwnerComp.GetAIOwner()->GetPawn());
 	if (nullptr == ControllingPawn) {
 		return EBTNodeResult::Failed;
