@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 기본 이동속도")
 	float HohonuMoveSpeed;
 
+	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "디버그 뷰 활성화")
+	uint8 bIsDebugEnable : 1;
+	
 	/**
 	 * 호호누 패턴 별 약자 \n
 	 * 수정 소환 = Summon Crystal = SC_ \n
@@ -95,9 +98,6 @@ public:
 	float SC_IncreaseAttackRange;
 
 public:
-	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 충전 이펙트")
-	TObjectPtr<UNiagaraSystem> SL_ChargeVFX;
-
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 이펙트")
 	TObjectPtr<UNiagaraSystem> SL_LaserVFX;
 
@@ -120,9 +120,6 @@ public:
 	FVector SL_DamageRange;
 
 public:
-	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 이펙트")
-	TObjectPtr<UNiagaraSystem> MA_HandVFX;
-	
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 데미지")
 	float MA_Damage;
 
@@ -133,9 +130,6 @@ public:
 	FVector MA_ExplodeDamageRange;
 	
 public:
-	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 이펙트")
-	TObjectPtr<UNiagaraSystem> WW_WindVFX;
-	
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 데미지")
 	float WW_Damage;
 
@@ -158,9 +152,6 @@ public:
 	float WW_RotateSpeed;
 	
 public:
-	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 이펙트")
-	TObjectPtr<UNiagaraSystem> BS_WindVFX;
-	
 	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 지속 시간(초)")
 	float BS_Time;
 

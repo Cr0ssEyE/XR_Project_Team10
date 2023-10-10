@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTService.h"
-#include "BTService_KWRandomValueCheck.generated.h"
+#include "BehaviorTree/BTTaskNode.h"
+#include "BTTask_KWRandomValueCheck.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class XR_PROJECT_TEAM10_API UBTService_KWRandomValueCheck : public UBTService
+class XR_PROJECT_TEAM10_API UBTTask_KWRandomValueCheck : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
-	UBTService_KWRandomValueCheck();
-	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	UBTTask_KWRandomValueCheck();
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
 private:
 	UPROPERTY(EditAnywhere, DisplayName = "설정 대상 키")

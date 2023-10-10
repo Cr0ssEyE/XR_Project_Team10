@@ -186,16 +186,13 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuHeadEffect;
-
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNiagaraComponent> HohonuLeftHandEffect;
-
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNiagaraComponent> HohonuRightHandEffect;
-
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuLaserChargeEffect;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuLaserSweepEffect;
+
+	UPROPERTY()
+	uint8 bIsDebugEnable : 1;
 };

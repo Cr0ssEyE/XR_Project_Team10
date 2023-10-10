@@ -37,15 +37,8 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHeadVFX"));
 	HohonuRingEffect->SetupAttachment(GetMesh());
 	HohonuHeadEffect->SetupAttachment(GetMesh());
-
-	HohonuLeftHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLeftHandVFX"));
-	HohonuRightHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRightHandVFX"));
-	HohonuLeftHandEffect->SetupAttachment(GetMesh());
-	HohonuRightHandEffect->SetupAttachment(GetMesh());
-
-	HohonuLaserChargeEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLaserChargeVFX"));
+	
 	HohonuLaserSweepEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLaserSweepVFX"));
-	HohonuLaserChargeEffect->SetupAttachment(GetMesh());
 	HohonuLaserSweepEffect->SetupAttachment(GetMesh());
 	
 	UKWBossHohonuDataAsset* HohonuData = Cast<UKWBossHohonuDataAsset>(BossMonsterStatusData);
@@ -54,6 +47,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 		GetMesh()->SetSkeletalMesh(HohonuData->HohonuMesh);
 		HohonuRingEffect->SetAsset(HohonuData->HohonuRingEffect);
 		HohonuHeadEffect->SetAsset(HohonuData->HohonuHeadEffect);
+		HohonuLaserSweepEffect->SetAsset(HohonuData->SL_LaserVFX);
 	}
 	
 	UKWBossAnimDataAsset* BossAnimData = Cast<UKWBossAnimDataAsset>(BossMonsterAnimData);
@@ -77,7 +71,8 @@ void AKWBossMonsterHohonu::BeginPlay()
 		HohonuAnimInstance->PatternActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternExecute);
 		HohonuAnimInstance->PatternDeActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::StopPattern);
 	}
-	
+
+	HohonuLaserSweepEffect->Deactivate();
 	AKWHohonuAIController* AIController = Cast<AKWHohonuAIController>(GetController());
 	if(AIController)
 	{
@@ -104,6 +99,7 @@ void AKWBossMonsterHohonu::InitData()
 	if(HohonuData)
 	{
 		BossHp = HohonuData->HohonuHp;
+		bIsDebugEnable = HohonuData->bIsDebugEnable;
 		
 		HohonuLunaticHp = HohonuData->HohonuLunaticHp;
 		MoveSpeed = HohonuData->HohonuMoveSpeed;
@@ -179,12 +175,9 @@ void AKWBossMonsterHohonu::PlayPatternAnimMontage()
 		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_SUMMON_CRYSTAL, BossAnimMontage);
 		break;
 	case EHohonuPattern::SweepLaser:
-		HohonuLaserChargeEffect->Activate();
 		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_SWEEP_LASER, BossAnimMontage);
 		break;
 	case EHohonuPattern::MeleeAttack:
-		HohonuLeftHandEffect->Activate();
-		HohonuRightHandEffect->Activate();
 		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_MELEE_ATTACK, BossAnimMontage);
 		break;
 	case EHohonuPattern::WhirlWind:
@@ -419,7 +412,10 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 			float DrawCenterY = FMath::Lerp<float, float>(StartLocation.Y, EndLocation.Y, i);
 			float DrawCenterZ = FMath::Lerp<float, float>(StartLocation.Z, EndLocation.Z, i);
 			FVector DrawCenter = FVector(DrawCenterX, DrawCenterY, DrawCenterZ);
-			DrawDebugBox(GetWorld(), DrawCenter, SL_DamageRange, FColor::Blue, false, 0.3f);
+			if (bIsDebugEnable)
+			{
+				DrawDebugBox(GetWorld(), DrawCenter, SL_DamageRange, FColor::Blue, false, 0.3f);
+			}
 			i += 0.1;
 		}
 		
@@ -461,9 +457,6 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 	{
 		if(!bIsPatternRunning)
 		{
-			HohonuLeftHandEffect->Deactivate();
-			HohonuRightHandEffect->Deactivate();
-			
 			FHitResult HitResult;
 			FCollisionQueryParams Params(NAME_None, false, this);
 			bool bResult = GetWorld()->SweepSingleByChannel(
@@ -474,7 +467,10 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 			ECC_PLAYER_ONLY,
 			FCollisionShape::MakeBox(MA_ExplodeDamageRange),
 			Params);
-			DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_VFX_FRONT), MA_ExplodeDamageRange, FColor::Blue, false, 0.3f);
+			if(bIsDebugEnable)
+			{
+				DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_VFX_FRONT), MA_ExplodeDamageRange, FColor::Blue, false, 0.3f);
+			}
 			if(bResult)
 			{
 				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
@@ -496,8 +492,7 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 		FHitResult HitResultL;
 		FHitResult HitResultR;
 		FCollisionQueryParams Params(NAME_None, false, this);
-
-		HohonuLeftHandEffect->SetWorldLocation(GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT));
+		
 		bool bResultL = GetWorld()->SweepSingleByChannel(
 		HitResultL,
 		GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT),
@@ -506,9 +501,11 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 		ECC_PLAYER_ONLY,
 		FCollisionShape::MakeBox(MA_DamageRange),
 		Params);
-		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT), MA_DamageRange, FColor::Red, false, 0.1f);
-
-		HohonuRightHandEffect->SetWorldLocation(GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT));
+		if(bIsDebugEnable)
+		{
+			DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT), MA_DamageRange, FColor::Red, false, 0.1f);
+		}
+		
 		bool bResultR = GetWorld()->SweepSingleByChannel(
 		HitResultR,
 		GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT),
@@ -517,7 +514,10 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 		ECC_PLAYER_ONLY,
 		FCollisionShape::MakeBox(MA_DamageRange),
 		Params);
-		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT), MA_DamageRange, FColor::Red, false, 0.1f);
+		if(bIsDebugEnable)
+		{
+			DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT), MA_DamageRange, FColor::Red, false, 0.1f);
+		}
 		
 		if(bResultL || bResultR)
 		{
@@ -570,7 +570,10 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 			FCollisionShape::MakeBox(WW_DamageRange),
 			Params);
 
-			DrawDebugBox(GetWorld(), GetActorLocation(), WW_DamageRange, FColor::Red);
+			if(bIsDebugEnable)
+			{
+				DrawDebugBox(GetWorld(), GetActorLocation(), WW_DamageRange, FColor::Red);
+			}
 			
 			if(bResult)
 			{

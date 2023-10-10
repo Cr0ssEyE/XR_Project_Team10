@@ -7,3 +7,4 @@
 #define ECC_PLAYER_ONLY ECC_GameTraceChannel12
 
 #define CP_GIMMICK TEXT("Gimmick")
+#define CP_PLAYER TEXT("Player")

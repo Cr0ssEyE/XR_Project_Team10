@@ -54,7 +54,7 @@ void AKWHohonuCrystal::BeginPlay()
 	
 	SC_Hp = BossHohonuDataAsset->SC_Hp;
 	CurrentHp = SC_Hp;
-	
+	bIsDebugEnable = BossHohonuDataAsset->bIsDebugEnable;
 	SC_DropDownDamage = BossHohonuDataAsset->SC_DropDownDamage;
 	SC_DropDownSpeed = BossHohonuDataAsset->SC_DropDownSpeed;
 	SC_DropDownDelay = BossHohonuDataAsset->SC_DropDownDelay;
@@ -183,7 +183,10 @@ void AKWHohonuCrystal::ActivateAndDropDownSequence()
 			ECollisionChannel::ECC_WorldStatic,
 			FCollisionShape::MakeBox(BoxCollision),
 			Params);
-			DrawDebugBox(GetWorld(), GetActorLocation(), BoxCollision, FColor::Red);
+			if(bIsDebugEnable)
+			{
+				DrawDebugBox(GetWorld(), GetActorLocation(), BoxCollision, FColor::Red);
+			}
 
 			if(bResult)
 			{
@@ -237,8 +240,11 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 			ECC_PLAYER_ONLY,
 			FCollisionShape::MakeSphere(SC_CurrentAttackRange),
 			Params);
-			DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.1f);
-			
+			if(bIsDebugEnable)
+			{
+				DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.1f);
+			}
+
 			if(bResult && !bIsWaveDamageCaused)
 			{
 				for (auto Result : HitResult)

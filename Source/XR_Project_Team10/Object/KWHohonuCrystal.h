@@ -89,6 +89,8 @@ private:
 
 	float SC_IncreaseAttackRange;
 
+	uint8 bIsDebugEnable : 1;
+	
 	uint8 bIsActivate : 1;
 	
 	uint8 bIsAttackOnGoing : 1;
