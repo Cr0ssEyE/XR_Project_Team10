@@ -5,7 +5,9 @@
 
 #include "AIController.h"
 #include "KWHohonuAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
+#include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 
 UBTTask_KWHohonuPatterns::UBTTask_KWHohonuPatterns()
 {
@@ -38,5 +40,9 @@ EBTNodeResult::Type UBTTask_KWHohonuPatterns::ExecuteTask(UBehaviorTreeComponent
 	ControllingPawn->SetAIPatternDelegate(PatternFinished);
 	ControllingPawn->SetPattern(TaskPattern);
 	ControllingPawn->PlayPatternAnimMontage();
+	if(TaskPattern == EHohonuPattern::SweepLaser)
+	{
+		OwnerComp.GetBlackboardComponent()->SetValueAsBool(KEY_HOHONU_SL_TURN, true);
+	}
 	return EBTNodeResult::InProgress;
 }

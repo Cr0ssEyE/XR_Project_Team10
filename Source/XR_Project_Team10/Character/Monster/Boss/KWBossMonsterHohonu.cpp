@@ -10,8 +10,10 @@
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
 #include "NiagaraComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Constant/KWMeshSocketName.h"
 
@@ -31,15 +33,20 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	GetCapsuleComponent()->SetCapsuleSize(150.f, 200.f);
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -150.f));
 	
-	HohonuRingEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRing"));
-	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHead"));
+	HohonuRingEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRingVFX"));
+	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHeadVFX"));
 	HohonuRingEffect->SetupAttachment(GetMesh());
 	HohonuHeadEffect->SetupAttachment(GetMesh());
 
-	HohonuLeftHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLeftHand"));
-	HohonuRightHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRightHand"));
+	HohonuLeftHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLeftHandVFX"));
+	HohonuRightHandEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRightHandVFX"));
 	HohonuLeftHandEffect->SetupAttachment(GetMesh());
 	HohonuRightHandEffect->SetupAttachment(GetMesh());
+
+	HohonuLaserChargeEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLaserChargeVFX"));
+	HohonuLaserSweepEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLaserSweepVFX"));
+	HohonuLaserChargeEffect->SetupAttachment(GetMesh());
+	HohonuLaserSweepEffect->SetupAttachment(GetMesh());
 	
 	UKWBossHohonuDataAsset* HohonuData = Cast<UKWBossHohonuDataAsset>(BossMonsterStatusData);
 	if(HohonuData)
@@ -104,12 +111,13 @@ void AKWBossMonsterHohonu::InitData()
 		
 		SC_SpawnDelay = HohonuData->SC_SpawnDelay;
 		SC_SpawnHeight = HohonuData->SC_SpawnHeight;
-		
+
+		SL_bIsRandomStart = HohonuData->SL_bIsRandomStart;
 		SL_Damage = HohonuData->SL_Damage;
-		SL_AttackDelay = HohonuData->SL_AttackDelay;
 		SL_Degree = HohonuData->SL_Degree;
-		SL_TurnSpeed = HohonuData->SL_TurnSpeed;
-		SL_AttackRange = HohonuData->SL_AttackRange;
+		SL_ActiveTime = HohonuData->SL_ActiveTime;
+		SL_Distance = HohonuData->SL_Distance;
+		SL_DamageRange = HohonuData->SL_DamageRange;
 		
 		MA_Damage = HohonuData->MA_Damage;
 		MA_DamageRange = HohonuData->MA_DamageRange;
@@ -171,6 +179,7 @@ void AKWBossMonsterHohonu::PlayPatternAnimMontage()
 		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_SUMMON_CRYSTAL, BossAnimMontage);
 		break;
 	case EHohonuPattern::SweepLaser:
+		HohonuLaserChargeEffect->Activate();
 		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_SWEEP_LASER, BossAnimMontage);
 		break;
 	case EHohonuPattern::MeleeAttack:
@@ -353,7 +362,94 @@ void AKWBossMonsterHohonu::ExecutePattern_SC()
 
 void AKWBossMonsterHohonu::ExecutePattern_SL()
 {
+	UE_LOG(LogTemp, Log, TEXT("Hohonu SweepLaser Start"));
+	bIsAttacking = true;
+	bIsSweepLaserDamageCaused = false;
+	HohonuLaserSweepEffect->Activate();
 	
+	if(SL_bIsRandomStart)
+	{
+		bIsSweepLeftToRight = FMath::RandRange(0, 1);
+	}
+	else
+	{
+		bIsSweepLeftToRight = true;
+	}
+	
+	AKWHohonuAIController* AIOwner = Cast<AKWHohonuAIController>(GetController());
+	if(AIOwner)
+	{
+		AIOwner->GetBlackboardComponent()->SetValueAsBool(KEY_HOHONU_SL_TURN, false);
+	}
+	
+	HohonuLaserSweepEffect->SetRelativeRotation(FRotator(0.f, 95.f, 0.f));
+	if(bIsSweepLeftToRight)
+	{
+		HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() - FRotator(0.f, SL_Degree / 2, 0.f));
+	}
+	else
+	{
+		HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() + FRotator(0.f, SL_Degree / 2, 0.f));
+	}
+	
+	GetWorldTimerManager().SetTimer(SL_SweepTimerHandle, FTimerDelegate::CreateLambda([&]()
+	{
+		if(!bIsPatternRunning)
+		{
+			HohonuLaserSweepEffect->Deactivate();
+			GetWorldTimerManager().ClearTimer(SL_SweepTimerHandle);
+			FPPTimerHelper::InvalidateTimerHandle(SL_SweepTimerHandle);
+		}
+		FVector StartLocation = HohonuLaserSweepEffect->GetComponentLocation();
+		FVector EndLocation = StartLocation + HohonuLaserSweepEffect->GetForwardVector() * SL_Distance;
+		
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		FQuat::Identity,
+		ECC_PLAYER_ONLY,
+		FCollisionShape::MakeBox(SL_DamageRange),
+		Params);
+		for(float i = 0; i <= 1;)
+		{
+			float DrawCenterX = FMath::Lerp<float, float>(StartLocation.X, EndLocation.X, i);
+			float DrawCenterY = FMath::Lerp<float, float>(StartLocation.Y, EndLocation.Y, i);
+			float DrawCenterZ = FMath::Lerp<float, float>(StartLocation.Z, EndLocation.Z, i);
+			FVector DrawCenter = FVector(DrawCenterX, DrawCenterY, DrawCenterZ);
+			DrawDebugBox(GetWorld(), DrawCenter, SL_DamageRange, FColor::Blue, false, 0.3f);
+			i += 0.1;
+		}
+		
+		if(bResult && !bIsSweepLaserDamageCaused)
+		{
+			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
+			if(PlayerCharacter)
+			{
+				//TODO:: 매직넘버 처리하기
+				bIsSweepLaserDamageCaused = true;
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+				FDamageEvent DamageEvent;
+				PlayerCharacter->TakeDamage(SL_Damage, DamageEvent, GetController(), this);
+				FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
+				PlayerDirection.Z = 100.f;
+				ReBoundVector = PlayerDirection * 3.f;
+				PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+			}
+		}
+		float RotateValue = SL_Degree * 0.01f / SL_ActiveTime / 2;
+		if(bIsSweepLeftToRight)
+		{
+			HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() + FRotator(0.f, RotateValue, 0.f));
+		}
+		else
+		{
+			HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() - FRotator(0.f, RotateValue, 0.f));
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("각도: %f"), HohonuLaserSweepEffect->GetComponentRotation().Yaw));
+	}), 0.01f, true);
 }
 
 void AKWBossMonsterHohonu::ExecutePattern_MA()
@@ -365,6 +461,9 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 	{
 		if(!bIsPatternRunning)
 		{
+			HohonuLeftHandEffect->Deactivate();
+			HohonuRightHandEffect->Deactivate();
+			
 			FHitResult HitResult;
 			FCollisionQueryParams Params(NAME_None, false, this);
 			bool bResult = GetWorld()->SweepSingleByChannel(
@@ -381,6 +480,7 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
 				if(PlayerCharacter)
 				{
+					//TODO:: 매직넘버 처리하기
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
 					FDamageEvent DamageEvent;
 					PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
