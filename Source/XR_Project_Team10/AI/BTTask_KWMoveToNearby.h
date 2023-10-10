@@ -23,5 +23,5 @@ private:
 	float NearbyDistance;
 
 	UPROPERTY(EditAnywhere, DisplayName = "설정 대상 키")
-	FBlackboardKeySelector BlackboardKey;
+	FBlackboardKeySelector SubBlackboardKey;
 };

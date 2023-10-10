@@ -11,6 +11,8 @@ void UKWPlayerHealthWidget::NativeConstruct()
 	PlayerMaximumHealth = PlayerCharacter->GetHp();
 	PlayerCurrentHealth = PlayerMaximumHealth;
 	ImageType = EVitalImageType::Fill;
+	ReStartBtn->OnClicked.AddDynamic(this, &UKWPlayerHealthWidget::ResetGame);
+	
 }
 
 void UKWPlayerHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -30,12 +32,12 @@ void UKWPlayerHealthWidget::ChangeImageState()
 	{
 		if(ImageType == EVitalImageType::Fill)
 		{
-			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
 			ImageType = EVitalImageType::Half;
+			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType)]);
 		}
-		if(ImageType == EVitalImageType::Half)
+		else if(ImageType == EVitalImageType::Half)
 		{
-			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
+			FocusedImage->SetBrushFromTexture(VitalImageSample[0]);
 			if(FocusedImage == VitalImageB)
 			{
 				FocusedImage = VitalImageA;
@@ -59,7 +61,7 @@ void UKWPlayerHealthWidget::ChangeImageState()
 	{
 		if(ImageType == EVitalImageType::Fill)
 		{
-			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 2]);
+			FocusedImage->SetBrushFromTexture(VitalImageSample[0]);
 			if(FocusedImage == VitalImageB)
 			{
 				FocusedImage = VitalImageA;
@@ -77,9 +79,9 @@ void UKWPlayerHealthWidget::ChangeImageState()
 				FocusedImage = VitalImageD;
 			}
 		}
-		if(ImageType == EVitalImageType::Half)
+		else if(ImageType == EVitalImageType::Half)
 		{
-			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
+			FocusedImage->SetBrushFromTexture(VitalImageSample[0]);
 			if(FocusedImage == VitalImageB)
 			{
 				FocusedImage = VitalImageA;
@@ -96,9 +98,8 @@ void UKWPlayerHealthWidget::ChangeImageState()
 			{
 				FocusedImage = VitalImageD;
 			}
-			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType) - 1]);
+			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType)]);
 		}
 	}
-	
 	PlayerCurrentHealth = PlayerCharacter->GetHp();
 }

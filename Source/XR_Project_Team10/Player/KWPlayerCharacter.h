@@ -34,7 +34,7 @@ class XR_PROJECT_TEAM10_API AKWPlayerCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AKWPlayerCharacter();
-
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -290,6 +290,9 @@ private:
 	
 	UPROPERTY()
 	uint8 bIsDeceleration : 1;
+
+	UPROPERTY()
+	uint8 bIsDamageCaused : 1;
 	
 	/** 리바운드 관련 함수 리스트\n
 	 * 캐릭터에서 너무 많은 기능을 수행해서는 안되므로 \n
@@ -339,5 +342,8 @@ private:
 
 	UPROPERTY()
 	TArray<float> RB_MultiplyValuesByObjectType;
+
+	UPROPERTY()
+	FVector SelfReBoundVector;
 };
 

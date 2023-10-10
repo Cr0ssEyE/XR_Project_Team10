@@ -61,6 +61,7 @@ void AKWHohonuAIController::SetTarget(const TArray<AActor*>& Actors)
 			if(ControllingPawn)
 			{
 				ControllingPawn->SetTarget(*PlayerCharacter);
+				ControllingPawn->EnableHealthUI();
 			}
 			return;
 		}

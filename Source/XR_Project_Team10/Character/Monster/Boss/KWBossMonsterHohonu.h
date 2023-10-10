@@ -44,6 +44,7 @@ public:
 	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
+	void EnableHealthUI();
 	
 	UFUNCTION()
 	void ActivatePatternOmen(UAnimMontage* Montage);
@@ -197,4 +198,8 @@ private:
 
 	UPROPERTY()
 	uint8 bIsDebugEnable : 1;
+
+private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UUserWidget> HealthWidget;
 };

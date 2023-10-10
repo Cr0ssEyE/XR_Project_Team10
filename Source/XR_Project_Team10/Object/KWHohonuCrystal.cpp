@@ -130,15 +130,7 @@ float AKWHohonuCrystal::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	{
 		DestroyVFX->Activate(true);
 		SetDeActivate();
-		GetWorldTimerManager().SetTimer(DestroyEventTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(DestroyEventTimerHandle, 1.f))
-			{
-				DestroyVFX->Deactivate();
-				GetWorldTimerManager().ClearTimer(DestroyEventTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DestroyEventTimerHandle);
-			}
-		}),0.01f, true);
+		GetWorldTimerManager().SetTimer(DestroyEventTimerHandle, this, &AKWHohonuCrystal::DeActivateSequence,1.f, false);
 	}
 	return Result;
 }
@@ -156,64 +148,62 @@ void AKWHohonuCrystal::ActivateAndDropDownSequence()
 	CurrentHp = SC_Hp;
 	StaticMeshComponent->SetVisibility(true);
 	SummonVFX->Activate(true);
-	GetWorldTimerManager().SetTimer(DropDownTimerHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorldTimerManager().SetTimer(DropDownDelayTimerHandle, this, &AKWHohonuCrystal::DropDownDelay, SC_DropDownDelay, false);
+	GetWorldTimerManager().SetTimer(DropDownTimerHandle, this, &AKWHohonuCrystal::DropDownExecute, 0.01f, true);
+}
+
+void AKWHohonuCrystal::DeActivateSequence()
+{
+	DestroyVFX->Deactivate();
+}
+
+void AKWHohonuCrystal::DropDownDelay()
+{
+	bIsSpawnDelayOnGoing = false;
+}
+
+void AKWHohonuCrystal::DropDownExecute()
+{
+	if(bIsSpawnDelayOnGoing || bIsPlaceInGround)
 	{
-		if(GetWorldTimerManager().IsTimerActive(DestroyEventTimerHandle))
-		{
-			return;
-		}
-		
-		if(FPPTimerHelper::IsDelayElapsed(DropDownTimerHandle, SC_DropDownDelay) && bIsSpawnDelayOnGoing)
-		{
-			bIsSpawnDelayOnGoing = false;
-		}
-
-		if(bIsSpawnDelayOnGoing)
-		{
-			return;
-		}
-		
-		if(FPPTimerHelper::IsDelayElapsed(DropDownTimerHandle, 0.01f) && !bIsPlaceInGround)
-		{
-			SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, -SC_DropDownSpeed * 0.01f));
+		return;
+	}
+	SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, -SC_DropDownSpeed * 0.01f));
 			
-			FHitResult HitResult;
-			FCollisionQueryParams Params(NAME_None, false, this);
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
 
-			FVector BoxCollision = FVector(3.f, 3.f, 3.f);
+	FVector BoxCollision = FVector(3.f, 3.f, 3.f);
 
-			// 크리스탈 정중앙으로 바닥에 고정되는 위치 조정하기
-			bool bResult = GetWorld()->SweepSingleByChannel(
-			HitResult,
-			GetActorLocation(),
-			GetActorLocation(),
-			FQuat::Identity,
-			ECC_GameTraceChannel1,
-			FCollisionShape::MakeBox(BoxCollision),
-			Params);
-			if(bIsDebugEnable)
-			{
-				DrawDebugBox(GetWorld(), GetActorLocation(), BoxCollision, FColor::Red);
-			}
+	// 크리스탈 정중앙으로 바닥에 고정되는 위치 조정하기
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation(),
+	FQuat::Identity,
+	ECC_GameTraceChannel1,
+	FCollisionShape::MakeBox(BoxCollision),
+	Params);
+	if(bIsDebugEnable)
+	{
+		DrawDebugBox(GetWorld(), GetActorLocation(), BoxCollision, FColor::Red);
+	}
 
-			if(bResult)
-			{
-				AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
-				AKWHohonuCrystal* SpawnedCrystal = Cast<AKWHohonuCrystal>(HitResult.GetActor());
-				if(Player || SpawnedCrystal)
-				{
-					return;
-				}
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("지면 충돌")));
-				bIsPlaceInGround = true;
-				DropDownVFX->Activate(true);
-				StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				ActivateWaveAttack();
-				GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DropDownTimerHandle);
-			}
+	if(bResult)
+	{
+		AKWPlayerCharacter* Player = Cast<AKWPlayerCharacter>(HitResult.GetActor());
+		AKWHohonuCrystal* SpawnedCrystal = Cast<AKWHohonuCrystal>(HitResult.GetActor());
+		if(Player || SpawnedCrystal)
+		{
+			return;
 		}
-	}), 0.01f, true);
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("지면 충돌")));
+		bIsPlaceInGround = true;
+		DropDownVFX->Activate(true);
+		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		ActivateWaveAttack();
+		GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
+	}
 }
 
 void AKWHohonuCrystal::ActivateWaveAttack()
@@ -223,95 +213,88 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 		return;
 	}
 	SC_CurrentAttackRange = 0;
-	GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		if(GetWorldTimerManager().IsTimerActive(WaveAttackDelayTimerHandle))
-		{
-			return;
-		}
-		
-		if(FPPTimerHelper::IsDelayElapsed(WaveAttackHitCheckTimerHandle, 0.01f))
-		{
-			if(!bIsActivate)
-			{
-				GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(WaveAttackHitCheckTimerHandle);
-			}
-			TArray<FHitResult> HitResult;
-			FCollisionQueryParams Params(NAME_None, false, this);
-			
-			bool bResult = GetWorld()->SweepMultiByChannel(
-			HitResult,
-			GetActorLocation(),
-			GetActorLocation(),
-			FQuat::Identity,
-			ECC_PLAYER_ONLY,
-			FCollisionShape::MakeSphere(SC_CurrentAttackRange),
-			Params);
-			if(bIsDebugEnable)
-			{
-				DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.1f);
-			}
+	GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, this, &AKWHohonuCrystal::WaveAttackHitCheck, 0.01f, true);
+}
 
-			if(bResult && !bIsWaveDamageCaused)
+void AKWHohonuCrystal::WaveAttackHitCheck()
+{
+	if(GetWorldTimerManager().IsTimerActive(WaveAttackDelayTimerHandle))
+	{
+		return;
+	}
+	if(!bIsActivate)
+	{
+		GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
+	}
+	TArray<FHitResult> HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	
+	bool bResult = GetWorld()->SweepMultiByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation(),
+	FQuat::Identity,
+	ECC_PLAYER_ONLY,
+	FCollisionShape::MakeSphere(SC_CurrentAttackRange),
+	Params);
+	if(bIsDebugEnable)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.1f);
+	}
+
+	if(bResult && !bIsWaveDamageCaused)
+	{
+		for (auto Result : HitResult)
+		{
+			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(Result.GetActor());
+			if(PlayerCharacter)
 			{
-				for (auto Result : HitResult)
+				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("파동 범위 내 플레이어 감지")));
+				FVector TargetLocation = PlayerCharacter->GetActorLocation();
+				FVector XYDistance = GetActorLocation() - TargetLocation;
+				XYDistance.Z = 0.f;
+				
+				if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && TargetLocation.Z < GetActorLocation().Z + 100.f)
 				{
-					AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(Result.GetActor());
-					if(PlayerCharacter)
+					if(!bIsActivate)
 					{
-						// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("파동 범위 내 플레이어 감지")));
-						FVector TargetLocation = PlayerCharacter->GetActorLocation();
-						FVector XYDistance = GetActorLocation() - TargetLocation;
-						XYDistance.Z = 0.f;
-						
-						if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && TargetLocation.Z < GetActorLocation().Z + 100.f)
-						{
-							if(!bIsActivate)
-							{
-								GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
-								FPPTimerHelper::InvalidateTimerHandle(WaveAttackHitCheckTimerHandle);
-							}
-							GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("파동 끝에 플레이어 충돌 확인")));
-							FDamageEvent DamageEvent;
-							PlayerCharacter->TakeDamage(SC_WaveDamage, DamageEvent, GetController(), this);
-							bIsWaveDamageCaused = true;
-							//TODO: 나중에 매직넘버 처리
-							FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-							PlayerDirection.Z = 1.5f;
-							ReBoundVector = PlayerDirection * 1000.f;
-							PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
-						}
+						GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
 					}
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("파동 끝에 플레이어 충돌 확인")));
+					FDamageEvent DamageEvent;
+					PlayerCharacter->TakeDamage(SC_WaveDamage, DamageEvent, GetController(), this);
+					bIsWaveDamageCaused = true;
+					//TODO: 나중에 매직넘버 처리
+					FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+					PlayerDirection.Z = 1.5f;
+					ReBoundVector = PlayerDirection * 1000.f;
+					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				}
 			}
-			SC_CurrentAttackRange += SC_IncreaseAttackRange * 0.01f;
-			if(SC_CurrentAttackRange >= SC_MaxAttackRange)
-			{
-				SC_CurrentAttackRange = 0;
-				ActivateWaveAttackTimer();
-			}
 		}
-	}), 0.01f, true);
+	}
+	SC_CurrentAttackRange += SC_IncreaseAttackRange * 0.01f;
+	if(SC_CurrentAttackRange >= SC_MaxAttackRange)
+	{
+		SC_CurrentAttackRange = 0;
+		GetWorldTimerManager().SetTimer(WaveAttackDelayTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttackTimer, 0.01f, true);
+	}
 }
 
 void AKWHohonuCrystal::ActivateWaveAttackTimer()
 {
-	GetWorldTimerManager().SetTimer(WaveAttackDelayTimerHandle, FTimerDelegate::CreateLambda([&]()
+	if(!bIsActivate)
 	{
-		if(!bIsActivate)
-		{
-			GetWorldTimerManager().ClearTimer(WaveAttackDelayTimerHandle);
-			FPPTimerHelper::InvalidateTimerHandle(WaveAttackDelayTimerHandle);
-		}
-		if(FPPTimerHelper::IsDelayElapsed(WaveAttackDelayTimerHandle, SC_AttackDelay))
-		{
-			WaveVFX->Activate(true);
-			bIsWaveDamageCaused = false;
-			GetWorldTimerManager().ClearTimer(WaveAttackDelayTimerHandle);
-			FPPTimerHelper::InvalidateTimerHandle(WaveAttackDelayTimerHandle);
-		}
-	}), 0.01f, true);
+		GetWorldTimerManager().ClearTimer(WaveAttackDelayTimerHandle);
+	}
+	SC_CurrentAttackDelay += 0.01f;
+	if(SC_CurrentAttackDelay >= SC_AttackDelay)
+	{
+		WaveVFX->Activate(true);
+		bIsWaveDamageCaused = false;
+		SC_CurrentAttackDelay = 0;
+		GetWorldTimerManager().ClearTimer(WaveAttackDelayTimerHandle);
+	}
 }
 
 void AKWHohonuCrystal::SetDeActivate()

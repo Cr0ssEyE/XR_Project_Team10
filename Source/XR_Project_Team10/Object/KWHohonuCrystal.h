@@ -30,7 +30,11 @@ public:
 	void ActivateAndDropDownSequence();
 	
 private:
+	void DeActivateSequence();
+	void DropDownDelay();
+	void DropDownExecute();
 	void ActivateWaveAttack();
+	void WaveAttackHitCheck();
 	void ActivateWaveAttackTimer();
 	void SetDeActivate();
 	
@@ -60,6 +64,8 @@ private:
 	float SC_Hp;
 	
 	float CurrentHp;
+
+	FTimerHandle DropDownDelayTimerHandle;
 	
 	FTimerHandle DropDownTimerHandle;
 
@@ -80,6 +86,8 @@ private:
 	float SC_WaveLength;
 
 	float SC_WaveDamage;
+
+	float SC_CurrentAttackDelay;
 	
 	float SC_AttackDelay;
 

@@ -13,9 +13,11 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Constant/KWMeshSocketName.h"
+#include "XR_Project_Team10/UI/KWBossHealthWidget.h"
 
 AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 {
@@ -80,6 +82,7 @@ void AKWBossMonsterHohonu::BeginPlay()
 		// GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_ENCOUNTER, BossAnimMontage);
 	}
 	bIsPatternRunning = false;
+
 }
 
 void AKWBossMonsterHohonu::Tick(float DeltaSeconds)
@@ -133,12 +136,23 @@ void AKWBossMonsterHohonu::InitData()
 		ML_AttackTime = HohonuData->ML_AttackTime;
 		ML_TurnSpeed = HohonuData->ML_TurnSpeed;
 	}
+	if(UKWBossHealthWidget* BossHealthWidget = Cast<UKWBossHealthWidget>(HealthWidget))
+	{
+		BossHealthWidget->SetBossMonster(this);
+		BossHealthWidget->AddToViewport();
+	}
 }
 
 float AKWBossMonsterHohonu::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 	AController* EventInstigator, AActor* DamageCauser)
 {
-	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	BossHp -= DamageAmount;
+	if(BossHp <= 0)
+	{
+		GetController()->Destroyed();
+	}
+	return 0;
 }
 
 void AKWBossMonsterHohonu::SetAIPatternDelegate(const FAICharacterPatternFinished& PatternFinishedDelegate)
@@ -209,6 +223,11 @@ void AKWBossMonsterHohonu::ReActivateInGame()
 {
 	Super::ReActivateInGame();
 	
+}
+
+void AKWBossMonsterHohonu::EnableHealthUI()
+{
+	CastChecked<UKWBossHealthWidget>(HealthWidget)->SetRenderOpacity(1);
 }
 
 void AKWBossMonsterHohonu::ActivatePatternOmen(UAnimMontage* Montage)
@@ -594,8 +613,25 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 void AKWBossMonsterHohonu::ExecutePattern_BS()
 {
 	SetActorLocation( GetActorLocation() + GetActorForwardVector() * - BS_MoveSpeed * 0.01f);
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+			
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation() - GetActorForwardVector() * 200.f,
+	FQuat::Identity,
+	ECC_WorldStatic,
+	FCollisionShape::MakeBox(FVector(100.f, 100.f , 10.f)),
+	Params);
+	
+	if(bResult)
+	{
+		GetWorldTimerManager().ClearTimer(BackStepTimerHandle);
+	}
+	
 	BS_ElapsedTime += 0.01f;
-	if(BS_ElapsedTime == BS_Range)
+	if(BS_ElapsedTime >= BS_Range)
 	{
 		GetWorldTimerManager().ClearTimer(BackStepTimerHandle);
 	}
@@ -605,3 +641,4 @@ void AKWBossMonsterHohonu::ExecutePattern_ML()
 {
 	
 }
+

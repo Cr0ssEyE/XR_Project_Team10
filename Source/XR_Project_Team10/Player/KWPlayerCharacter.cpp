@@ -10,6 +10,7 @@
 #include "KWPlayerAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -109,10 +110,26 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	ColorsByGear = CharacterData->ColorsByGear;
 }
 
+float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("플레이어 데미지 입음")));
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), Hp));
+	Hp -= DamageAmount;
+	if(Hp <= 0)
+	{
+		UGameplayStatics::OpenLevel(this, GetWorld()->OriginalWorldName);
+	}
+	return 0;
+}
+
 // Called when the game starts or when spawned
 void AKWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	//TODO:: 매직넘버 처리
+	Hp = 10;
 	RollingMesh->SetCollisionObjectType(ECC_PLAYER);
 	RollingMesh->SetCollisionProfileName(CP_PLAYER, true);
 	RollingMesh->SetMassOverrideInKg(NAME_None, 50.f);
@@ -139,6 +156,7 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
 	bIsCanInputJustAction = true;
+	bIsDamageCaused = false;
 }
 
 // Called every frame
@@ -213,6 +231,36 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 				LengthZ = FMath::Clamp(LengthZ, -SystemMaxVelocityValue, SystemMaxVelocityValue);
 			}
 			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
+		}
+	}
+
+	if(bIsAttackOnGoing && !bIsDamageCaused)
+	{
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
+		
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation(),
+		FQuat::Identity,
+		ECollisionChannel::ECC_Pawn,
+		FCollisionShape::MakeSphere(120.0f),
+		Params);
+
+		if(bResult)
+		{
+			APawn* HitPawn = Cast<APawn>(HitResult.GetActor());
+			if(HitPawn)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("플레이어가 데미지를 입힘")));
+				FDamageEvent DamageEvent;
+				HitPawn->TakeDamage(2.f * static_cast<int>(CurrentGearState), DamageEvent, GetController(), this);
+				bIsDamageCaused = true;
+				SelfReBoundVector = -RollingMesh->GetPhysicsLinearVelocity() * 0.7f;
+				SelfReBoundVector.Z = 1500.f;
+				RB_ApplyReBoundByObjectType(SelfReBoundVector, EReBoundObjectType::Gimmick);
+			}
 		}
 	}
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
@@ -404,6 +452,7 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 		if(bCanDashOnFlying && !bIsUsedFlyDash)
 		{
 			bIsUsedFlyDash = true;
+			bIsDamageCaused = false;
 			DA_ProceedAction();
 			return;
 		}
@@ -422,6 +471,7 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 			
 		if(bResult)
 		{
+			bIsDamageCaused = false;
 			DA_ProceedAction();
 		}
 	}
@@ -541,7 +591,7 @@ void AKWPlayerCharacter::DA_ProceedAction()
 	const FVector ScreenCenter3D = FVector(-ScreenSizeY / 2, ScreenSizeX / 2, 0.0f);
 	FVector AD_Direction = (MousePosition3D - ScreenCenter3D).GetSafeNormal() * DA_AddVelocityValue;
 	AD_Direction.Z = RollingMesh->GetPhysicsLinearVelocity().Z;
-		
+	
 	VelocityDecelerateTarget = RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
 	VelocityDecelerateTarget.Z = 0.f;
 	if(VelocityDecelerateTarget.Length() < 100.f)
@@ -721,6 +771,7 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 {
 	// 리바운드 대쉬 실행
 	bIsAttackOnGoing = true;
+	bIsDamageCaused = false;
 	CurrentGearState = EGearState::GearFour;
 	FVector2D MousePosition;
 	int ScreenSizeX;

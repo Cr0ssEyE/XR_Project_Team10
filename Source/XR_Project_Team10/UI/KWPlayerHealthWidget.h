@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "Components/Image.h"
+#include "Kismet/GameplayStatics.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "KWPlayerHealthWidget.generated.h"
 
@@ -28,6 +30,9 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	void ChangeImageState();
 	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void ResetGame() { UGameplayStatics::OpenLevel(GetWorld(), "MiddleTestLevel"); }
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
 	TObjectPtr<UImage> VitalImageA;
@@ -43,6 +48,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
 	TObjectPtr<UImage> VitalImageE;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
+	TObjectPtr<UButton> ReStartBtn;
 	
 private:
 	UPROPERTY()
