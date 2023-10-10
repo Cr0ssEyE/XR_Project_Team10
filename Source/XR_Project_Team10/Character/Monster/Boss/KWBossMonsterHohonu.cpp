@@ -395,7 +395,7 @@ void AKWBossMonsterHohonu::ExecutePattern_SC()
 		SC_Instances[SC_SpawnCount]->ActivateAndDropDownSequence();
 		SC_Instances[SC_SpawnCount]->SetActorLocation(FVector(TargetPlayer->GetActorLocation().X, TargetPlayer->GetActorLocation().Y, SC_SpawnHeight));
 		SC_SpawnCount++;
-		if(SC_SpawnCount == SC_Instances.Num())
+		if(SC_SpawnCount >= SC_Instances.Num())
 		{
 			SC_SpawnCount = 0;
 			bIsAttacking = false;

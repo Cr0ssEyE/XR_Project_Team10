@@ -35,6 +35,7 @@ private:
 	void DropDownExecute();
 	void ActivateWaveAttack();
 	void WaveAttackHitCheck();
+	void WaveDebug();
 	void ActivateWaveAttackTimer();
 	void SetDeActivate();
 	
@@ -71,6 +72,8 @@ private:
 
 	FTimerHandle WaveAttackHitCheckTimerHandle;
 
+	FTimerHandle WaveAttackDebugTimerHandle;
+	
 	FTimerHandle WaveAttackDelayTimerHandle;
 
 	FTimerHandle DestroyEventTimerHandle;

@@ -119,7 +119,7 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	Hp -= DamageAmount;
 	if(Hp <= 0)
 	{
-		UGameplayStatics::OpenLevel(this, GetWorld()->OriginalWorldName);
+		UGameplayStatics::OpenLevel(this, "MiddleTestLevel");
 	}
 	return 0;
 }

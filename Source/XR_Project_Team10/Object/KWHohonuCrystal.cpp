@@ -48,7 +48,7 @@ void AKWHohonuCrystal::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CollisionCapsule->SetCapsuleSize(50.f, 110.f);
+	CollisionCapsule->SetCapsuleSize(50.f, 90.f);
 	CollisionCapsule->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 	CollisionCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionCapsule->SetCollisionProfileName(CP_GIMMICK);
@@ -213,6 +213,10 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 		return;
 	}
 	SC_CurrentAttackRange = 0;
+	if(bIsDebugEnable)
+	{
+		GetWorldTimerManager().SetTimer(WaveAttackDebugTimerHandle, this, &AKWHohonuCrystal::WaveDebug, 0.1f, true);
+	}
 	GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, this, &AKWHohonuCrystal::WaveAttackHitCheck, 0.01f, true);
 }
 
@@ -237,10 +241,6 @@ void AKWHohonuCrystal::WaveAttackHitCheck()
 	ECC_PLAYER_ONLY,
 	FCollisionShape::MakeSphere(SC_CurrentAttackRange),
 	Params);
-	if(bIsDebugEnable)
-	{
-		DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.1f);
-	}
 
 	if(bResult && !bIsWaveDamageCaused)
 	{
@@ -277,8 +277,17 @@ void AKWHohonuCrystal::WaveAttackHitCheck()
 	if(SC_CurrentAttackRange >= SC_MaxAttackRange)
 	{
 		SC_CurrentAttackRange = 0;
+		if(GetWorldTimerManager().IsTimerActive(WaveAttackDebugTimerHandle))
+		{
+			GetWorldTimerManager().ClearTimer(WaveAttackDebugTimerHandle);
+		}
 		GetWorldTimerManager().SetTimer(WaveAttackDelayTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttackTimer, 0.01f, true);
 	}
+}
+
+void AKWHohonuCrystal::WaveDebug()
+{
+	DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.3f);
 }
 
 void AKWHohonuCrystal::ActivateWaveAttackTimer()
