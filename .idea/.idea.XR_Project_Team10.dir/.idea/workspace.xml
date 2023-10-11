@@ -9,7 +9,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -183,7 +182,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1696951922342</updated>
-      <workItem from="1696951926390" duration="26050000" />
+      <workItem from="1696951926390" duration="26751000" />
     </task>
     <servers />
   </component>
