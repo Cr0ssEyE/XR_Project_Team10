@@ -8,65 +8,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Engine/Content/Slate/Cursor/invisible.cur" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Engine/Content/SlateDebug/Fonts/LastResort.tps" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Engine/Content/SlateDebug/Fonts/LastResort.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Engine/Extras/GPUDumpViewer/GPUDumpViewer.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Engine/Extras/GPUDumpViewer/OpenGPUDumpViewer.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Engine/Extras/GPUDumpViewer/OpenGPUDumpViewer.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Engine/Saved/Config/Windows/Manifest.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Manifest_DebugFiles_Win64.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Manifest_NonUFSFiles_Win64.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/Manifest_UFSFiles_Win64.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Content/Paks/XR_Project_Team10-Windows.pak" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Content/Paks/XR_Project_Team10-Windows.ucas" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Content/Paks/XR_Project_Team10-Windows.utoc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Content/Paks/global.ucas" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Content/Paks/global.utoc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/CrashReportClient/UECC-Windows-0694733845864BF6355030A06E09BBA9/CrashReportClient.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/CrashReportClient/UECC-Windows-1A943AA543ED065F70CED4A595826B41/CrashReportClient.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/CrashReportClient/UECC-Windows-3DED49854F771E5D826924BB0CE8EFA9/CrashReportClient.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/CrashReportClient/UECC-Windows-5C2BB89E4873C56A0C090EA41323741D/CrashReportClient.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/ApexDestruction.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Bridge.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Compat.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/ConcertSyncCore.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/ConsoleVariables.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/ControlRig.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/DatasmithContent.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/DeviceProfiles.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/EditorScriptingUtilities.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Engine.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/EnhancedInput.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/FullBodyIK.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/GLTFExporter.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Game.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/GameUserSettings.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Hardware.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/IKRig.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Input.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/InstallBundle.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Interchange.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Metasound.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/MovieRenderPipeline.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Niagara.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Paper2D.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/PhysicsControl.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/RuntimeOptions.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Scalability.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/StructUtils.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/Synthesis.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/ToolPresets.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/TraceUtilities.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MiddleBuild/Windows/XR_Project_Team10/Saved/Config/Windows/VariantManagerContent.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/C/Y1/9ZJ4BJ4ZH4KLCA83PFO84D.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/C/Y1/9ZJ4BJ4ZH4KLCA83PFO84D.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/21-Hohonu/Datas/Hohonu_DataAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/21-Hohonu/Datas/Hohonu_DataAsset.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/25-Middle-Polishing/KWBossHealthTestWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/25-Middle-Polishing/KWBossHealthTestWidget.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/1/BS/4PJCFE560NYKTNSXTA3BPA.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/7/14/779EAYALRI7UNXZ1OYP7O3.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/7/14/779EAYALRI7UNXZ1OYP7O3.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/9/SK/27KY767LHZT3FHBSCQNYC4.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/9/SK/27KY767LHZT3FHBSCQNYC4.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/25-Middle-Polishing/Maps/MiddleTestLevel/E/QM/OU1J6FAY2NA7X87Z62PFFL.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Interaction/TrapPad.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Interaction/TrapPad.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWBossHealthWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWBossHealthWidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWBossHealthWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWBossHealthWidget.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,6 +31,10 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
@@ -232,7 +190,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1696951922342</updated>
-      <workItem from="1696951926390" duration="22760000" />
+      <workItem from="1696951926390" duration="25473000" />
     </task>
     <servers />
   </component>

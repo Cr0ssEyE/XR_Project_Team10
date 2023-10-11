@@ -70,6 +70,8 @@ private:
 	
 	FTimerHandle DropDownTimerHandle;
 
+	FTimerHandle WaveActiveTimerHandle;
+	
 	FTimerHandle WaveAttackHitCheckTimerHandle;
 
 	FTimerHandle WaveAttackDebugTimerHandle;
