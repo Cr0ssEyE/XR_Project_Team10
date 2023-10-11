@@ -201,7 +201,7 @@ void AKWHohonuCrystal::DropDownExecute()
 		bIsPlaceInGround = true;
 		DropDownVFX->Activate(true);
 		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		GetWorldTimerManager().SetTimer(WaveActiveTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttack, 0.01f, true);
+		GetWorldTimerManager().SetTimer(WaveActiveTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttack, SC_AttackDelay, true);
 		GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
 	}
 }
@@ -213,19 +213,18 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 		return;
 	}
 	SC_CurrentAttackRange = 0;
-	if(bIsDebugEnable)
-	{
+	if(bIsDebugEnable && !GetWorldTimerManager().IsTimerActive(WaveAttackDebugTimerHandle))
+	{		
 		GetWorldTimerManager().SetTimer(WaveAttackDebugTimerHandle, this, &AKWHohonuCrystal::WaveDebug, 0.1f, true);
 	}
-	GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, this, &AKWHohonuCrystal::WaveAttackHitCheck, 0.01f, true);
+	if(!GetWorldTimerManager().IsTimerActive(WaveAttackHitCheckTimerHandle))
+	{
+		GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, this, &AKWHohonuCrystal::WaveAttackHitCheck, 0.01f, true);
+	}
 }
 
 void AKWHohonuCrystal::WaveAttackHitCheck()
 {
-	if(GetWorldTimerManager().IsTimerActive(WaveAttackDelayTimerHandle))
-	{
-		return;
-	}
 	if(!bIsActivate)
 	{
 		GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
@@ -277,15 +276,8 @@ void AKWHohonuCrystal::WaveAttackHitCheck()
 	if(SC_CurrentAttackRange >= SC_MaxAttackRange)
 	{
 		SC_CurrentAttackRange = 0;
-		if(GetWorldTimerManager().IsTimerActive(WaveAttackDebugTimerHandle))
-		{
-			GetWorldTimerManager().ClearTimer(WaveAttackDebugTimerHandle);
-		}
-		if(GetWorldTimerManager().IsTimerActive(WaveAttackHitCheckTimerHandle))
-		{
-			GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
-		}
-		GetWorldTimerManager().SetTimer(WaveAttackDelayTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttackTimer, 0.01f, true);
+		// if(GetWorldTimerManager().IsTimerActive())	
+		GetWorldTimerManager().SetTimer(WaveAttackDelayTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttackTimer, SC_AttackDelay, false);
 	}
 }
 
@@ -296,18 +288,9 @@ void AKWHohonuCrystal::WaveDebug()
 
 void AKWHohonuCrystal::ActivateWaveAttackTimer()
 {
-	if(!bIsActivate)
-	{
-		GetWorldTimerManager().ClearTimer(WaveAttackDelayTimerHandle);
-	}
-	SC_CurrentAttackDelay += 0.01f;
-	if(SC_CurrentAttackDelay >= SC_AttackDelay)
-	{
-		WaveVFX->Activate(true);
-		bIsWaveDamageCaused = false;
-		SC_CurrentAttackDelay = 0;
-		GetWorldTimerManager().ClearTimer(WaveAttackDelayTimerHandle);
-	}
+	WaveVFX->Activate(true);
+	bIsWaveDamageCaused = false;
+	SC_CurrentAttackDelay = 0;
 }
 
 void AKWHohonuCrystal::SetDeActivate()
