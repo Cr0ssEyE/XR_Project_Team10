@@ -43,12 +43,16 @@ private:
 private:
 	UPROPERTY()
 	TObjectPtr<AKWBossMonsterHohonu> BossMonster;
-
 	
 	UPROPERTY()
 	float MaxHealth;
 
 	UPROPERTY()
 	float CurrentHealth;
-	
+
+	UPROPERTY()
+	FVector2D OriginImageSize;
+
+	UPROPERTY()
+	FVector2D OriginBtnSize;
 };

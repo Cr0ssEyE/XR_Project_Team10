@@ -201,7 +201,7 @@ void AKWHohonuCrystal::DropDownExecute()
 		bIsPlaceInGround = true;
 		DropDownVFX->Activate(true);
 		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		ActivateWaveAttack();
+		GetWorldTimerManager().SetTimer(WaveActiveTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttack, 0.01f, true);
 		GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
 	}
 }
@@ -280,6 +280,10 @@ void AKWHohonuCrystal::WaveAttackHitCheck()
 		if(GetWorldTimerManager().IsTimerActive(WaveAttackDebugTimerHandle))
 		{
 			GetWorldTimerManager().ClearTimer(WaveAttackDebugTimerHandle);
+		}
+		if(GetWorldTimerManager().IsTimerActive(WaveAttackHitCheckTimerHandle))
+		{
+			GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
 		}
 		GetWorldTimerManager().SetTimer(WaveAttackDelayTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttackTimer, 0.01f, true);
 	}
