@@ -29,6 +29,7 @@ public:
 
 	// 발사 방향 설정
 	void FireInDirection(const FVector& Direction);
+	void DestroyProjectile();
 
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)

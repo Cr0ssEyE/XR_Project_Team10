@@ -1,4 +1,4 @@
-#include "XR_Project_Team10/CommonMonster/DW_FeatherProjectile.h"
+ï»¿#include "XR_Project_Team10/CommonMonster/DW_FeatherProjectile.h"
 
 #include "Components/SphereComponent.h"
 #include "GameFramework//ProjectileMovementComponent.h"
@@ -8,12 +8,12 @@ ADW_FeatherProjectile::ADW_FeatherProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	CollisionComponent = CreateDefaultSubobject<class USphereComponent>(TEXT("SphereComponent"));
-	// Äİ¸®Àü ¹İ°æ
+	// ì½œë¦¬ì „ ë°˜ê²½
 	CollisionComponent->InitSphereRadius(15.0f);
-	// ·çÆ® ÄÄÆ÷³ÍÆ®¸¦ Äİ¸®Àü ÄÄÆ÷³ÍÆ®·Î ¼³Á¤
+	// ë£¨íŠ¸ ì»´í¬ë„ŒíŠ¸ë¥¼ ì½œë¦¬ì „ ì»´í¬ë„ŒíŠ¸ë¡œ ì„¤ì •
 	RootComponent = CollisionComponent;
 
-	//// ¹ß»çÃ¼ ¿îµ¿
+	//// ë°œì‚¬ì²´ ìš´ë™
 	ProjectileMovementComponent = CreateDefaultSubobject<class UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
 	ProjectileMovementComponent->InitialSpeed = 0;
@@ -50,10 +50,12 @@ void ADW_FeatherProjectile::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other
 {
 	ProjectileMovementComponent->Velocity = FVector(0, 0, 0);
 
-	GetWorld()->GetTimerManager().SetTimer(DeleteTimerHandle, FTimerDelegate::CreateLambda([&]() {
-		this->Destroy();
-		GetWorld()->GetTimerManager().ClearTimer(DeleteTimerHandle);
-		}), FeatherDeleteTime, false);
+	GetWorld()->GetTimerManager().SetTimer(DeleteTimerHandle, this, &ADW_FeatherProjectile::DestroyProjectile, FeatherDeleteTime, false);
+}
+
+void ADW_FeatherProjectile::DestroyProjectile() {
+	this->Destroy();
+	GetWorld()->GetTimerManager().ClearTimer(DeleteTimerHandle);
 }
 
 void ADW_FeatherProjectile::Tick(float DeltaTime)

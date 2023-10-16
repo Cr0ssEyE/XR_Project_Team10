@@ -34,8 +34,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리")
 	float AttackRange;
 
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 시작 위치")
-	TArray<FVector> AttackOffsets;
 	
 
 	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "깃털 공격력")
@@ -54,4 +52,6 @@ private:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = FeatherAttack)
 	TSubclassOf<class ADW_FeatherProjectile> FeatherClass;
+
+	const FName FeatherSockets[3] = { TEXT("Feather_lSocket"), TEXT("Feather_mSocket"), TEXT("Feather_rSocket") };
 };

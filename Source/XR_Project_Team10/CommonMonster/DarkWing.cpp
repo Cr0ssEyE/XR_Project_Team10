@@ -16,10 +16,6 @@ ADarkWing::ADarkWing()
 		if (Feather.Succeeded()) {
 			FeatherClass = Feather.Object->GeneratedClass;
 	}
-
-		if (AttackOffsets.Num() == 0) {
-			AttackOffsets.Add(FVector(0, 0, 0));
-		}
 }
 
 void ADarkWing::Tick(float DeltaTime)
@@ -50,22 +46,15 @@ void ADarkWing::Attack(AActor* Target)
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 
-			//Rotate 제대로 안불러와짐
-			FVector ActorOffset = this->GetActorLocation();
-			FRotator ActorRotate = this->GetActorRotation();
-
 			FVector TargetLocation = Target->GetActorLocation();
 			TargetLocation.Z = 0;
 
 			for (uint32 i = 0; i < FeatherNum; i++) {
-				FVector AttackLocation = AttackOffsets[i];
-				/*float Value = (ActorRotate.Vector().Z / 180) * AttackOffsets[i].X;
-				AttackLocation.X = FMath::Clamp(Value, -AttackOffsets[i].X, AttackOffsets[i].X);
-				AttackLocation.Y = -FMath::Clamp(Value, -AttackOffsets[i].X, AttackOffsets[i].X);
-				UE_LOG(LogTemp, Log, TEXT("Angle : %f, Value : %f, X : %f Y : %f"), ActorRotate.Vector().Z, Value, AttackLocation.X, AttackLocation.Y);*/
 
-				FVector MuzzleLocation = AttackLocation + ActorOffset;
+				FVector MuzzleLocation;
 				FRotator MuzzleRotation;
+
+				GetMesh()->GetSocketWorldLocationAndRotation(FeatherSockets[i], MuzzleLocation, MuzzleRotation);
 
 				ADW_FeatherProjectile* Feather = World->SpawnActor<ADW_FeatherProjectile>(FeatherClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 
@@ -76,10 +65,6 @@ void ADarkWing::Attack(AActor* Target)
 					TargetLocation.Z -= LaunchDirection.Z * AttackRange;
 					LaunchDirection = ((TargetLocation)-MuzzleLocation).GetSafeNormal();
 
-					/*UE_LOG(LogTemp, Log, TEXT("%lf %lf %lf"),
-						(LaunchDirection.X * AttackRange),
-						(LaunchDirection.Y * AttackRange),
-						(LaunchDirection.Z * AttackRange));*/
 
 					Feather->FireInDirection(LaunchDirection);
 				}

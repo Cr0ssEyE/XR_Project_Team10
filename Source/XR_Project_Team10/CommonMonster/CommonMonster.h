@@ -47,9 +47,11 @@ protected:
 
 	virtual void AttackOmen(AActor* Target) override;
 	virtual void Attack(AActor* Target) override;
+	void CheckAttackDelay();
 
 	virtual void CommonMonsterAttack(AActor* Target) override;
 	virtual void CommonMonsterDead() override;
+
 
 protected:
 	//DataAsset MonsterData => IICommonMonsterBase

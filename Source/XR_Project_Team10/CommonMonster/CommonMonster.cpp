@@ -41,6 +41,14 @@ void ACommonMonster::Attack(AActor* Target)
 {
 }
 
+void ACommonMonster::CheckAttackDelay()
+{
+	if (FPPTimerHelper::IsDelayElapsed(AttackCoolDownTimerHandle, MonsterAttackCoolDownTime)) {
+		GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
+		FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
+	}
+}
+
 void ACommonMonster::CommonMonsterAttack(AActor* Target)
 {
 	if (GetWorldTimerManager().IsTimerActive(AttackCoolDownTimerHandle)) {
@@ -51,12 +59,7 @@ void ACommonMonster::CommonMonsterAttack(AActor* Target)
 	AttackOmen(Target);
 	Attack(Target);
 
-	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]() {
-		if (FPPTimerHelper::IsDelayElapsed(AttackCoolDownTimerHandle, MonsterAttackCoolDownTime)) {
-			GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
-			FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
-		}
-		}), 0.01f, true);
+	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &ACommonMonster::CheckAttackDelay, 0.01f, true);
 
 	OnAttackFinished.ExecuteIfBound();
 }
