@@ -5,6 +5,7 @@
 #define KEY_BASE_LOCATION TEXT("Base_Location")
 #define KEY_PATROL_LOCATION TEXT("Patrol_Location")
 #define KEY_TARGET TEXT("Target")
+#define KEY_DATAASSET TEXT("DataAsset")
 #define KEY_TARGET_DISTANCE TEXT("Target_Distance")
 #define KEY_MONSTER_HP TEXT("MonsterHp")
 
@@ -18,3 +19,4 @@
 #define KEY_HOHONU_BS_COOLDOWN TEXT("BackStep_CoolDown")
 #define KEY_HOHONU_ML_COOLDOWN TEXT("MultipleLaser_CoolDown")
 #define KEY_HOHONU_SL_TURN TEXT("SweepLaser_Turning")
+

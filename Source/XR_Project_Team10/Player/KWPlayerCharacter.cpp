@@ -21,6 +21,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -112,6 +113,7 @@ void AKWPlayerCharacter::BeginPlay()
 	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
 	GetMesh()->SetAnimClass(PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass());
+	
 	RollingMesh->SetCollisionObjectType(ECC_PLAYER);
 	RollingMesh->UpdateCollisionProfile();
 	RollingMesh->SetCollisionProfileName(CP_PLAYER, true);
@@ -119,7 +121,7 @@ void AKWPlayerCharacter::BeginPlay()
 	RollingMesh->SetStaticMesh(nullptr);
 	RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RollingMesh->BodyInstance.bLockZRotation = true;
-
+	
 	Camera->FieldOfView = CharacterData->CameraFOV;
 	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
 	SpringArm->TargetArmLength =CharacterData->SpringArmLength;
@@ -145,7 +147,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	// SpringArm->SetRelativeLocation(RootComponent->GetRelativeLocation());
-	
+
 	if(PlayerComponent->GetRelativeScale3D() != FVector::ZeroVector)
 	{
 		SpringArm->SetRelativeLocation(PlayerComponent->GetComponentToWorld().GetLocation());
@@ -159,14 +161,14 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	{
 		VelocityDecelerateTimer();
 	}
-	
+
 	if(bIsRolling)
 	{
 		CheckGearState();
 		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
 		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
-		
+
 		FVector PlaneVelocityVector = RollingMesh->GetPhysicsLinearVelocity();
 		if(abs(PlaneVelocityVector.Z) > DropDownMinimumHeightValue)
 		{
@@ -214,6 +216,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
 		}
 	}
+
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
@@ -355,6 +358,11 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Value)
 {
+	if(bIsFlying || bIsAttackOnGoing || bIsReBounding)
+	{
+		return;
+	}
+	
 	if(bIsRolling)
 	{
 		bIsRolling = false;

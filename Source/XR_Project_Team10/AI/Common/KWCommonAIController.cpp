@@ -8,8 +8,9 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "XR_Project_Team10/Character/Monster/Common/KWDummyMonster.h"
+#include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
+#include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"
 
 AKWCommonAIController::AKWCommonAIController()
 {
@@ -19,20 +20,6 @@ AKWCommonAIController::AKWCommonAIController()
 	CommonPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPercptionComponent"));
 	CommonSight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("AI_Sight"));
 
-	// 테스트용 매직 넘버 사용.
-	// 나중에 세부 구현 부분에서는 데이터 에셋으로 가져와서 사용하기
-	CommonSight->SightRadius = 500.f;
-	CommonSight->LoseSightRadius = 800.f;
-	CommonSight->PeripheralVisionAngleDegrees = 60.f;
-	
-	CommonSight->DetectionByAffiliation.bDetectEnemies = true;
-	CommonSight->DetectionByAffiliation.bDetectFriendlies = true;
-	CommonSight->DetectionByAffiliation.bDetectNeutrals = true;
-	CommonSight->SetMaxAge(0.1f);
-	
-	CommonPerceptionComp->ConfigureSense(*CommonSight);
-	CommonPerceptionComp->SetDominantSense(CommonSight->GetSenseImplementation());
-	CommonPerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AKWCommonAIController::SetTarget);
 }
 
 void AKWCommonAIController::ActivateAI()
@@ -59,7 +46,7 @@ void AKWCommonAIController::DeActivateAI()
 void AKWCommonAIController::SetTarget(const TArray<AActor*>& Actors)
 {
 	UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
-	AKWDummyMonster* ControllingPawn = Cast<AKWDummyMonster>(BehaviorTreeComponent->GetAIOwner()->GetPawn());
+	ACommonMonster* ControllingPawn = Cast<ACommonMonster>(BehaviorTreeComponent->GetAIOwner()->GetPawn());
 	for(AActor* DetectActor : Actors)
 	{
 		FActorPerceptionBlueprintInfo PerceptionInfo;
@@ -68,7 +55,7 @@ void AKWCommonAIController::SetTarget(const TArray<AActor*>& Actors)
 		if(PlayerCharacter)
 		{
 			Blackboard->SetValueAsObject(KEY_TARGET, PlayerCharacter);
-			CommonSight->PeripheralVisionAngleDegrees = 60.f;
+			CommonSight->PeripheralVisionAngleDegrees = 180.f;
 			return;
 		}
 	}
@@ -77,5 +64,27 @@ void AKWCommonAIController::SetTarget(const TArray<AActor*>& Actors)
 void AKWCommonAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+	
+	IICommonMonsterBase* CommonMonsterBase = Cast<IICommonMonsterBase>(InPawn);
+	if (CommonMonsterBase) {
+		UBlackboardComponent* BlackboardComponent = Blackboard.Get();
+		if (UseBlackboard(CommonBlackboardData, BlackboardComponent))
+		{
+			Blackboard->SetValueAsObject(KEY_DATAASSET ,CommonMonsterBase->MonsterData);
+		}
+	}
+	CommonSight->SightRadius = CommonMonsterBase->MonsterData->MonsterRecognitionRange;
+	CommonSight->LoseSightRadius = CommonMonsterBase->MonsterData->MonsterTrackingRange;
+	CommonSight->PeripheralVisionAngleDegrees = 180.f;
+
+	CommonSight->DetectionByAffiliation.bDetectEnemies = true;
+	CommonSight->DetectionByAffiliation.bDetectFriendlies = true;
+	CommonSight->DetectionByAffiliation.bDetectNeutrals = true;
+	CommonSight->SetMaxAge(0.1f);
+
+	CommonPerceptionComp->ConfigureSense(*CommonSight);
+	CommonPerceptionComp->SetDominantSense(CommonSight->GetSenseImplementation());
+	CommonPerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AKWCommonAIController::SetTarget);
+
 	ActivateAI();
 }

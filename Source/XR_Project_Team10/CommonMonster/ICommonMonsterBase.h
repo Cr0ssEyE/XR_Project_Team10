@@ -10,7 +10,8 @@ class UICommonMonsterBase : public UInterface
 {
 	GENERATED_BODY()
 };
-
+//DECLARE_DELEGATE_OneParam(FCommonAttackFinished, FVector);
+DECLARE_DELEGATE(FCommonAttackFinished);
 /**
  * 
  */
@@ -18,17 +19,24 @@ class XR_PROJECT_TEAM10_API IICommonMonsterBase
 {
 	GENERATED_BODY()
 
-	// 공통 함수
-protected:
-	virtual void Research() = 0;		//탐색
-	virtual void Recognition() = 0;		//인지
-	virtual void Tracking() = 0;		//추적
-	virtual void AttackConfig() = 0;	//공격 확인
-	virtual void AttackOmen() = 0;		//공격 전조
-	virtual void Attack() = 0;			//공격
-	virtual void Dead() = 0;			//사망
+	public:
+	virtual void SetCommonAttackDelegate(const FCommonAttackFinished& InOnAttackFinished) = 0;
+	virtual void CommonMonsterAttack(AActor* Target) = 0;
+	virtual void CommonMonsterDead() = 0;			//사망
 
-	// 공통 변수
 protected:
+	virtual void AttackOmen(AActor* Target) = 0;		//공격 전조
+	virtual void Attack(AActor* Target) = 0;			//공격
+
+
+protected:
+	// AI에 필요한 변수
+	FCommonAttackFinished OnAttackFinished;
+
+	FVector MonsterBaseLocation;
+	float MonsterMaximumMoveDistance;
+	float MonsterTurnSpeed;
+
+public:
 	TObjectPtr<class UCommonMonsterDataAsset> MonsterData;
 };
