@@ -13,6 +13,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
@@ -20,9 +21,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("KWPlayer"));
-
+	
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -70,9 +69,12 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	MoveInputAction = CharacterData->MoveInputAction;
 	JumpAction = CharacterData->JumpAction;
 	AttackAction = CharacterData->AttackAction;
+	FileDriverAction = CharacterData->FileDriverAction;
 	
+	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
 	DefaultMaxVelocityValue = CharacterData->DefaultMaxVelocityValue;
+	SystemMaxVelocityValue = CharacterData->SystemMaxVelocityValue;
 	CurrentMaxVelocityValue = DefaultMaxVelocityValue;
 	MaxVelocityMagnificationByGear = CharacterData->MaxVelocityMagnificationByGear;
 
@@ -83,18 +85,22 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	
 	RB_MultiplyValuesByGear = CharacterData->RB_MultiplyValuesByGear;
 	RB_MultiplyValuesByObjectType = CharacterData->RB_MultiplyValuesByObjectType;
-	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	RBD_JustTimingValue = CharacterData->RBD_JustTimingValue;
 	RB_DisableMovementTime = CharacterData->RB_DisableMovementTime;
+	RBD_AddVelocityValue = CharacterData->RBD_AddVelocityValue;
+	
+	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
 	
 	DA_AddVelocityValue = CharacterData->DA_AddVelocityValue;
 	DA_DurationTime = CharacterData->DA_DurationTime;
 	DA_DecelerateValue = CharacterData->DA_DecelerateValue;
-	RBD_AddVelocityValue = CharacterData->RBD_AddVelocityValue;
+	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
+
 	DropDownVelocityValue = CharacterData->DropDownVelocityValue;
 	DropDownMinimumHeightValue = CharacterData->DropDownMinimumHeightValue;
-	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
+	DropDownCoolDownTime = CharacterData->DropDownCoolDownTime;
+	
 	ColorsByGear = CharacterData->ColorsByGear;
 }
 
@@ -102,13 +108,20 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 void AKWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
+	GetMesh()->UpdateCollisionProfile();
+	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
 	GetMesh()->SetAnimClass(PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass());
+	
+	RollingMesh->SetCollisionObjectType(ECC_PLAYER);
+	RollingMesh->UpdateCollisionProfile();
+	RollingMesh->SetCollisionProfileName(CP_PLAYER, true);
 	RollingMesh->SetMassOverrideInKg(NAME_None, 50.f);
 	RollingMesh->SetStaticMesh(nullptr);
 	RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RollingMesh->BodyInstance.bLockZRotation = true;
-
+	
 	Camera->FieldOfView = CharacterData->CameraFOV;
 	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
 	SpringArm->TargetArmLength =CharacterData->SpringArmLength;
@@ -122,7 +135,8 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsDead = false;
 	bIsMoving = false;
 	bIsRolling = false;
-	bIsJumping = false;
+	bIsFlying = false;
+	bIsUsedFlyDash = false;
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
@@ -142,6 +156,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	{	
 		SpringArm->SetRelativeLocation(RootComponent->GetComponentToWorld().GetLocation());;
 	}
+	
 	if(!bIsMoving && bIsRolling && RollingMesh->GetPhysicsLinearVelocity().Length() > 100.f)
 	{
 		VelocityDecelerateTimer();
@@ -154,19 +169,53 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
 		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
 
-	}
-	else {
+		FVector PlaneVelocityVector = RollingMesh->GetPhysicsLinearVelocity();
+		if(abs(PlaneVelocityVector.Z) > DropDownMinimumHeightValue)
+		{
+			bIsFlying = true;
+		}
 
+		// 체공 체크용 충돌 체크.
+		// 추후 공 모델링 적용시 소켓을 사용하여 바닥 위치 지정
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() - FVector(0.f, 0.f, 70.f),
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeBox(FVector(10.f, 10.f, 10.f)),
+		Params);
+			
+		if(bResult)
+		{
+			bIsFlying = false;
+			bIsUsedFlyDash = false;
+		}
+		
+		PlaneVelocityVector.Z = 0.f;
+		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2 && !bIsAttackOnGoing)
+		{
+			float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			float LengthZ = RollingMesh->GetPhysicsLinearVelocity().Z;
+			
+			if (bIsReBounding)
+			{
+				float ReBoundingClampValue = SystemMaxVelocityValue;
+				LengthX = FMath::Clamp(PlaneVelocityVector.X, -ReBoundingClampValue, ReBoundingClampValue);
+				LengthY = FMath::Clamp(PlaneVelocityVector.Y, -ReBoundingClampValue, ReBoundingClampValue);
+				LengthZ = FMath::Clamp(LengthZ, -ReBoundingClampValue, ReBoundingClampValue);
+			}
+			
+			if (LengthZ > SystemMaxVelocityValue)
+			{
+				LengthZ = FMath::Clamp(LengthZ, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+			}
+			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
+		}
 	}
-
-	/*UE_LOG(LogTemp, Log, TEXT("Rolling : %f, %f, %f"),
-		RollingMesh->GetOwner()->GetActorTransform().GetLocation().X,
-		RollingMesh->GetOwner()->GetActorTransform().GetLocation().Y,
-		RollingMesh->GetOwner()->GetActorTransform().GetLocation().Z);
-	UE_LOG(LogTemp, Log, TEXT("Player : %f, %f, %f"),
-		PlayerComponent->GetRelativeLocation().X,
-		PlayerComponent->GetRelativeLocation().Y,
-		PlayerComponent->GetRelativeLocation().Z);*/
 
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
 	
@@ -174,13 +223,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
 }
-//
-//PlayerComponent->SetRelativeLocation(RollingMesh->GetOwner()->GetActorLocation());
-//
-//	}
-//	else {
-//		this->SetActorLocation(PlayerComponent->GetRelativeLocation());
-//	}
+
 // Called to bind functionality to input
 void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -202,6 +245,8 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::JumpAddForceAction);
 	
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::AttackActionSequence);
+
+	EnhancedInputComponent->BindAction(FileDriverAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::DropDownActionSequence);
 }
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
@@ -286,7 +331,7 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 {
 	
-	if(bIsJumping || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
+	if(bIsFlying || GetWorldTimerManager().IsTimerActive(JumpDelayTimerHandle))
 	{
 		return;
 	}
@@ -295,11 +340,11 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 	{
 		if(FPPTimerHelper::IsDelayElapsed(JumpDelayTimerHandle, JumpDelayTime))
 		{
-			bIsJumping = false;
+			bIsFlying = false;
 			GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
 		}
 	}), 0.01f, true);
-	bIsJumping = true;
+	bIsFlying = true;
 	if(bIsRolling)
 	{
 		const FVector JumpVelocityVector = FVector(0.f, 0.f, AddJumpForceValue);
@@ -313,6 +358,11 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Value)
 {
+	if(bIsFlying || bIsAttackOnGoing || bIsReBounding)
+	{
+		return;
+	}
+	
 	if(bIsRolling)
 	{
 		bIsRolling = false;
@@ -352,30 +402,43 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 		{
 			return;
 		}
-	
-		if(bIsJumping && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+
+		if(bCanDashOnFlying && !bIsUsedFlyDash)
 		{
-			FD_ProceedAction();
+			bIsUsedFlyDash = true;
+			DA_ProceedAction();
+			return;
 		}
-		else
-		{
-			FHitResult HitResult;
-			FCollisionQueryParams Params(NAME_None, false, this);
-		
-			bool bResult = GetWorld()->SweepSingleByChannel(
-			HitResult,
-			GetActorLocation(),
-			GetActorLocation(),
-			FQuat::Identity,
-			ECollisionChannel::ECC_GameTraceChannel1,
-			FCollisionShape::MakeSphere(70.0f),
-			Params);
 			
-			if(bResult)
-			{
-				DA_ProceedAction();
-			}
+		FHitResult HitResult;
+		FCollisionQueryParams Params(NAME_None, false, this);
+		
+		bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation(),
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(70.0f),
+		Params);
+			
+		if(bResult)
+		{
+			DA_ProceedAction();
 		}
+	}
+}
+
+void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
+{
+	if(bIsReBounding || GetWorldTimerManager().IsTimerActive(DropDownTimerHandle) || GetWorldTimerManager().IsTimerActive(DropDownCoolDownTimerHandle))
+	{
+		return;
+	}
+
+	if(bIsFlying && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+	{
+		FD_ProceedAction();
 	}
 }
 
@@ -387,6 +450,18 @@ void AKWPlayerCharacter::AttackCoolDownTimer()
 			{
 				GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
+			}
+		}), 0.01f, true);
+}
+
+void AKWPlayerCharacter::DropDownCoolDownTimer()
+{
+	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			if(FPPTimerHelper::IsDelayElapsed(DropDownCoolDownTimerHandle, DropDownCoolDownTime))
+			{
+				GetWorldTimerManager().ClearTimer(DropDownCoolDownTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(DropDownCoolDownTimerHandle);
 			}
 		}), 0.01f, true);
 }
@@ -509,7 +584,7 @@ void AKWPlayerCharacter::FD_ProceedAction()
 				RollingMesh->SetSimulatePhysics(true);
 				const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
 				RollingMesh->SetPhysicsLinearVelocity(DroppingVelocity);
-				AttackCoolDownTimer();
+				DropDownCoolDownTimer();
 				GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(DropDownTimerHandle);
 			}
@@ -607,9 +682,9 @@ void AKWPlayerCharacter::CheckGearState()
 	}), 1.0f, true);
 }
 
-void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector ReBoundResultValue, EReBoundObjectType ObjectType)
+void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)
 {
-	if(!bIsRolling || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
+	if(!bIsRolling || bIsReBounding || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
 	{
 		return;
 	}
@@ -626,9 +701,7 @@ void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector ReBoundResultValue,
 			{
 				// RollingMesh->SetSimulatePhysics(true);
 				// RollingMesh->SetAllPhysicsLinearVelocity(ReBoundResultValue);
-				FVector ReBoundVector = -RollingMesh->GetPhysicsLinearVelocity() * 10;
-				ReBoundVector.Z = 1500.f;
-				RollingMesh->SetPhysicsLinearVelocity(ReBoundVector);
+				RollingMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
 				RB_CheckContactToFloor();
 				GetWorldTimerManager().ClearTimer(RB_DelayTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(RB_DelayTimerHandle);

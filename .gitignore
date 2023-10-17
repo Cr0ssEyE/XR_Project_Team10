@@ -74,4 +74,6 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 *.exp
+
 Binaries/Win64/UnrealEditor-XR_Project_Team10.pdb
+
