@@ -41,4 +41,12 @@ private:
 
 	// 내부 수정 변수
 private:
+	UPROPERTY()
+	FVector OriPos;
+
+	UPROPERTY()
+	FVector RushVector;
+
+	UPROPERTY()
+	FTimerHandle RushTimerHandle;
 };
