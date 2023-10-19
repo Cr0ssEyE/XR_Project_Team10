@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,30 +16,30 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	// IICommonMonsterBaseÀ»(¸¦) ÅëÇØ »ó¼Ó
+	// IICommonMonsterBaseì„(ë¥¼) í†µí•´ ìƒì†
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void AttackOmen(AActor* Target) override;
 	virtual void Attack(AActor* Target) override;
 
-	// ¿ÜºÎ ¼öÁ¤ º¯¼ö
+	// ì™¸ë¶€ ìˆ˜ì • ë³€ìˆ˜
 private:
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "°ø°İ ÁØºñ ½Ã°£")
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "ê³µê²© ì¤€ë¹„ ì‹œê°„")
 	float AttackReadyTime = 0.5;
 
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "°ø°İ »ç°Å¸®")
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "ê³µê²© ì‚¬ê±°ë¦¬")
 	float AttackRange = 0.5;
 
 
-	UPROPERTY(EditAnywhere, Category = RushAttack, DisplayName = "µ¹Áø °ø°İ·Â")
+	UPROPERTY(EditAnywhere, Category = RushAttack, DisplayName = "ëŒì§„ ê³µê²©ë ¥")
 	int RushPower = 0.5;
 
-	UPROPERTY(EditAnywhere, Category = RushAttack, DisplayName = "µ¹Áø ¼Óµµ")
+	UPROPERTY(EditAnywhere, Category = RushAttack, DisplayName = "ëŒì§„ ì†ë„")
 	float RushSpeed = 0.5;
 
 
-	// ³»ºÎ ¼öÁ¤ º¯¼ö
+	// ë‚´ë¶€ ìˆ˜ì • ë³€ìˆ˜
 private:
 	UPROPERTY()
 	FVector OriPos;

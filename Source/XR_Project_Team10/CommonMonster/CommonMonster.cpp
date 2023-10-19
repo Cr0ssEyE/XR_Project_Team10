@@ -9,6 +9,9 @@ ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	MonsterStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Capshule"));
+	MonsterStaticMesh->SetSimulatePhysics(true);
+
 	AIControllerClass = AKWCommonAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 

@@ -53,5 +53,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = FeatherAttack)
 	TSubclassOf<class ADW_FeatherProjectile> FeatherClass;
 
-	const FName FeatherSockets[3] = { TEXT("Feather_lSocket"), TEXT("Feather_mSocket"), TEXT("Feather_rSocket") };
+	const FName FeatherSockets[2] = { TEXT("Feather_lSocket"), TEXT("Feather_rSocket") };
 };

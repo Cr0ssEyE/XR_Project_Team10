@@ -47,23 +47,31 @@ void ADarkWing::Attack(AActor* Target)
 			SpawnParams.Owner = this;
 
 			FVector TargetLocation = Target->GetActorLocation();
-			TargetLocation.Z = 0;
+			FVector TargetLocationVector;
 
-			for (uint32 i = 0; i < FeatherNum; i++) {
+			FVector MuzzleLocation;
+			FRotator MuzzleRotation;
+			FVector LeftSocket, RightSocket;
 
-				FVector MuzzleLocation;
-				FRotator MuzzleRotation;
+			GetMesh()->GetSocketWorldLocationAndRotation(FeatherSockets[0], LeftSocket, MuzzleRotation);
+			GetMesh()->GetSocketWorldLocationAndRotation(FeatherSockets[1], RightSocket, MuzzleRotation);
 
-				GetMesh()->GetSocketWorldLocationAndRotation(FeatherSockets[i], MuzzleLocation, MuzzleRotation);
+			for (uint32 i = 1; i < FeatherNum + 1; i++) {
+				MuzzleLocation = FVector::SlerpVectorToDirection(LeftSocket, RightSocket, i / (double)(FeatherNum + 1));
 
 				ADW_FeatherProjectile* Feather = World->SpawnActor<ADW_FeatherProjectile>(FeatherClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 
 				if (Feather) {
 					Feather->SetVariables(FeatherPower, FeatherSpeed, FeatherDeleteTime);
 
-					FVector LaunchDirection = ((TargetLocation) - MuzzleLocation).GetSafeNormal();
-					TargetLocation.Z -= LaunchDirection.Z * AttackRange;
-					LaunchDirection = ((TargetLocation)-MuzzleLocation).GetSafeNormal();
+					TargetLocationVector = TargetLocation;
+					TargetLocationVector.Z = 0;
+					TargetLocationVector = (TargetLocation - MuzzleLocation).GetSafeNormal();
+
+					//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocation.X - MuzzleLocation.X, TargetLocation.Y - MuzzleLocation.Y, TargetLocation.Z - MuzzleLocation.Z);
+					//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocationVector.X, TargetLocationVector.Y, TargetLocationVector.Z);
+
+					FVector LaunchDirection = TargetLocationVector;
 
 
 					Feather->FireInDirection(LaunchDirection);

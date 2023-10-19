@@ -20,7 +20,6 @@ UBTService_KWCommonDetect::UBTService_KWCommonDetect()
 void UBTService_KWCommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-	UE_LOG(LogTemp, Log, TEXT("Detect"));
 
 	ACommonMonster* ControllingPawn = Cast<ACommonMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	if(!ControllingPawn)
@@ -57,7 +56,6 @@ void UBTService_KWCommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 	{
 		for (auto const& OverlapResult : OverlapResults)
 		{
-			UE_LOG(LogTemp, Log, TEXT("%s"), *OverlapResult.GetActor()->GetName());
 			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(OverlapResult.GetActor());
 			if(PlayerCharacter)
 			{
