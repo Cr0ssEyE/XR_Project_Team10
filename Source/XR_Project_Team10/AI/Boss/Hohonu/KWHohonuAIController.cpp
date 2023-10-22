@@ -56,11 +56,11 @@ void AKWHohonuAIController::SetTarget(const TArray<AActor*>& Actors)
 		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DetectActor);
 		if(PlayerCharacter)
 		{
-			Blackboard->SetValueAsObject(KEY_TARGET, PlayerCharacter);
+			Blackboard->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerTarget());
 			ControllingPawn = Cast<AKWBossMonsterHohonu>(GetPawn());
 			if(ControllingPawn)
 			{
-				ControllingPawn->SetTarget(*PlayerCharacter);
+				ControllingPawn->SetTarget(*PlayerCharacter->GetTruePlayerTarget());
 			}
 			return;
 		}

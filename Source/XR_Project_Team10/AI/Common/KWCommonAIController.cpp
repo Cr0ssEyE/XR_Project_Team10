@@ -54,7 +54,7 @@ void AKWCommonAIController::SetTarget(const TArray<AActor*>& Actors)
 		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DetectActor);
 		if(PlayerCharacter)
 		{
-			Blackboard->SetValueAsObject(KEY_TARGET, PlayerCharacter);
+			Blackboard->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerTarget());
 			CommonSight->PeripheralVisionAngleDegrees = 180.f;
 			return;
 		}

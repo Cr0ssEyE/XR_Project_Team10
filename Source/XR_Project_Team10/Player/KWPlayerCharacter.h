@@ -35,6 +35,8 @@ public:
 	// Sets default values for this character's properties
 	AKWPlayerCharacter();
 
+	FORCEINLINE AActor* GetTruePlayerTarget() { return Cast<AActor>(PlayerTrueLocation); }
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,25 +44,34 @@ protected:
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UStaticMeshComponent> RootMesh;
+
+	UPROPERTY()
+	TObjectPtr<class UStaticMesh> RootStaticMesh;
+	
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UKWPlayerDataAsset> CharacterData;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UCapsuleComponent> PlayerComponent;
+	TObjectPtr<class AKWLocationDetector> PlayerTrueLocation;
 	
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UStaticMeshComponent> RollingMesh;
+	TObjectPtr<class UCapsuleComponent> PlayerComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class USkeletalMesh> WalkingMesh;
-	
-	// UPROPERTY(VisibleAnywhere)
-	// TObjectPtr<class USkeletalMesh> RollingMesh;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
+	TSubclassOf<class UAnimInstance> WalkingAnimInstance;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class USkeletalMeshComponent> RollingMeshComponent;
 	
-	// UPROPERTY(VisibleAnywhere)
-	// TObjectPtr<class UAnimBlueprint> PlayerRollingAnimInstance;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class USkeletalMesh> RollingMesh;
+	
+	UPROPERTY(VisibleAnywhere)
+	TSubclassOf<class UAnimInstance> RollingAnimInstance;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
@@ -75,7 +86,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
+	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RootMesh; }
 
 	/**
 	 *	유저 입력 관련 함수 리스트

@@ -25,7 +25,7 @@ class XR_PROJECT_TEAM10_API UKWPlayerDataAsset : public UDataAsset
 	// 캐릭터 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 메시")
-	TObjectPtr<class UStaticMesh> PlayerRollingMesh;
+	TObjectPtr<class USkeletalMesh> PlayerRollingMesh;
 
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 애니메이션 블루프린트")
 	TObjectPtr<class UAnimBlueprint> PlayerRollingAnimBlueprint;
@@ -143,5 +143,5 @@ public:
 	TObjectPtr<class UInputAction> AttackAction;
 
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 파일 드라이버 입력 키")
-	TObjectPtr<class UInputAction> FileDriverAction;
+	TObjectPtr<class UInputAction> DropDownAction;
 };

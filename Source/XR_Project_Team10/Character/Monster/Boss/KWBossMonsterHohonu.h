@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "KWBossHohonuAnimInstance.h"
+
 #include "NiagaraSystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterBase.h"
@@ -41,7 +43,7 @@ public:
 	// BT 및 AI 컨트롤러 호출용 함수
 public:
 	FORCEINLINE float GetHp() const { return BossHp; }
-	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
+	FORCEINLINE void SetTarget(AActor& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
 	
@@ -84,10 +86,10 @@ private:
 	// 호호누 패턴 관련 변수
 private:
 	UPROPERTY()
-	TObjectPtr<class UKWBossHohonuAnimInstance> HohonuAnimInstance;
+	TObjectPtr<UKWBossHohonuAnimInstance> HohonuAnimInstance;
 	
 	UPROPERTY()
-	TObjectPtr<class AKWPlayerCharacter> TargetPlayer;
+	TObjectPtr<AActor> TargetPlayer;
 	
 	EHohonuPattern CurrentPattern;
 	
