@@ -55,11 +55,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 점프 높이")
 	float WakingStateJumpValue;
 
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 공중 이동 입력 민감도(0 ~ 1)")
+	float WakingStateAirControl;
+	
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 중력 영향 배율")
 	float WakingStateGravityScale;
 
 	// 구르기 상태 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "이동할 경우 구르기 상태 강제 변횐")
+	uint8 bIsMovingMustRolling : 1;
+	
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 증가 값")
 	float DefaultVelocityValue;
 
@@ -117,7 +123,7 @@ public:
 	TArray<float> RB_MultiplyValuesByGear;
 
 	UPROPERTY(EditAnywhere, Category = ReBound, DisplayName = "리바운드 대시 입력 시간")
-	float RBD_JustTimingValue;
+	float RBD_JustTimingCheckTime;
 
 	UPROPERTY(EditAnywhere, Category = ReBound, DisplayName = "리바운드 대시 입력 실패시 이동 비활성화 시간")
 	float RB_DisableMovementTime;

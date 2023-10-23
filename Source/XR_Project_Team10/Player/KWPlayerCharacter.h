@@ -110,6 +110,7 @@ protected:
 	 * FD = 파일 드라이버
 	 **/
 private:
+	void ToggleCharacterType();
 	void RBD_JustTimingProceedAction();
 	void DA_ProceedAction();
 	void FD_ProceedAction();
@@ -175,7 +176,7 @@ private:
 	FTimerHandle VelocityDecelerationTimerHandle;
 	
 	UPROPERTY()
-	float RBD_JustTimingValue;
+	float RBD_JustTimingCheckTime;
 	
 	UPROPERTY()
 	float JumpDelayTime;
@@ -248,9 +249,13 @@ private:
 	uint8 bIsFlying : 1;
 
 	uint8 bIsUsedFlyDash : 1;
+
+	uint8 bIsMovingMustRolling : 1;
 	
 	uint8 bIsReBounding : 1;
 
+	uint8 bIsKnockBackOnGoing : 1;
+	
 	uint8 bIsInputJustAction : 1;
 	
 	uint8 bIsAttackOnGoing : 1;
@@ -262,11 +267,12 @@ private:
 	 **/
 public:
 	void RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType);
-
+	void RB_ApplyKnockBackByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType);
+	
 private:
 	void RB_CheckContactToFloor();
 	void RBD_SuccessEvent();
-	void RBD_FailedEvent();
+	void RBD_FailedPenaltyEndEvent();
 	
 	/** 리바운드 관련 변수 리스트 \n
 	 * ReBound를 RB_와 같은 형태로 축약해서 표현한다. \n
@@ -294,5 +300,11 @@ private:
 
 	UPROPERTY()
 	TArray<float> RB_MultiplyValuesByObjectType;
+
+	// 타이머 델리게이트 용
+private:
+	void DA_EndEventDelegate();
+	void RBD_EndEventDelegate();
+	
 };
 
