@@ -111,6 +111,7 @@ protected:
 	 **/
 private:
 	void ToggleCharacterType();
+	void CheckIdleStateWhenRolling();
 	void RBD_JustTimingProceedAction();
 	void DA_ProceedAction();
 	void FD_ProceedAction();
@@ -234,6 +235,8 @@ private:
 	 * 플레이어 상태 관련 변수 리스트
 	 **/
 private:
+	FTimerHandle CheckIdleStateTimerHandle;
+	
 	FTimerHandle CheckGearStateTimerHandle;
 	
 	EGearState CurrentGearState;
@@ -279,8 +282,6 @@ private:
 	 * ReBoundDash를 RBD_와 같은 형태로 축약해서 표현한다.
 	**/
 private:
-	FTimerHandle RB_DelayTimerHandle;
-
 	FTimerHandle RB_ContactCheckHandle;
 	
 	FTimerHandle RBD_JustTimingCheckHandle;

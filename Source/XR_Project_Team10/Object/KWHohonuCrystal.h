@@ -30,8 +30,10 @@ public:
 	void ActivateAndDropDownSequence();
 	
 private:
+	void DropDownSequence();
 	void ActivateWaveAttack();
 	void ActivateWaveAttackTimer();
+	void DisableDestroyVFX();
 	void SetDeActivate();
 	
 private:
@@ -70,6 +72,8 @@ private:
 	FTimerHandle DestroyEventTimerHandle;
 
 	FVector ReBoundVector;
+
+	float DisableDestroyVFXTime;
 	
 	float SC_DropDownDamage;
 	
@@ -89,6 +93,7 @@ private:
 
 	float SC_IncreaseAttackRange;
 
+private:
 	uint8 bIsDebugEnable : 1;
 	
 	uint8 bIsActivate : 1;
