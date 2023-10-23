@@ -52,6 +52,9 @@ private:
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_BackStepBegin() { PatternActivateDelegate.Broadcast(EHohonuPattern::BackStep); }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void AnimNotify_BackStepEnd() { PatternDeActivateDelegate.Broadcast(); }
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_WhirlWindHitCheckBegin() { PatternActivateDelegate.Broadcast(EHohonuPattern::WhirlWind); }
