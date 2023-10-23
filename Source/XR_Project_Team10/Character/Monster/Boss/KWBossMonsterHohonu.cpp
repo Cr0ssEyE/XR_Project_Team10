@@ -16,6 +16,7 @@
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Constant/KWMeshSocketName.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 
 AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 {
@@ -30,8 +31,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	BossMonsterAIData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuAIDataAsset'/Game/21-Hohonu/Datas/Hohonu_AIDataAsset.Hohonu_AIDataAsset'"));
 
 	SetActorScale3D(FVector::OneVector * 2);
-	GetCapsuleComponent()->SetCapsuleSize(150.f, 200.f);
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -150.f));
+	GetCapsuleComponent()->SetCapsuleSize(50.f, 50.f);
 	
 	HohonuRingEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRingVFX"));
 	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHeadVFX"));
@@ -390,10 +390,10 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 	FVector StartLocation = HohonuLaserSweepEffect->GetComponentLocation();
 	FVector EndLocation = StartLocation + HohonuLaserSweepEffect->GetForwardVector() * SL_Distance;
 	
-	FHitResult HitResult;
+	TArray<FHitResult> HitResults;
 	FCollisionQueryParams Params(NAME_None, false, this);
-	bool bResult = GetWorld()->SweepSingleByChannel(
-	HitResult,
+	bool bResult = GetWorld()->SweepMultiByChannel(
+	HitResults,
 	StartLocation,
 	EndLocation,
 	FQuat::Identity,
@@ -416,18 +416,25 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 	
 	if(bResult && !bIsSweepLaserDamageCaused)
 	{
-		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
-		if(PlayerCharacter)
+		for (auto Result : HitResults)
 		{
-			//TODO:: 매직넘버 처리하기
-			bIsSweepLaserDamageCaused = true;
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
-			FDamageEvent DamageEvent;
-			PlayerCharacter->TakeDamage(SL_Damage, DamageEvent, GetController(), this);
-			FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
-			PlayerDirection.Z = 100.f;
-			ReBoundVector = PlayerDirection * 3.f;
-			PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+			AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
+			if(PlayerCharacterLocation)
+			{
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
+				if(PlayerCharacter)
+				{
+					//TODO:: 매직넘버 처리하기
+					bIsSweepLaserDamageCaused = true;
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+					FDamageEvent DamageEvent;
+					PlayerCharacter->TakeDamage(SL_Damage, DamageEvent, GetController(), this);
+					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
+					PlayerDirection.Z = 1000.f;
+					ReBoundVector = PlayerDirection * 3.f;
+					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				}
+			}
 		}
 	}
 	
@@ -452,12 +459,13 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 {
 	if(!bIsPatternRunning)
 	{
-		FHitResult HitResult;
+		TArray<FHitResult> HitResults;
 		FCollisionQueryParams Params(NAME_None, false, this);
-		bool bResult = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		GetMesh()->GetSocketLocation(HOHONU_VFX_FRONT),
-		GetMesh()->GetSocketLocation(HOHONU_VFX_FRONT),
+	
+		bool bResult = GetWorld()->SweepMultiByChannel(
+		HitResults,
+		GetActorLocation(),
+		GetActorLocation(),
 		FQuat::Identity,
 		ECC_PLAYER_ONLY,
 		FCollisionShape::MakeBox(MA_ExplodeDamageRange),
@@ -468,47 +476,56 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 		}
 		if(bResult)
 		{
-			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
-			if(PlayerCharacter)
+			for (auto Result : HitResults)
 			{
-				//TODO:: 매직넘버 처리하기
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
-				FDamageEvent DamageEvent;
-				PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
-				FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
-				PlayerDirection.Z = 100.f;
-				ReBoundVector = PlayerDirection * 10.f;
-				PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
+				if(PlayerCharacterLocation)
+				{
+					AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
+					if(PlayerCharacter)
+					{
+						//TODO:: 매직넘버 처리하기
+						GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+						FDamageEvent DamageEvent;
+						PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
+						FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
+						PlayerDirection.Z = 1000.f;
+						ReBoundVector = PlayerDirection * 10.f;
+						PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+					}
+				}
 			}
 		}
 		return;
 	}
 	
-	FHitResult HitResultL;
-	FHitResult HitResultR;
+	TArray<FHitResult> HitResultL;
+	TArray<FHitResult> HitResultR;
 	FCollisionQueryParams Params(NAME_None, false, this);
 	
-	bool bResultL = GetWorld()->SweepSingleByChannel(
+	bool bResultL = GetWorld()->SweepMultiByChannel(
 	HitResultL,
-	GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT),
-	GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT),
+	GetActorLocation(),
+	GetActorLocation(),
 	FQuat::Identity,
 	ECC_PLAYER_ONLY,
 	FCollisionShape::MakeBox(MA_DamageRange),
 	Params);
+
 	if(bIsDebugEnable)
 	{
 		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_LEFT), MA_DamageRange, FColor::Red, false, 0.1f);
 	}
 	
-	bool bResultR = GetWorld()->SweepSingleByChannel(
+	bool bResultR = GetWorld()->SweepMultiByChannel(
 	HitResultR,
-	GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT),
-	GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT),
+	GetActorLocation(),
+	GetActorLocation(),
 	FQuat::Identity,
 	ECC_PLAYER_ONLY,
 	FCollisionShape::MakeBox(MA_DamageRange),
 	Params);
+	
 	if(bIsDebugEnable)
 	{
 		DrawDebugBox(GetWorld(), GetMesh()->GetSocketLocation(HOHONU_HAND_RIGHT), MA_DamageRange, FColor::Red, false, 0.1f);
@@ -516,21 +533,44 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 	
 	if(bResultL || bResultR)
 	{
-		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResultL.GetActor());
-		if(!PlayerCharacter)
+		for(auto Result : HitResultL)
 		{
-			PlayerCharacter = Cast<AKWPlayerCharacter>(HitResultR.GetActor());
+			AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
+			if(PlayerCharacterLocation && !bIsMeleeAttackDamageCaused)
+			{
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
+				if(PlayerCharacter)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+					bIsMeleeAttackDamageCaused = true;
+					FDamageEvent DamageEvent;
+					PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
+					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
+					PlayerDirection.Z = 1000.f;
+					ReBoundVector = PlayerDirection * 10.f;
+					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				}
+			}
 		}
-		if(PlayerCharacter && !bIsMeleeAttackDamageCaused)
+
+		for(auto Result : HitResultR)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
-			bIsMeleeAttackDamageCaused = true;
-			FDamageEvent DamageEvent;
-			PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
-			FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
-			PlayerDirection.Z = 100.f;
-			ReBoundVector = PlayerDirection * 10.f;
-			PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+			AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
+			if(PlayerCharacterLocation && !bIsMeleeAttackDamageCaused)
+			{
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
+				if(PlayerCharacter)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+					bIsMeleeAttackDamageCaused = true;
+					FDamageEvent DamageEvent;
+					PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
+					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
+					PlayerDirection.Z = 1000.f;
+					ReBoundVector = PlayerDirection * 10.f;
+					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				}
+			}
 		}
 	}
 	GetWorldTimerManager().SetTimerForNextTick(this, &AKWBossMonsterHohonu::ExecutePattern_MA);
@@ -544,11 +584,11 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 		return;
 	}
 	
-	FHitResult HitResult;
+	TArray<FHitResult> HitResults;
 	FCollisionQueryParams Params(NAME_None, false, this);
-			
-	bool bResult = GetWorld()->SweepSingleByChannel(
-	HitResult,
+	
+	bool bResult = GetWorld()->SweepMultiByChannel(
+	HitResults,
 	GetActorLocation(),
 	GetActorLocation(),
 	FQuat::Identity,
@@ -560,20 +600,27 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 	{
 		DrawDebugBox(GetWorld(), GetActorLocation(), WW_DamageRange, FColor::Red);
 	}
-			
+	
 	if(bResult)
 	{
-		AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(HitResult.GetActor());
-		if(PlayerCharacter && !bIsWhirlWindDamageCaused)
+		for (auto Result : HitResults)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
-			bIsWhirlWindDamageCaused = true;
-			FDamageEvent DamageEvent;
-			PlayerCharacter->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
-			FVector PlayerDirection = PlayerCharacter->GetActorLocation() - GetActorLocation();
-			ReBoundVector = PlayerDirection * 10.f;
-			ReBoundVector.Z = 1000.f;
-			PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+			AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
+			if(PlayerCharacterLocation && !bIsWhirlWindDamageCaused)
+			{
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
+				if(PlayerCharacter)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("플레이어 충돌")));
+					bIsWhirlWindDamageCaused = true;
+					FDamageEvent DamageEvent;
+					PlayerCharacter->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
+					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
+					ReBoundVector = PlayerDirection * 10.f;
+					ReBoundVector.Z = 3000.f;
+					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				}
+			}
 		}
 	}
 	

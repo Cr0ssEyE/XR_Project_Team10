@@ -115,6 +115,13 @@ void AKWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerTrueLocation = GetWorld()->SpawnActor<AKWLocationDetector>();
+	PlayerTrueLocation->SetTargetCharacter(this);
+	PlayerTrueLocation->SetHitChannelType(ECC_PLAYER);
+	PlayerTrueLocation->SetHitChannelProfile(CP_PLAYER);
+	PlayerTrueLocation->SetHitBoxExtent(70.f);
+
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_PLAYER);
+	GetCapsuleComponent()->SetCollisionProfileName(CP_PLAYER, true);
 	
 	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
 	GetMesh()->UpdateCollisionProfile();
@@ -580,6 +587,8 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		RootMesh->SetRelativeRotation(FRotator::ZeroRotator);
 
 		RollingMeshComponent->SetWorldScale3D(FVector::ZeroVector);
+		RollingMeshComponent->SetCollisionEnabled(::ECollisionEnabled::NoCollision);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		PlayerComponent->SetWorldScale3D(FVector::OneVector);
 		PlayerComponent->SetWorldLocation(RootMesh->GetComponentToWorld().GetLocation());
@@ -591,6 +600,8 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		RootMesh->SetWorldLocation(PlayerComponent->GetComponentToWorld().GetLocation());
 
 		RollingMeshComponent->SetWorldScale3D(FVector::OneVector);
+		RollingMeshComponent->SetCollisionEnabled(::ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetWorldScale3D(FVector::ZeroVector);
 	}
@@ -640,12 +651,6 @@ void AKWPlayerCharacter::FD_ProceedAction()
 
 void AKWPlayerCharacter::CheckGearState()
 {
-	if(RootMesh->GetPhysicsLinearVelocity().Size2D() < 100.f)
-	{
-		ToggleCharacterType();
-		return;
-	}
-	
 	if(bIsAttackOnGoing)
 	{
 		return;
@@ -653,6 +658,12 @@ void AKWPlayerCharacter::CheckGearState()
 	
 	if(!bIsRolling)
 	{
+		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
+	}
+
+	if(RootMesh->GetPhysicsLinearVelocity().Size2D() < 50.f)
+	{
+		ToggleCharacterType();
 		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
 	}
 	

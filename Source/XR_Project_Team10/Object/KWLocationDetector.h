@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "KWLocationDetector.generated.h"
 
 UCLASS()
@@ -14,7 +16,13 @@ class XR_PROJECT_TEAM10_API AKWLocationDetector : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AKWLocationDetector();
-
+	FORCEINLINE void SetTargetCharacter(ACharacter* Target) { TargetPlayer = Target; }
+	FORCEINLINE ACharacter* GetTargetCharacter() { return TargetPlayer; }
+	FORCEINLINE void SetHitBoxExtent(const float BoxExtent) const { HitCheckBox->SetBoxExtent(FVector(BoxExtent, BoxExtent, BoxExtent)); }
+	FORCEINLINE void SetHitBoxExtent(const FVector& BoxExtent) const { HitCheckBox->SetBoxExtent(BoxExtent); }
+	FORCEINLINE void SetHitChannelType(const ECollisionChannel CollisionChannel) const { HitCheckBox->SetCollisionObjectType(CollisionChannel); }
+	FORCEINLINE void SetHitChannelProfile(const FName ProfileName) const { HitCheckBox->SetCollisionProfileName(ProfileName); }
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,6 +32,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USceneComponent> Root;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UBoxComponent> HitCheckBox;
+	
+	UPROPERTY()
+	TObjectPtr<ACharacter> TargetPlayer;
+	
 };

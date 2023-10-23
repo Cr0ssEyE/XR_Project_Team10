@@ -10,6 +10,11 @@ AKWLocationDetector::AKWLocationDetector()
 	PrimaryActorTick.bCanEverTick = true;
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = Root;
+
+	HitCheckBox = CreateDefaultSubobject<UBoxComponent>(TEXT("HitCheckBox"));
+	HitCheckBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	HitCheckBox->SetBoxExtent(FVector(10.f, 10.f, 10.f));
+	HitCheckBox->SetupAttachment(Root);
 }
 
 // Called when the game starts or when spawned
