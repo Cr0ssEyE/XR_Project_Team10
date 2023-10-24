@@ -32,13 +32,26 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
+
 	
 	UPROPERTY(EditAnywhere, DisplayName = "점프 크기값")
 	float JumpForceValue;
+
+	UPROPERTY(EditAnywhere, DisplayName = "점프패드 타입에 따른 시간값 (타이밍 : 반복시간, 지연 : 지연시간)")
+	float DelayTime;
 
 	UPROPERTY(EditAnywhere, DisplayName = "점프대 트리거 종류(현재 접촉만 동작)")
 	EJumpPadType JumpPadType;
 
 	UPROPERTY(EditAnywhere, DisplayName = "트리거시 기존 속도 초기화")
 	uint8 bResetVelocity : 1;
+
+	UPROPERTY()
+	uint8 bIsPlayerIn : 1;
+
+	UPROPERTY()
+	float PlayerInTime;
+
+	UPROPERTY()
+	FTimerHandle JumpTimerHandle;
 };
