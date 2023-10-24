@@ -61,7 +61,7 @@ void UBTService_KWCommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 			if(PlayerCharacter)
 			{
 				bIsPlayerDetect = true;
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerTarget());
+				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerLocation());
 				DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 0.1f);
 				// DrawDebugPoint(World, PlayerCharacter->GetActorLocation(), 10.0f, FColor::Blue, false, 1.0f);
 

@@ -35,7 +35,7 @@ public:
 	// Sets default values for this character's properties
 	AKWPlayerCharacter();
 
-	FORCEINLINE AActor* GetTruePlayerTarget() { return Cast<AActor>(PlayerTrueLocation); }
+	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
 	
 protected:
 	// Called when the game starts or when spawned
@@ -201,8 +201,16 @@ private:
 
 	FTimerHandle DropDownCoolDownTimerHandle;
 	
+	FCollisionQueryParams DA_Params;
+	
 	UPROPERTY()
 	uint8 bCanDashOnFlying : 1;
+
+	UPROPERTY()
+	float DA_BaseDamage;
+
+	UPROPERTY()
+	TArray<float> DA_MultiplyDamageByGear;
 	
 	UPROPERTY()
 	float DA_AddVelocityValue;
@@ -210,6 +218,9 @@ private:
 	UPROPERTY()
 	float DA_DurationTime;
 
+	UPROPERTY()
+	float DA_ElapsedTime;
+	
 	UPROPERTY()
 	float DA_DecelerateValue;
 	
@@ -241,6 +252,8 @@ private:
 	
 	EGearState CurrentGearState;
 
+	EGearState AttackInputGearState;
+	
 	TArray<FLinearColor> ColorsByGear;
 	
 	uint8 bIsDead : 1;
@@ -304,7 +317,7 @@ private:
 
 	// 타이머 델리게이트 용
 private:
-	void DA_EndEventDelegate();
+	void DA_HitCheckSequence();
 	void RBD_EndEventDelegate();
 	
 };

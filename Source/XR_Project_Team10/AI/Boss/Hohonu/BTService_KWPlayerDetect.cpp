@@ -54,8 +54,8 @@ void UBTService_KWPlayerDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(OverlapResult.GetActor());
 			if(PlayerCharacter)
 			{
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerTarget());
-				ControllingPawn->SetTarget(*PlayerCharacter->GetTruePlayerTarget());
+				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerLocation());
+				ControllingPawn->SetTarget(*PlayerCharacter->GetTruePlayerLocation());
 				DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 1.f);
 			}
 		}

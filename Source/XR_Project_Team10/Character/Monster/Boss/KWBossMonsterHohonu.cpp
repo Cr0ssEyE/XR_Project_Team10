@@ -32,6 +32,11 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 
 	SetActorScale3D(FVector::OneVector * 2);
 	GetCapsuleComponent()->SetCapsuleSize(50.f, 50.f);
+
+	HitCheckBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("HitCheckBox"));
+	HitCheckBoxComponent->SetupAttachment(GetMesh());
+	HitCheckBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	HitCheckBoxComponent->SetCollisionProfileName(CP_ENEMY);
 	
 	HohonuRingEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRingVFX"));
 	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHeadVFX"));
@@ -45,6 +50,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	if(HohonuData)
 	{
 		GetMesh()->SetSkeletalMesh(HohonuData->HohonuMesh);
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		HohonuRingEffect->SetAsset(HohonuData->HohonuRingEffect);
 		HohonuHeadEffect->SetAsset(HohonuData->HohonuHeadEffect);
 		HohonuLaserSweepEffect->SetAsset(HohonuData->SL_LaserVFX);
@@ -66,7 +72,6 @@ void AKWBossMonsterHohonu::BeginPlay()
 	HohonuAnimInstance = CastChecked<UKWBossHohonuAnimInstance>(GetMesh()->GetAnimInstance());
 	if(HohonuAnimInstance)
 	{
-		// HohonuAnimInstance->OnMontageStarted.AddDynamic(this, &AKWBossMonsterHohonu::ActivatePatternOmen);
 		HohonuAnimInstance->OnMontageEnded.AddDynamic(this, &AKWBossMonsterHohonu::FinishAIPatternNode);
 		HohonuAnimInstance->PatternActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::ActivatePatternExecute);
 		HohonuAnimInstance->PatternDeActivateDelegate.AddUObject(this, &AKWBossMonsterHohonu::StopPattern);
@@ -90,6 +95,10 @@ void AKWBossMonsterHohonu::Tick(float DeltaSeconds)
 	HohonuRingEffect->SetWorldRotation(GetMesh()->GetSocketRotation(HOHONU_VFX_RING));
 	HohonuHeadEffect->SetWorldLocation(GetMesh()->GetSocketLocation(HOHONU_VFX_HEAD));
 	HohonuHeadEffect->SetWorldRotation(GetMesh()->GetSocketRotation(HOHONU_VFX_HEAD));
+	if(bIsDebugEnable)
+	{
+		DrawDebugBox(GetWorld(), GetActorLocation(), HitCheckBoxComponent->GetScaledBoxExtent(), FColor::Magenta, false, 0.3f);
+	}
 }
 
 void AKWBossMonsterHohonu::InitData()
@@ -98,6 +107,12 @@ void AKWBossMonsterHohonu::InitData()
 	UKWBossHohonuDataAsset* HohonuData = Cast<UKWBossHohonuDataAsset>(BossMonsterStatusData);
 	if(HohonuData)
 	{
+		HitCheckBoxComponent->SetBoxExtent(HohonuData->HohonuHitBoxCollision);
+		HitCheckBoxComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
+
+		HitKnockBackMultiplyValue = HohonuData->HitKnockBackMultiplyValue;
+		HitKnockBackHeightValue = HohonuData->HitKnockBackHeightValue;
+		
 		BossHp = HohonuData->HohonuHp;
 		bIsDebugEnable = HohonuData->bIsDebugEnable;
 		
@@ -114,18 +129,22 @@ void AKWBossMonsterHohonu::InitData()
 		SL_ActiveTime = HohonuData->SL_ActiveTime;
 		SL_Distance = HohonuData->SL_Distance;
 		SL_DamageRange = HohonuData->SL_DamageRange;
+		SL_KnockBackMultiplyValue = HohonuData->SL_KnockBackMultiplyValue;
+		SL_KnockBackHeightValue = HohonuData->SL_KnockBackHeightValue;
 		
 		MA_Damage = HohonuData->MA_Damage;
 		MA_DamageRange = HohonuData->MA_DamageRange;
 		MA_ExplodeDamageRange = HohonuData->MA_ExplodeDamageRange;
+		MA_KnockBackMultiplyValue = HohonuData->MA_KnockBackMultiplyValue;
+		MA_KnockBackHeightValue = HohonuData->MA_KnockBackHeightValue;
 		
 		WW_Damage = HohonuData->WW_Damage;
 		WW_DamageRange = HohonuData->WW_DamageRange;
-		WW_AttackDelay = HohonuData->WW_AttackDelay;
-		WW_AttackTime = HohonuData->WW_AttackTime;
 		WW_IncreaseMoveSpeedPerSecond = HohonuData->WW_IncreaseMoveSpeed;
 		WW_MaxMoveSpeed = HohonuData->WW_MaxMoveSpeed;
 		WW_RotateSpeed = HohonuData->WW_RotateSpeed;
+		WW_KnockBackMultiplyValue = HohonuData->WW_KnockBackMultiplyValue;
+		WW_KnockBackHeightValue = HohonuData->WW_KnockBackHeightValue;
 		
 		BS_Range = HohonuData->BS_Time;
 		BS_MoveSpeed = HohonuData->BS_MoveSpeed;
@@ -139,7 +158,19 @@ void AKWBossMonsterHohonu::InitData()
 float AKWBossMonsterHohonu::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 	AController* EventInstigator, AActor* DamageCauser)
 {
-	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	BossHp -= DamageAmount;
+	
+	AKWPlayerCharacter* Causer = Cast<AKWPlayerCharacter>(DamageCauser);
+	if(Causer)
+	{
+		AActor* PlayerCharacterLocation = Causer->GetTruePlayerLocation();
+		FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
+		ReBoundVector = PlayerDirection * HitKnockBackMultiplyValue;
+		ReBoundVector.Z = HitKnockBackHeightValue;
+		Causer->RB_ApplyKnockBackByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+	}
+	return 0;
 }
 
 void AKWBossMonsterHohonu::SetAIPatternDelegate(const FAICharacterPatternFinished& PatternFinishedDelegate)
@@ -430,8 +461,8 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 					FDamageEvent DamageEvent;
 					PlayerCharacter->TakeDamage(SL_Damage, DamageEvent, GetController(), this);
 					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
-					PlayerDirection.Z = 1000.f;
-					ReBoundVector = PlayerDirection * 3.f;
+					ReBoundVector = PlayerDirection * SL_KnockBackMultiplyValue;
+					ReBoundVector.Z = SL_KnockBackHeightValue;
 					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				}
 			}
@@ -489,8 +520,8 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 						FDamageEvent DamageEvent;
 						PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
 						FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
-						PlayerDirection.Z = 1000.f;
-						ReBoundVector = PlayerDirection * 10.f;
+						ReBoundVector = PlayerDirection * MA_KnockBackMultiplyValue;
+						ReBoundVector.Z = MA_KnockBackHeightValue;
 						PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 					}
 				}
@@ -546,8 +577,8 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 					FDamageEvent DamageEvent;
 					PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
 					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
-					PlayerDirection.Z = 1000.f;
-					ReBoundVector = PlayerDirection * 10.f;
+					ReBoundVector = PlayerDirection * MA_KnockBackMultiplyValue;
+					ReBoundVector.Z = MA_KnockBackHeightValue;
 					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				}
 			}
@@ -566,8 +597,8 @@ void AKWBossMonsterHohonu::ExecutePattern_MA()
 					FDamageEvent DamageEvent;
 					PlayerCharacter->TakeDamage(MA_Damage, DamageEvent, GetController(), this);
 					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
-					PlayerDirection.Z = 1000.f;
-					ReBoundVector = PlayerDirection * 10.f;
+					ReBoundVector = PlayerDirection * MA_KnockBackMultiplyValue;
+					ReBoundVector.Z = MA_KnockBackHeightValue;
 					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				}
 			}
@@ -616,8 +647,8 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 					FDamageEvent DamageEvent;
 					PlayerCharacter->TakeDamage(WW_Damage, DamageEvent, GetController(), this);
 					FVector PlayerDirection = PlayerCharacterLocation->GetActorLocation() - GetActorLocation();
-					ReBoundVector = PlayerDirection * 10.f;
-					ReBoundVector.Z = 3000.f;
+					ReBoundVector = PlayerDirection * WW_KnockBackMultiplyValue;
+					ReBoundVector.Z = WW_KnockBackHeightValue;
 					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				}
 			}

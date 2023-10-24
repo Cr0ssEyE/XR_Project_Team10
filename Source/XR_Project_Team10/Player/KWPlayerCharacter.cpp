@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -19,7 +20,6 @@
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
 {
-
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
@@ -66,6 +66,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/3-CharacterTest/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
 	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/3-CharacterTest/SM_Ball_00.SM_Ball_00'"), EAssertionLevel::Check);
 	WalkingMesh = CharacterData->PlayerWalkingMesh;
+	//TODO: 폴더 정리 후 ConstructorHelper로 애님 인스턴스 가져오기
 	WalkingAnimInstance = CharacterData->PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass();
 	RollingMesh = CharacterData->PlayerRollingMesh;
 	RollingAnimInstance = CharacterData->PlayerRollingAnimBlueprint->GetAnimBlueprintGeneratedClass();
@@ -98,6 +99,8 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
 	
+	DA_BaseDamage = CharacterData->DA_BaseDamage;
+	DA_MultiplyDamageByGear = CharacterData->DA_MultiplyDamageByGear;
 	DA_AddVelocityValue = CharacterData->DA_AddVelocityValue;
 	DA_DurationTime = CharacterData->DA_DurationTime;
 	DA_DecelerateValue = CharacterData->DA_DecelerateValue;
@@ -124,20 +127,17 @@ void AKWPlayerCharacter::BeginPlay()
 	GetCapsuleComponent()->SetCollisionProfileName(CP_PLAYER, true);
 	
 	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
-	GetMesh()->UpdateCollisionProfile();
 	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
 	GetMesh()->SetAnimClass(WalkingAnimInstance);
 
 	RollingMeshComponent->SetCollisionObjectType(ECC_PLAYER);
-	RollingMeshComponent->UpdateCollisionProfile();
 	RollingMeshComponent->SetCollisionProfileName(CP_PLAYER, true);
 	RollingMeshComponent->SetSkeletalMesh(RollingMesh);
 	RollingMeshComponent->SetAnimClass(RollingAnimInstance);
 	RollingMeshComponent->SetWorldScale3D(FVector::ZeroVector);
 	
 	RootMesh->SetCollisionObjectType(ECC_PLAYER);
-	RootMesh->UpdateCollisionProfile();
 	RootMesh->SetCollisionProfileName(CP_PLAYER, true);
 	RootMesh->SetMassOverrideInKg(NAME_None, 50.f);
 	RootMesh->SetStaticMesh(RootStaticMesh);
@@ -404,32 +404,7 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Value)
 {
-	if(bIsFlying || bIsAttackOnGoing || bIsReBounding || bIsKnockBackOnGoing)
-	{
-		return;
-	}
-	
-	if(bIsRolling)
-	{
-		bIsRolling = false;
-		RootMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		RootMesh->SetRelativeRotation(FRotator::ZeroRotator);
-
-		RollingMeshComponent->SetWorldScale3D(FVector::ZeroVector);
-		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		PlayerComponent->SetWorldScale3D(FVector::OneVector);
-		PlayerComponent->SetWorldLocation(RootMesh->GetComponentToWorld().GetLocation());
-	}
-	else
-	{
-		bIsRolling = true;
-		RootMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		RootMesh->SetWorldLocation(PlayerComponent->GetComponentToWorld().GetLocation());
-
-		RollingMeshComponent->SetWorldScale3D(FVector::OneVector);
-		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		PlayerComponent->SetWorldScale3D(FVector::ZeroVector);
-	}
+	ToggleCharacterType();
 }
 
 void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
@@ -455,7 +430,7 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 			return;
 		}
 
-		if(bCanDashOnFlying && !bIsUsedFlyDash)
+		if(bCanDashOnFlying && !bIsUsedFlyDash && !DA_ElapsedTime)
 		{
 			bIsUsedFlyDash = true;
 			DA_ProceedAction();
@@ -474,7 +449,7 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 		FCollisionShape::MakeSphere(70.0f),
 		Params);
 			
-		if(bResult)
+		if(bResult && !DA_ElapsedTime)
 		{
 			DA_ProceedAction();
 		}
@@ -647,7 +622,9 @@ void AKWPlayerCharacter::DA_ProceedAction()
 	}
 	
 	bIsAttackOnGoing = true;
+	AttackInputGearState = CurrentGearState;
 	CurrentGearState = EGearState::GearThree;
+	
 	FVector2D MousePosition;
 	int ScreenSizeX;
 	int ScreenSizeY;
@@ -668,9 +645,13 @@ void AKWPlayerCharacter::DA_ProceedAction()
 	{
 		VelocityDecelerateTarget = FVector(100.f, 100.f, 0.f);
 	}
+	
 	RootMesh->SetWorldLocation(RootMesh->GetComponentLocation() + FVector(0.f, 0.f, 30.f));
 	RootMesh->SetPhysicsLinearVelocity(AD_Direction);
-	GetWorldTimerManager().SetTimer(DA_DurationTimerHandle, this, &AKWPlayerCharacter::DA_EndEventDelegate, 0.01f, false, DA_DurationTime);
+	
+	DA_Params.AddIgnoredActor(this);
+	DA_ElapsedTime = 0;
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
 }
 
 void AKWPlayerCharacter::FD_ProceedAction()
@@ -841,7 +822,6 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 			{
 				GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
 			}
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("리바운드 대시 성공")));
 			RBD_SuccessEvent();
 			return;
 		}
@@ -855,13 +835,18 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 
 void AKWPlayerCharacter::RBD_SuccessEvent()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("리바운드 대시 시작")));
+	
 	// 리바운드 대쉬 실행
 	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
 	{
 		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 	}
+	
 	bIsAttackOnGoing = true;
+	AttackInputGearState = EGearState::GearFour;
 	CurrentGearState = EGearState::GearFour;
+	
 	FVector2D MousePosition;
 	int ScreenSizeX;
 	int ScreenSizeY;
@@ -878,7 +863,7 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 	RootMesh->SetWorldLocation(RootMesh->GetComponentLocation() + FVector(0.f, 0.f, 30.f));
 	VelocityDecelerateTarget = RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
 	RootMesh->SetPhysicsLinearVelocity(AD_Direction);
-	GetWorldTimerManager().SetTimer(RBD_SucceedTimerHandle, this, &AKWPlayerCharacter::RBD_EndEventDelegate, 0.1f, false, DA_DurationTime);
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
 }
 
 void AKWPlayerCharacter::RBD_FailedPenaltyEndEvent()
@@ -887,23 +872,42 @@ void AKWPlayerCharacter::RBD_FailedPenaltyEndEvent()
 	EnableInput(Cast<APlayerController>(GetController()));
 }
 
-void AKWPlayerCharacter::DA_EndEventDelegate()
+void AKWPlayerCharacter::DA_HitCheckSequence()
 {
-	CurrentGearState = EGearState::GearTwo;
-	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &AKWPlayerCharacter::AttackCoolDownTimer, AttackCoolDownTime, false);
-	if(!GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
+	DA_ElapsedTime += GetWorld()->DeltaTimeSeconds;
+	if(DA_ElapsedTime >= DA_DurationTime)
 	{
-		GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
+		DA_ElapsedTime = 0;
+		CurrentGearState = EGearState::GearTwo;
+		DA_Params.ClearIgnoredActors();
+		GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &AKWPlayerCharacter::AttackCoolDownTimer, AttackCoolDownTime, false);
+		if(!GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
+			return;
+		}
 	}
-}
-
-void AKWPlayerCharacter::RBD_EndEventDelegate()
-{
-	CurrentGearState = EGearState::GearTwo;
-	if(!GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
+	
+	FHitResult HitResult;
+	// TODO: 히트 박스 범위 데이터 에셋으로 받기
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation(),
+	FQuat::Identity,
+	ECC_ENEMY_ONLY,
+	FCollisionShape::MakeSphere(90.0f),
+	DA_Params);
+	
+	if(bResult)
 	{
-		GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
+		
+		FDamageEvent DamageEvent;
+		HitResult.GetActor()->TakeDamage(DA_BaseDamage * DA_MultiplyDamageByGear[static_cast<uint8>(AttackInputGearState)], DamageEvent, GetController(), this);
+		DA_Params.AddIgnoredActor(HitResult.GetActor());
 	}
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
 }
 
 

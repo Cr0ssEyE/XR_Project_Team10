@@ -91,6 +91,12 @@ public:
 public:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공중 대시 사용 여부")
 	uint8 bCanDashOnFlying : 1;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 기본 데미지")
+	float DA_BaseDamage;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 기어 별 배율(최대 4개)")
+	TArray<float> DA_MultiplyDamageByGear;
 	
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 이동속도")
 	float DA_AddVelocityValue;

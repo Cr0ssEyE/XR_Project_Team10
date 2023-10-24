@@ -29,6 +29,15 @@ public:
 public:
 	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 체력")
 	float HohonuHp;
+
+	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 히트박스 크기")
+	FVector HohonuHitBoxCollision;
+
+	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 충돌시 넉백 배율")
+	float HitKnockBackMultiplyValue;
+
+	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 충돌시 넉백 높이(배율 계산 후 적용)")
+	float HitKnockBackHeightValue;
 	
 	UPROPERTY(EditAnywhere, Category = Status, DisplayName = "호호누 광폭화 체력")
 	float HohonuLunaticHp;
@@ -119,6 +128,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 판정 범위")
 	FVector SL_DamageRange;
 
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 넉백 배율")
+	float SL_KnockBackMultiplyValue;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 넉백 높이(배율 계산 후 적용)")
+	float SL_KnockBackHeightValue;
+	
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 데미지")
 	float MA_Damage;
@@ -128,6 +143,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 폭발 판정 범위")
 	FVector MA_ExplodeDamageRange;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 넉백 배율")
+	float MA_KnockBackMultiplyValue;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_C, DisplayName = "호호누 양손 휘두르기 넉백 높이(배율 계산 후 적용)")
+	float MA_KnockBackHeightValue;
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 데미지")
@@ -135,12 +156,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 판정 범위")
 	FVector WW_DamageRange;
-	
-	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 전조 시간(초)")
-	float WW_AttackDelay;
-
-	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 지속 시간(초)")
-	float WW_AttackTime;
 	
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 이동 속도 증가치(초)")
 	float WW_IncreaseMoveSpeed;
@@ -150,6 +165,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 회전 속도(초)")
 	float WW_RotateSpeed;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 넉백 배율")
+	float WW_KnockBackMultiplyValue;
+
+	UPROPERTY(EditAnywhere, Category = Pattern_D, DisplayName = "호호누 훨윈드 넉백 높이(배율 계산 후 적용)")
+	float WW_KnockBackHeightValue;
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Pattern_E, DisplayName = "호호누 백스텝 지속 시간(초)")
