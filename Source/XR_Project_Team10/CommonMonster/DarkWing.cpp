@@ -4,10 +4,11 @@
 #include "UObject/ConstructorHelpers.h"
 #include "DrawDebugHelpers.h"
 #include "XR_Project_Team10/CommonMonster/DW_FeatherProjectile.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 ADarkWing::ADarkWing()
 {
-	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/DarkWing"));
+	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/DarkWingData"));
 	if (DataAsset.Succeeded()) {
 		UDataAsset* dataAsset = DataAsset.Object;
 		MonsterData = Cast<UCommonMonsterDataAsset>(dataAsset);
@@ -21,6 +22,27 @@ ADarkWing::ADarkWing()
 void ADarkWing::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+float ADarkWing::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	MonsterCurrentHP -= DamageAmount;
+	if(MonsterCurrentHP <= 0 && GetController())
+	{
+		GetController()->Destroy();
+		// 사망 애니메이션 추가
+		return 0;
+	}
+	AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DamageCauser);
+	if(PlayerCharacter)
+	{
+		KnockBackImpactLocation = PlayerCharacter->GetTruePlayerLocation()->GetActorLocation();
+		KnockBackElapsedTime = 0;
+		GetWorldTimerManager().SetTimerForNextTick(this, &ADarkWing::ApplyKnockBack);
+	}
+	return 0;
 }
 
 void ADarkWing::BeginPlay()
@@ -84,4 +106,18 @@ void ADarkWing::Attack(AActor* Target)
 			OnAttackFinished.ExecuteIfBound();
 		}
 	}
+}
+
+void ADarkWing::ApplyKnockBack()
+{
+	KnockBackElapsedTime += GetWorld()->DeltaTimeSeconds;
+	if(KnockBackElapsedTime >= 0.5f)
+	{
+		return;
+	}
+	
+	FVector KnockBackLocation = GetActorLocation() + (GetActorLocation() - KnockBackImpactLocation).GetSafeNormal() * 10.f;
+	KnockBackLocation.Z = 0;
+	SetActorLocation(KnockBackLocation);
+	GetWorldTimerManager().SetTimerForNextTick(this, &ADarkWing::ApplyKnockBack);
 }

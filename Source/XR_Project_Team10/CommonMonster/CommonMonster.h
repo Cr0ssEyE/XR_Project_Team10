@@ -57,9 +57,6 @@ protected:
 	//DataAsset MonsterData => IICommonMonsterBase
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UStaticMeshComponent> MonsterStaticMesh;
-
-	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UPrimitiveComponent> MonsterComponent;
 
 	//변수
