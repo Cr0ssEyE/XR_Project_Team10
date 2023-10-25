@@ -36,6 +36,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트")
 	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
 
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "히트 체크 디버그 뷰 활성화")
+	uint8 bIsEnableHitCheckDebugView : 1;
+
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "기어 디버그 뷰 활성화")
+	uint8 bIsEnableGearDebugView : 1;
+
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "속도 디버그 뷰 활성화")
+	uint8 bIsEnableVelocityDebugView : 1;
+
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "좌표 디버그 뷰 활성화")
+	uint8 bIsEnableLocationDebugView : 1;
+	
 	// 카메라 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = View, DisplayName = "카메라 FOV")
@@ -111,6 +123,9 @@ public:
 	float AttackCoolDownTime;
 	
 public:
+	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 데미지")
+	float DropDownDamage;
+	
 	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 속도 값")
 	float DropDownVelocityValue;
 

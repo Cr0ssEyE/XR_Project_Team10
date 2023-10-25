@@ -106,11 +106,17 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	DA_DecelerateValue = CharacterData->DA_DecelerateValue;
 	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
 
+	DropDownDamage = CharacterData->DropDownDamage;
 	DropDownVelocityValue = CharacterData->DropDownVelocityValue;
 	DropDownMinimumHeightValue = CharacterData->DropDownMinimumHeightValue;
 	DropDownCoolDownTime = CharacterData->DropDownCoolDownTime;
 	
 	ColorsByGear = CharacterData->ColorsByGear;
+
+	bIsEnableHitCheckDebugView = false;
+	bIsEnableLocationDebugView = false;
+	bIsEnableGearDebugView = false;
+	bIsEnableVelocityDebugView = false;
 }
 
 // Called when the game starts or when spawned
@@ -149,6 +155,11 @@ void AKWPlayerCharacter::BeginPlay()
 	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
 	SpringArm->TargetArmLength =CharacterData->SpringArmLength;
 	SpringArm->SetRelativeRotation(FRotator(CharacterData->SpringArmAngle, 0.f,0.f));
+
+	bIsEnableHitCheckDebugView = CharacterData->bIsEnableHitCheckDebugView;
+	bIsEnableGearDebugView = CharacterData->bIsEnableGearDebugView;
+	bIsEnableVelocityDebugView = CharacterData->bIsEnableVelocityDebugView;
+	bIsEnableLocationDebugView = CharacterData->bIsEnableLocationDebugView;
 	
 	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->MaxWalkSpeed = CharacterData->WakingStateMoveSpeed;
@@ -253,11 +264,26 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		RootMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
 	}
 
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
-	
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
-	
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RootMesh->GetPhysicsLinearVelocity().X, RootMesh->GetPhysicsLinearVelocity().Y, RootMesh->GetPhysicsLinearVelocity().Z));
+	if(bIsEnableGearDebugView)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
+	}
+
+	if(bIsEnableGearDebugView)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"),
+		PlayerTrueLocation->GetActorLocation().X,
+		PlayerTrueLocation->GetActorLocation().Y,
+		PlayerTrueLocation->GetActorLocation().Z));
+	}
+
+	if(bIsEnableVelocityDebugView)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"),
+		RootMesh->GetPhysicsLinearVelocity().X,
+		RootMesh->GetPhysicsLinearVelocity().Y,
+		RootMesh->GetPhysicsLinearVelocity().Z));
+	}
 }
 
 // Called to bind functionality to input
@@ -656,6 +682,7 @@ void AKWPlayerCharacter::DA_ProceedAction()
 
 void AKWPlayerCharacter::FD_ProceedAction()
 {
+	DropDownElapsedTime = 0;
 	RootMesh->SetSimulatePhysics(true);
 	const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
 	RootMesh->SetPhysicsLinearVelocity(DroppingVelocity);
@@ -898,6 +925,11 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 	ECC_ENEMY_ONLY,
 	FCollisionShape::MakeSphere(90.0f),
 	DA_Params);
+
+	if(bIsEnableHitCheckDebugView)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), 90.f, 32, FColor::Magenta, false, 0.3f);
+	}
 	
 	if(bResult)
 	{
@@ -908,6 +940,54 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 		DA_Params.AddIgnoredActor(HitResult.GetActor());
 	}
 	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
+}
+
+void AKWPlayerCharacter::FD_HitCheckSequence()
+{
+	FHitResult GroundResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	// TODO: 히트 박스 범위 데이터 에셋으로 받기
+	bool GroundCheck = GetWorld()->SweepSingleByChannel(
+	GroundResult,
+	GetActorLocation(),
+	GetActorLocation() - FVector(0.f, 0.f, 90.f),
+	FQuat::Identity,
+	ECC_WorldDynamic,
+	FCollisionShape::MakeBox(FVector(10.f, 10.f, 5.f)),
+	Params);
+
+	if(GroundCheck)
+	{
+		// TODO: 바닥에 충격파 히트 체크및 이펙트
+		return;
+	}
+	
+	FHitResult HitResult;
+	// TODO: 히트 박스 범위 데이터 에셋으로 받기
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation() - FVector(0.f, 0.f, 10.f),
+	FQuat::Identity,
+	ECC_ENEMY_ONLY,
+	FCollisionShape::MakeSphere(90.0f),
+	FD_Params);
+
+	if(bIsEnableHitCheckDebugView)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation() - FVector(0.f, 0.f, 10.f), 90.f, 32, FColor::Magenta, false, 0.3f);
+	}
+	
+	if(bResult)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
+		
+		FDamageEvent DamageEvent;
+		HitResult.GetActor()->TakeDamage(DropDownDamage, DamageEvent, GetController(), this);
+		FD_Params.AddIgnoredActor(HitResult.GetActor());
+	}
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::FD_HitCheckSequence);
 }
 
 

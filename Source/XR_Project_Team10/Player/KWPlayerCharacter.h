@@ -79,6 +79,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;
 	
+	uint8 bIsEnableHitCheckDebugView : 1;
+
+	uint8 bIsEnableGearDebugView : 1;
+	
+	uint8 bIsEnableVelocityDebugView : 1;
+	
+	uint8 bIsEnableLocationDebugView : 1;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -199,9 +206,13 @@ private:
 	
 	FTimerHandle AttackCoolDownTimerHandle;
 
+	FTimerHandle DropDownHitCheckTimerHandle;
+	
 	FTimerHandle DropDownCoolDownTimerHandle;
 	
 	FCollisionQueryParams DA_Params;
+
+	FCollisionQueryParams FD_Params;
 	
 	UPROPERTY()
 	uint8 bCanDashOnFlying : 1;
@@ -228,11 +239,17 @@ private:
 	float AttackCoolDownTime;
 
 	UPROPERTY()
+	float DropDownDamage;
+	
+	UPROPERTY()
 	float DropDownVelocityValue;
 
 	UPROPERTY()
 	float DropDownMinimumHeightValue;
 
+	UPROPERTY()
+	float DropDownElapsedTime;
+	
 	UPROPERTY()
 	float DropDownCoolDownTime;
 	
@@ -318,7 +335,7 @@ private:
 	// 타이머 델리게이트 용
 private:
 	void DA_HitCheckSequence();
-	void RBD_EndEventDelegate();
+	void FD_HitCheckSequence();
 	
 };
 

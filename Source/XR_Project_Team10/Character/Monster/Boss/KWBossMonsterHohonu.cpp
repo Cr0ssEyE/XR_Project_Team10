@@ -35,7 +35,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 
 	HitCheckBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("HitCheckBox"));
 	HitCheckBoxComponent->SetupAttachment(GetMesh());
-	HitCheckBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	HitCheckBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	HitCheckBoxComponent->SetCollisionProfileName(CP_ENEMY);
 	
 	HohonuRingEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRingVFX"));
