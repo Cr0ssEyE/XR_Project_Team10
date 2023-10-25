@@ -4,13 +4,15 @@
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/AI/Common/KWCommonAIController.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
+#include "Components/CapsuleComponent.h"
 
 ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	MonsterStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Capshule"));
-	MonsterStaticMesh->SetSimulatePhysics(true);
+	MonsterComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capshule"));
+	MonsterComponent->SetSimulatePhysics(true);
+	RootComponent = MonsterComponent;
 
 	AIControllerClass = AKWCommonAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -63,8 +65,6 @@ void ACommonMonster::CommonMonsterAttack(AActor* Target)
 	Attack(Target);
 
 	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &ACommonMonster::CheckAttackDelay, 0.01f, true);
-
-	OnAttackFinished.ExecuteIfBound();
 }
 
 void ACommonMonster::CommonMonsterDead()

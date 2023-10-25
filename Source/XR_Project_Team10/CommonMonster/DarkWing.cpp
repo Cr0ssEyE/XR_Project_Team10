@@ -64,9 +64,12 @@ void ADarkWing::Attack(AActor* Target)
 				if (Feather) {
 					Feather->SetVariables(FeatherPower, FeatherSpeed, FeatherDeleteTime);
 
+
+					TargetLocationVector = (TargetLocation - MuzzleLocation).GetSafeNormal() * AttackRange;
+					float Z = TargetLocationVector.Z;
 					TargetLocationVector = TargetLocation;
-					TargetLocationVector.Z = 0;
-					TargetLocationVector = (TargetLocation - MuzzleLocation).GetSafeNormal();
+					TargetLocationVector.Z -= Z;
+					TargetLocationVector = (TargetLocationVector - MuzzleLocation).GetSafeNormal();
 
 					//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocation.X - MuzzleLocation.X, TargetLocation.Y - MuzzleLocation.Y, TargetLocation.Z - MuzzleLocation.Z);
 					//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocationVector.X, TargetLocationVector.Y, TargetLocationVector.Z);
@@ -77,6 +80,8 @@ void ADarkWing::Attack(AActor* Target)
 					Feather->FireInDirection(LaunchDirection);
 				}
 			}
+
+			OnAttackFinished.ExecuteIfBound();
 		}
 	}
 }

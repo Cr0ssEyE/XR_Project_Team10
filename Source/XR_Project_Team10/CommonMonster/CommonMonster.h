@@ -60,7 +60,7 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> MonsterStaticMesh;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UCapsuleComponent> MonsterComponent;
+	TObjectPtr<class UPrimitiveComponent> MonsterComponent;
 
 	//변수
 protected:

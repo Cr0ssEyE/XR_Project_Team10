@@ -3,7 +3,8 @@
 #include "UObject/ConstructorHelpers.h"
 
 ACrowTalon::ACrowTalon()
-{static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/CrowTalon"));
+{
+	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/CrowTalon"));
 	if (DataAsset.Succeeded()) {
 		UDataAsset* dataAsset = DataAsset.Object;
 		MonsterData = Cast<UCommonMonsterDataAsset>(dataAsset);
@@ -13,7 +14,9 @@ ACrowTalon::ACrowTalon()
 void ACrowTalon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UE_LOG(LogTemp, Log, TEXT("CrowTalon BeginPlay"));
+
 }
 
 void ACrowTalon::AttackOmen(AActor* Target)
@@ -25,24 +28,27 @@ void ACrowTalon::AttackOmen(AActor* Target)
 
 void ACrowTalon::Attack(AActor* Target)
 {
-	FVector AttackDir = Target->GetActorLocation().GetSafeNormal();
+	FVector AttackDir = Target->GetActorLocation() - OriPos;
 
-	RushVector = MonsterStaticMesh->GetPhysicsLinearVelocity().GetSafeNormal() * RushSpeed;
+	RushVector = MonsterComponent->GetPhysicsLinearVelocity().GetSafeNormal() * RushSpeed;
 	RushVector.Z = 0.f;
-	if (RushVector.Length() < 100.f)
-	{
-		RushVector = FVector(100.f, 100.f, 0.f);
-	}
 
 	GetWorldTimerManager().SetTimer(RushTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 				if (FVector::Dist(GetOwner()->GetActorLocation(), OriPos) >= AttackRange) {
+					OnAttackFinished.ExecuteIfBound();
 					GetWorldTimerManager().ClearTimer(RushTimerHandle);
 					FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
 				}
 		}), 0.01f, true);
 
-	MonsterStaticMesh->SetPhysicsLinearVelocity(RushVector);
+	//MonsterComponent->SetPhysicsLinearVelocity(AttackDir.GetSafeNormal() * RushSpeed);
+	MonsterComponent->AddForce(AttackDir.GetSafeNormal() * RushSpeed);
+}
+
+void ACrowTalon::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	OnAttackFinished.ExecuteIfBound();
 }
 
 void ACrowTalon::Tick(float DeltaTime)

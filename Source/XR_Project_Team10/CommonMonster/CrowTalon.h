@@ -23,6 +23,8 @@ protected:
 	virtual void AttackOmen(AActor* Target) override;
 	virtual void Attack(AActor* Target) override;
 
+	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+
 	// 외부 수정 변수
 private:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 준비 시간")
