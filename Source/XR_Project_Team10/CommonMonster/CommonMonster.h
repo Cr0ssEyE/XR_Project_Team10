@@ -86,6 +86,7 @@ public:
 	__forceinline float GetMonsterSpeed() { return MonsterCurrentMoveSpeed; }
 	__forceinline void SetMonsterSpeed(float sp) { MonsterCurrentMoveSpeed = sp; }
 
+	__forceinline void SetMonsterState(EState state) { MonsterState = state; }
 	__forceinline EState GetMonsterState() { return MonsterState; }
 
 };

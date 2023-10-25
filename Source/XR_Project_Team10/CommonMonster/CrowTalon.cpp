@@ -28,22 +28,24 @@ void ACrowTalon::AttackOmen(AActor* Target)
 
 void ACrowTalon::Attack(AActor* Target)
 {
-	FVector AttackDir = Target->GetActorLocation() - OriPos;
+	FVector AttackDir = (Target->GetActorLocation() - OriPos).GetSafeNormal();
 
 	RushVector = MonsterComponent->GetPhysicsLinearVelocity().GetSafeNormal() * RushSpeed;
 	RushVector.Z = 0.f;
 
-	GetWorldTimerManager().SetTimer(RushTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-				if (FVector::Dist(GetOwner()->GetActorLocation(), OriPos) >= AttackRange) {
-					OnAttackFinished.ExecuteIfBound();
-					GetWorldTimerManager().ClearTimer(RushTimerHandle);
-					FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
-				}
-		}), 0.01f, true);
+	GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
 
-	//MonsterComponent->SetPhysicsLinearVelocity(AttackDir.GetSafeNormal() * RushSpeed);
-	MonsterComponent->AddForce(AttackDir.GetSafeNormal() * RushSpeed);
+	MonsterComponent->SetPhysicsLinearVelocity(AttackDir * RushSpeed);
+	UE_LOG(LogTemp, Log, TEXT("%f %f %f"), MonsterComponent->GetPhysicsLinearVelocity().X, MonsterComponent->GetPhysicsLinearVelocity().Y, MonsterComponent->GetPhysicsLinearVelocity().Z);
+	//MonsterComponent->AddForce(AttackDir * RushSpeed);
+}
+
+void ACrowTalon::AttackEndCheck() {
+	if (FVector::Dist(GetOwner()->GetActorLocation(), OriPos) >= AttackRange) {
+		OnAttackFinished.ExecuteIfBound();
+		GetWorldTimerManager().ClearTimer(RushTimerHandle);
+		FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
+	}
 }
 
 void ACrowTalon::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)

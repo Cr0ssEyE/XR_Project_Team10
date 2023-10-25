@@ -10,9 +10,12 @@ ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	//MonsterComponent = GetCapsuleComponent();
+
 	MonsterComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capshule"));
 	MonsterComponent->SetSimulatePhysics(true);
 	RootComponent = MonsterComponent;
+
 
 	AIControllerClass = AKWCommonAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -40,10 +43,12 @@ void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAt
 
 void ACommonMonster::AttackOmen(AActor* Target)
 {
+	MonsterState = EState::E_ATTACK_OMEN;
 }
 
 void ACommonMonster::Attack(AActor* Target)
 {
+	MonsterState = EState::E_ATTACK;
 }
 
 void ACommonMonster::CheckAttackDelay()
