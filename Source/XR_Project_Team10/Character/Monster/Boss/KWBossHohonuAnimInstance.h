@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KWBossMonsterHohonu.h"
 #include "Animation/AnimInstance.h"
 #include "XR_Project_Team10/Enumeration/KWHohonuPattern.h"
 #include "KWBossHohonuAnimInstance.generated.h"
@@ -35,23 +34,9 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 private:
-	UPROPERTY()
-	TObjectPtr<AKWBossMonsterHohonu> OwnerCharacter;
-	
-private:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_EncounterEnd() { EndEncounterAnimDelegate.Broadcast(); }
-	/*
-private:
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_OmenSummonCrystal() { OmenPatternDelegate.Broadcast(EHohonuPattern::SummonCrystal); }
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_OmenSweepLaser() { OmenPatternDelegate.Broadcast(EHohonuPattern::SweepLaser); }
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void AnimNotify_OmenWhirlWind() { OmenPatternDelegate.Broadcast(EHohonuPattern::WhirlWind); }
-	*/
+
 private:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_SpawnCrystal() { PatternActivateDelegate.Broadcast(EHohonuPattern::SummonCrystal); }
@@ -67,6 +52,9 @@ private:
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_BackStepBegin() { PatternActivateDelegate.Broadcast(EHohonuPattern::BackStep); }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void AnimNotify_BackStepEnd() { PatternDeActivateDelegate.Broadcast(); }
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void AnimNotify_WhirlWindHitCheckBegin() { PatternActivateDelegate.Broadcast(EHohonuPattern::WhirlWind); }

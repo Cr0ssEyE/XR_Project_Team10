@@ -11,11 +11,6 @@ UKWBossHohonuAnimInstance::UKWBossHohonuAnimInstance()
 void UKWBossHohonuAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
-	OwnerCharacter = Cast<AKWBossMonsterHohonu>(GetOwningActor());
-	if(OwnerCharacter)
-	{
-		// PatternActivateDelegate.AddUObject(OwnerCharacter, &AKWBossMonsterHohonu::ActivatePatternExecute);
-	}
 }
 
 void UKWBossHohonuAnimInstance::NativeBeginPlay()
