@@ -5,6 +5,7 @@
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 
 UBTTask_KWRotateToTarget::UBTTask_KWRotateToTarget()
 {
@@ -22,14 +23,14 @@ EBTNodeResult::Type UBTTask_KWRotateToTarget::ExecuteTask(UBehaviorTreeComponent
 		return EBTNodeResult::Failed;
 	}
 
-	APawn* TargetPawn = Cast<APawn>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(KEY_TARGET));
-	if (!TargetPawn)
+	AKWLocationDetector* TargetActor = Cast<AKWLocationDetector>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(KEY_TARGET));
+	if (!TargetActor)
 	{
 		return EBTNodeResult::Failed;
 	}
 	
 	float TurnSpeed = 5.f;
-	FVector LookVector = TargetPawn->GetActorLocation() - ControllingPawn->GetActorLocation();
+	FVector LookVector = TargetActor->GetActorLocation() - ControllingPawn->GetActorLocation();
 	LookVector.Z = 0.0f;
 	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
 	ControllingPawn->SetActorRotation(FMath::RInterpTo(ControllingPawn->GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
