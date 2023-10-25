@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "KWBossHohonuAnimInstance.h"
+
 #include "NiagaraSystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "Components/BoxComponent.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterBase.h"
 #include "XR_Project_Team10/Enumeration/KWHohonuPattern.h"
 #include "XR_Project_Team10/Object/KWHohonuCrystal.h"
@@ -41,7 +44,7 @@ public:
 	// BT 및 AI 컨트롤러 호출용 함수
 public:
 	FORCEINLINE float GetHp() const { return BossHp; }
-	FORCEINLINE void SetTarget(AKWPlayerCharacter& Actor) { TargetPlayer = Actor; }
+	FORCEINLINE void SetTarget(AActor& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
 	void EnableHealthUI();
@@ -85,15 +88,22 @@ private:
 	// 호호누 패턴 관련 변수
 private:
 	UPROPERTY()
-	TObjectPtr<class UKWBossHohonuAnimInstance> HohonuAnimInstance;
+	TObjectPtr<UKWBossHohonuAnimInstance> HohonuAnimInstance;
+
+	UPROPERTY()
+	TObjectPtr<UBoxComponent> HitCheckBoxComponent;
 	
 	UPROPERTY()
-	TObjectPtr<class AKWPlayerCharacter> TargetPlayer;
+	TObjectPtr<AActor> TargetPlayer;
 	
 	EHohonuPattern CurrentPattern;
 	
 	float HohonuLunaticHp;
 
+	float HitKnockBackMultiplyValue;
+	
+	float HitKnockBackHeightValue;
+	
 	FVector ReBoundVector;
 	
 	// 수정 소환 관련 변수
@@ -108,7 +118,7 @@ private:
 	float SC_SpawnDelay;
 
 	float SC_SpawnHeight;
-
+	
 	uint8 bIsCanSummon : 1;
 	
 	// 레이저 발사 관련 변수
@@ -127,6 +137,10 @@ private:
 	
 	FVector SL_DamageRange;
 
+	float SL_KnockBackMultiplyValue;
+	
+	float SL_KnockBackHeightValue;
+	
 	uint8 bIsSweepLaserDamageCaused : 1;
 
 	uint8 bIsSweepLeftToRight : 1;
@@ -140,6 +154,10 @@ private:
 	FVector MA_DamageRange;
 
 	FVector MA_ExplodeDamageRange;
+
+	float MA_KnockBackMultiplyValue;
+
+	float MA_KnockBackHeightValue;
 	
 	uint8 bIsMeleeAttackDamageCaused : 1;
 	
@@ -151,16 +169,16 @@ private:
 
 	FVector WW_DamageRange;
 	
-	float WW_AttackDelay;
-	
-	float WW_AttackTime;
-	
 	float WW_IncreaseMoveSpeedPerSecond;
 
 	float WW_MaxMoveSpeed;
 
 	float WW_RotateSpeed;
 
+	float WW_KnockBackMultiplyValue;
+
+	float WW_KnockBackHeightValue;
+	
 	uint8 bIsWhirlWindDamageCaused : 1;
 	
 	// 백스텝 관련 변수

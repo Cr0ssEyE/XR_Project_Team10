@@ -39,4 +39,5 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UAISenseConfig_Sight> CommonSight;
+
 };

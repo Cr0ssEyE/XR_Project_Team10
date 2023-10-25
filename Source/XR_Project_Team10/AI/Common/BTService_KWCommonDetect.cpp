@@ -5,9 +5,10 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "XR_Project_Team10/Character/Monster/Common/KWDummyMonster.h"
+#include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
-#include "XR_Project_Team10/Interface/KWMonsterAIInterface.h"
+#include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 UBTService_KWCommonDetect::UBTService_KWCommonDetect()
@@ -20,25 +21,26 @@ void UBTService_KWCommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	AKWDummyMonster* ControllingPawn = Cast<AKWDummyMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	ACommonMonster* ControllingPawn = Cast<ACommonMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	if(!ControllingPawn)
 	{
 		return;
 	}
 	FVector Center = ControllingPawn->GetActorLocation();
+	
 	UWorld* World = ControllingPawn->GetWorld();
 	if(!World)
 	{
 		return;
 	}
 	
-	IKWMonsterAIInterface* MonsterAIInterface = Cast<IKWMonsterAIInterface>(ControllingPawn);
-	if(!MonsterAIInterface)
+	IICommonMonsterBase* MonsterBase = Cast<IICommonMonsterBase>(ControllingPawn);
+	if(!MonsterBase)
 	{
 		return;
 	}
 
-	float DetectRadius = MonsterAIInterface->GetAIDetectRange();
+	float DetectRadius = MonsterBase->MonsterData->MonsterRecognitionRange;
 	TArray<FOverlapResult> OverlapResults;
 	FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(Detect), false, ControllingPawn);
 
@@ -46,7 +48,7 @@ void UBTService_KWCommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 		OverlapResults,
 		Center,
 		FQuat::Identity,
-		ECollisionChannel::ECC_Pawn,
+		ECC_PLAYER_ONLY,
 		FCollisionShape::MakeSphere(DetectRadius),
 		CollisionQueryParams
 		);
@@ -59,7 +61,7 @@ void UBTService_KWCommonDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 			if(PlayerCharacter)
 			{
 				bIsPlayerDetect = true;
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter);
+				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerLocation());
 				DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 0.1f);
 				// DrawDebugPoint(World, PlayerCharacter->GetActorLocation(), 10.0f, FColor::Blue, false, 1.0f);
 

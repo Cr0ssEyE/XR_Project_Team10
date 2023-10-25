@@ -26,12 +26,14 @@ void UBTService_KWPlayerDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 		return;
 	}
 	FVector Center = ControllingPawn->GetActorLocation();
+	
 	UWorld* World = ControllingPawn->GetWorld();
 	if(!World)
 	{
 		return;
 	}
-	
+
+	// TODO: 매직넘버 수정
 	float DetectRadius = 5000.f;
 	TArray<FOverlapResult> OverlapResults;
 	FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(Detect), false, ControllingPawn);
@@ -44,7 +46,7 @@ void UBTService_KWPlayerDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 		FCollisionShape::MakeSphere(DetectRadius),
 		CollisionQueryParams
 		);
-	bool bIsPlayerDetect = false;
+
 	if(bResult)
 	{
 		for (auto const& OverlapResult : OverlapResults)
@@ -52,10 +54,9 @@ void UBTService_KWPlayerDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(OverlapResult.GetActor());
 			if(PlayerCharacter)
 			{
-				bIsPlayerDetect = true;
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter);
-				ControllingPawn->SetTarget(*PlayerCharacter);
-				// DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 1.f);
+				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerLocation());
+				ControllingPawn->SetTarget(*PlayerCharacter->GetTruePlayerLocation());
+				DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 1.f);
 			}
 		}
 	}

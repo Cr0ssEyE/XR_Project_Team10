@@ -30,13 +30,10 @@ public:
 	void ActivateAndDropDownSequence();
 	
 private:
-	void DeActivateSequence();
-	void DropDownDelay();
-	void DropDownExecute();
+	void DropDownSequence();
 	void ActivateWaveAttack();
-	void WaveAttackHitCheck();
-	void WaveDebug();
 	void ActivateWaveAttackTimer();
+	void DisableDestroyVFX();
 	void SetDeActivate();
 	
 private:
@@ -65,22 +62,18 @@ private:
 	float SC_Hp;
 	
 	float CurrentHp;
-
-	FTimerHandle DropDownDelayTimerHandle;
 	
 	FTimerHandle DropDownTimerHandle;
 
-	FTimerHandle WaveActiveTimerHandle;
-	
 	FTimerHandle WaveAttackHitCheckTimerHandle;
 
-	FTimerHandle WaveAttackDebugTimerHandle;
-	
 	FTimerHandle WaveAttackDelayTimerHandle;
 
 	FTimerHandle DestroyEventTimerHandle;
 
 	FVector ReBoundVector;
+
+	float DisableDestroyVFXTime;
 	
 	float SC_DropDownDamage;
 	
@@ -91,8 +84,6 @@ private:
 	float SC_WaveLength;
 
 	float SC_WaveDamage;
-
-	float SC_CurrentAttackDelay;
 	
 	float SC_AttackDelay;
 
@@ -102,6 +93,7 @@ private:
 
 	float SC_IncreaseAttackRange;
 
+private:
 	uint8 bIsDebugEnable : 1;
 	
 	uint8 bIsActivate : 1;

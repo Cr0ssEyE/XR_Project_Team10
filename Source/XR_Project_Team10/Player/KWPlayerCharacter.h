@@ -34,7 +34,9 @@ class XR_PROJECT_TEAM10_API AKWPlayerCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AKWPlayerCharacter();
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,37 +44,48 @@ protected:
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UStaticMeshComponent> RootMesh;
+
+	UPROPERTY()
+	TObjectPtr<class UStaticMesh> RootStaticMesh;
+	
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UKWPlayerDataAsset> CharacterData;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UCapsuleComponent> PlayerComponent;
+	TObjectPtr<class AKWLocationDetector> PlayerTrueLocation;
 	
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UStaticMeshComponent> RollingMesh;
+	TObjectPtr<class UCapsuleComponent> PlayerComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class USkeletalMesh> WalkingMesh;
-	
-	// UPROPERTY(VisibleAnywhere)
-	// TObjectPtr<class USkeletalMesh> RollingMesh;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
+	TSubclassOf<class UAnimInstance> WalkingAnimInstance;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class USkeletalMeshComponent> RollingMeshComponent;
 	
-	// UPROPERTY(VisibleAnywhere)
-	// TObjectPtr<class UAnimBlueprint> PlayerRollingAnimInstance;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class USkeletalMesh> RollingMesh;
+	
+	UPROPERTY(VisibleAnywhere)
+	TSubclassOf<class UAnimInstance> RollingAnimInstance;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;
-
-
-private:
-	UPROPERTY()
-	int Hp;
 	
+	uint8 bIsEnableHitCheckDebugView : 1;
+
+	uint8 bIsEnableGearDebugView : 1;
+	
+	uint8 bIsEnableVelocityDebugView : 1;
+	
+	uint8 bIsEnableLocationDebugView : 1;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -80,9 +93,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FORCEINLINE TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RollingMesh; }
-	FORCEINLINE int GetHp() const { return Hp; }
-	FORCEINLINE int GetGearState() { return static_cast<int>(CurrentGearState); }
+	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RootMesh; }
+
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/
@@ -90,14 +102,14 @@ protected:
 	void MoveAction(const FInputActionValue& Value);
 	void MoveActionCompleted(const FInputActionValue& Value);
 	void JumpAddForceAction(const FInputActionValue& Value);
-	void JumpCoolDownEnd();
+
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
 	void DropDownActionSequence(const FInputActionValue& Value);
 	void AttackCoolDownTimer();
 	void DropDownCoolDownTimer();
 	void VelocityDecelerateTimer();
-	void VelocityDecelerationExecute();
+
 	/**
 	 * 공격 입력 분기 함수 \n
 	 * RBD = 리바운드 대시
@@ -105,13 +117,11 @@ protected:
 	 * FD = 파일 드라이버
 	 **/
 private:
+	void ToggleCharacterType();
+	void CheckIdleStateWhenRolling();
 	void RBD_JustTimingProceedAction();
-	void RBD_Check();
-	void RBD_TimeOut();
 	void DA_ProceedAction();
-	void DA_EndAction();
 	void FD_ProceedAction();
-	void FD_Execute();
 	/**
 	 * 유저 입력 관련 변수 리스트
 	 **/
@@ -164,21 +174,17 @@ private:
 
 	UPROPERTY()
 	float AddJumpForceValue;
-
-	UPROPERTY()
+	
 	FTimerHandle JumpDelayTimerHandle;
-
-	UPROPERTY()
+	
 	FTimerHandle DropDownTimerHandle;
-
-	UPROPERTY()
+	
 	FTimerHandle JustTimingTimerHandle;
-
-	UPROPERTY()
+	
 	FTimerHandle VelocityDecelerationTimerHandle;
 	
 	UPROPERTY()
-	float RBD_JustTimingValue;
+	float RBD_JustTimingCheckTime;
 	
 	UPROPERTY()
 	float JumpDelayTime;
@@ -196,17 +202,26 @@ private:
 	* RBD = ReBoundDash \n
 	**/
 private:
-	UPROPERTY()
 	FTimerHandle DA_DurationTimerHandle;
-
-	UPROPERTY()
+	
 	FTimerHandle AttackCoolDownTimerHandle;
 
-	UPROPERTY()
+	FTimerHandle DropDownHitCheckTimerHandle;
+	
 	FTimerHandle DropDownCoolDownTimerHandle;
+	
+	FCollisionQueryParams DA_Params;
+
+	FCollisionQueryParams FD_Params;
 	
 	UPROPERTY()
 	uint8 bCanDashOnFlying : 1;
+
+	UPROPERTY()
+	float DA_BaseDamage;
+
+	UPROPERTY()
+	TArray<float> DA_MultiplyDamageByGear;
 	
 	UPROPERTY()
 	float DA_AddVelocityValue;
@@ -215,17 +230,26 @@ private:
 	float DA_DurationTime;
 
 	UPROPERTY()
+	float DA_ElapsedTime;
+	
+	UPROPERTY()
 	float DA_DecelerateValue;
 	
 	UPROPERTY()
 	float AttackCoolDownTime;
 
 	UPROPERTY()
+	float DropDownDamage;
+	
+	UPROPERTY()
 	float DropDownVelocityValue;
 
 	UPROPERTY()
 	float DropDownMinimumHeightValue;
 
+	UPROPERTY()
+	float DropDownElapsedTime;
+	
 	UPROPERTY()
 	float DropDownCoolDownTime;
 	
@@ -234,66 +258,41 @@ private:
 	 **/
 private:
 	void CheckGearState();
-	void CheckGearStateExecute();
 	
 	/**
 	 * 플레이어 상태 관련 변수 리스트
 	 **/
 private:
-	UPROPERTY()
+	FTimerHandle CheckIdleStateTimerHandle;
+	
 	FTimerHandle CheckGearStateTimerHandle;
-
-	UPROPERTY()
+	
 	EGearState CurrentGearState;
 
-	UPROPERTY()
+	EGearState AttackInputGearState;
+	
 	TArray<FLinearColor> ColorsByGear;
-
-	UPROPERTY()
+	
 	uint8 bIsDead : 1;
-
-	UPROPERTY()
+	
 	uint8 bIsMoving : 1;
-
-	UPROPERTY()
+	
 	uint8 bIsRolling : 1;
 
-	UPROPERTY()
 	uint8 bIsFlying : 1;
 
-	UPROPERTY()
 	uint8 bIsUsedFlyDash : 1;
 
-	UPROPERTY()
+	uint8 bIsMovingMustRolling : 1;
+	
 	uint8 bIsReBounding : 1;
 
-	UPROPERTY()
-	uint8 bIsCanInputJustAction : 1;
+	uint8 bIsKnockBackOnGoing : 1;
 	
-	UPROPERTY()
 	uint8 bIsInputJustAction : 1;
-
-	UPROPERTY()
+	
 	uint8 bIsAttackOnGoing : 1;
 
-	UPROPERTY()
-	uint8 bIsJumpCoolDown : 1;
-	
-	UPROPERTY()
-	uint8 bIsAttackCoolDown : 1;
-
-	UPROPERTY()
-	uint8 bIsDropDownCoolDown : 1;
-
-	UPROPERTY()
-	uint8 bIsDropDownOnGoing : 1;
-	
-	UPROPERTY()
-	uint8 bIsDeceleration : 1;
-
-	UPROPERTY()
-	uint8 bIsDamageCaused : 1;
-	
 	/** 리바운드 관련 함수 리스트\n
 	 * 캐릭터에서 너무 많은 기능을 수행해서는 안되므로 \n
 	 * 가급적이면 리바운드는 충돌하는 대상에서 각도, 충격량 등을 계산하고 \n
@@ -301,34 +300,24 @@ private:
 	 **/
 public:
 	void RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType);
-
+	void RB_ApplyKnockBackByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType);
+	
 private:
 	void RB_CheckContactToFloor();
 	void RBD_SuccessEvent();
-	void RBD_SuccessEventExecute();
-	void RBD_FailedEvent();
-	void RBD_FailedEventExecute();
+	void RBD_FailedPenaltyEndEvent();
+	
 	/** 리바운드 관련 변수 리스트 \n
 	 * ReBound를 RB_와 같은 형태로 축약해서 표현한다. \n
 	 * ReBoundDash를 RBD_와 같은 형태로 축약해서 표현한다.
 	**/
 private:
-	UPROPERTY()
-	FTimerHandle RB_DelayTimerHandle;
-
-	UPROPERTY()
 	FTimerHandle RB_ContactCheckHandle;
-
-	UPROPERTY()
+	
 	FTimerHandle RBD_JustTimingCheckHandle;
 
-	UPROPERTY()
-	FTimerHandle RBD_ReBoundCheckHandle;
-	
-	UPROPERTY()
 	FTimerHandle RBD_SucceedTimerHandle;
-
-	UPROPERTY()
+	
 	FTimerHandle RBD_FailedTimerHandle;
 	
 	UPROPERTY()
@@ -343,7 +332,10 @@ private:
 	UPROPERTY()
 	TArray<float> RB_MultiplyValuesByObjectType;
 
-	UPROPERTY()
-	FVector SelfReBoundVector;
+	// 타이머 델리게이트 용
+private:
+	void DA_HitCheckSequence();
+	void FD_HitCheckSequence();
+	
 };
 
