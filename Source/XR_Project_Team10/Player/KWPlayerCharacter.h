@@ -36,7 +36,7 @@ public:
 	AKWPlayerCharacter();
 
 	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
-	
+	FORCEINLINE float GetHp() { return Health; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -78,6 +78,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;
+
+	UPROPERTY()
+	float Health;
 	
 	uint8 bIsEnableHitCheckDebugView : 1;
 
