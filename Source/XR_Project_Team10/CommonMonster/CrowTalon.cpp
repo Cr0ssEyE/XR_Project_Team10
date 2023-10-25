@@ -1,6 +1,8 @@
 #include "XR_Project_Team10/CommonMonster/CrowTalon.h"
 #include "XR_Project_Team10/CommonMonster/CommonMonsterDataAsset.h"
 #include "UObject/ConstructorHelpers.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 ACrowTalon::ACrowTalon()
 {
@@ -23,25 +25,29 @@ void ACrowTalon::AttackOmen(AActor* Target)
 {
 	UE_LOG(LogTemp, Log, TEXT("CrowTalon Attack Omen"));
 
-	OriPos = GetOwner()->GetActorLocation();
+	OriPos = GetActorLocation();
 }
 
+FVector AttackDir;
 void ACrowTalon::Attack(AActor* Target)
 {
-	FVector AttackDir = (Target->GetActorLocation() - OriPos).GetSafeNormal();
-
-	RushVector = MonsterComponent->GetPhysicsLinearVelocity().GetSafeNormal() * RushSpeed;
-	RushVector.Z = 0.f;
+	AttackDir = (Target->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 
 	GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
 
-	MonsterComponent->SetPhysicsLinearVelocity(AttackDir * RushSpeed);
-	UE_LOG(LogTemp, Log, TEXT("%f %f %f"), MonsterComponent->GetPhysicsLinearVelocity().X, MonsterComponent->GetPhysicsLinearVelocity().Y, MonsterComponent->GetPhysicsLinearVelocity().Z);
+	//AddActorLocalOffset(AttackDir);
+	//AddMovementInput(AttackDir);
+
+	//MonsterComponent->SetPhysicsLinearVelocity(AttackDir * RushSpeed);
+	//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), MonsterComponent->GetPhysicsLinearVelocity().X, MonsterComponent->GetPhysicsLinearVelocity().Y, MonsterComponent->GetPhysicsLinearVelocity().Z);
 	//MonsterComponent->AddForce(AttackDir * RushSpeed);
 }
 
 void ACrowTalon::AttackEndCheck() {
-	if (FVector::Dist(GetOwner()->GetActorLocation(), OriPos) >= AttackRange) {
+	SetActorLocation(GetActorLocation() + AttackDir);
+	//AddMovementInput(AttackDir);
+	if (FVector::Dist(GetActorLocation(), OriPos) >= AttackRange) {
+		UE_LOG(LogTemp, Log, TEXT("dash end"));
 		OnAttackFinished.ExecuteIfBound();
 		GetWorldTimerManager().ClearTimer(RushTimerHandle);
 		FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
