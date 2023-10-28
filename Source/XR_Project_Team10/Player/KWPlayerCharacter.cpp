@@ -77,7 +77,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	JumpAction = CharacterData->JumpAction;
 	AttackAction = CharacterData->AttackAction;
 	FileDriverAction = CharacterData->DropDownAction;
-	
+	PauseGameAction = CharacterData->PauseGameAction;
 	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
 	DefaultMaxVelocityValue = CharacterData->DefaultMaxVelocityValue;
@@ -117,6 +117,9 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	bIsEnableLocationDebugView = false;
 	bIsEnableGearDebugView = false;
 	bIsEnableVelocityDebugView = false;
+
+	PauseWidget = CreateDefaultSubobject<UKWPauseWidget>(TEXT("PauseWidget"));
+	PauseWidgetClass = FPPConstructorHelper::FindAndGetClass<UKWPauseWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.WB_PauseWidget_C'"), EAssertionLevel::Check);
 }
 
 // Called when the game starts or when spawned
@@ -178,6 +181,17 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
 	bIsKnockBackOnGoing = false;
+	
+	if(IsValid(PauseWidgetClass))
+	{
+		PauseWidget = Cast<UKWPauseWidget>(CreateWidget(GetWorld(), PauseWidgetClass));
+		if(PauseWidget)
+		{
+			PauseWidget->AddToViewport();
+			PauseWidget->SetVisibility(ESlateVisibility::Hidden);
+			PauseWidget->SetIsEnabled(false);
+		}
+	}
 }
 
 // Called every frame
@@ -309,6 +323,8 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::AttackActionSequence);
 
 	EnhancedInputComponent->BindAction(FileDriverAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::DropDownActionSequence);
+
+	EnhancedInputComponent->BindAction(PauseGameAction, ETriggerEvent::Started, this, &AKWPlayerCharacter::TogglePauseWidget);
 }
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
@@ -511,14 +527,26 @@ void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
 	}
 }
 
-void AKWPlayerCharacter::AttackCoolDownTimer()
+void AKWPlayerCharacter::TogglePauseWidget()
 {
-	// Do SomeThing;
-}
-
-void AKWPlayerCharacter::DropDownCoolDownTimer()
-{
-	// Do SomeThing
+	if(PauseWidget->IsVisible())
+	{
+		FInputModeGameOnly GameOnlyInputMode;
+		GameOnlyInputMode.SetConsumeCaptureMouseDown(false);
+		GetLocalViewingPlayerController()->SetInputMode(GameOnlyInputMode);
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+		PauseWidget->SetVisibility(ESlateVisibility::Hidden);
+		PauseWidget->SetIsEnabled(false);
+	}
+	else
+	{
+		FInputModeUIOnly UIOnlyInputMode;
+		GetLocalViewingPlayerController()->SetInputMode(UIOnlyInputMode);
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.00001f);
+		PauseWidget->ResumeGameDelegate.AddUObject(this, &AKWPlayerCharacter::TogglePauseWidget);
+		PauseWidget->SetVisibility(ESlateVisibility::Visible);
+		PauseWidget->SetIsEnabled(true);
+	}
 }
 
 void AKWPlayerCharacter::VelocityDecelerateTimer()
@@ -528,8 +556,6 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 		return;
 	}
 	
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate Ing")));
-	
 	if(static_cast<uint8>(CurrentGearState) > static_cast<uint8>(EGearState::GearTwo))
 	{
 		CurrentGearState = EGearState::GearTwo;
@@ -538,12 +564,10 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 	if(bIsAttackOnGoing)
 	{
 		RootMesh->AddForce(RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000 * (1 + DA_DecelerateValue));
-		// RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() * (0.99f * (1 / DA_DecelerateValue)));
 	}
 	else
 	{
 		RootMesh->AddForce(RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000);
-		// RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() * 0.999f);
 	}
 
 	if(RootMesh->GetPhysicsLinearVelocity().Size2D() < 100.f)
@@ -616,7 +640,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		RollingMeshComponent->SetWorldScale3D(FVector::OneVector);
 		RollingMeshComponent->SetCollisionEnabled(::ECollisionEnabled::QueryAndPhysics);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->SetComponentTickEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetWorldScale3D(FVector::ZeroVector);
 
@@ -989,5 +1013,16 @@ void AKWPlayerCharacter::FD_HitCheckSequence()
 	}
 	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::FD_HitCheckSequence);
 }
+
+void AKWPlayerCharacter::AttackCoolDownTimer()
+{
+	// Do SomeThing;
+}
+
+void AKWPlayerCharacter::DropDownCoolDownTimer()
+{
+	// Do SomeThing
+}
+
 
 

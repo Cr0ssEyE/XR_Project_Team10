@@ -171,4 +171,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 파일 드라이버 입력 키")
 	TObjectPtr<class UInputAction> DropDownAction;
+
+	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 일시정지 입력 키")
+	TObjectPtr<class UInputAction> PauseGameAction;
+	
 };

@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
+#include "XR_Project_Team10/UI/KWPauseWidget.h"
 #include "KWPlayerCharacter.generated.h"
 
 UENUM()
@@ -106,10 +107,8 @@ protected:
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
 	void DropDownActionSequence(const FInputActionValue& Value);
-	void AttackCoolDownTimer();
-	void DropDownCoolDownTimer();
-	void VelocityDecelerateTimer();
-
+	void TogglePauseWidget();
+	
 	/**
 	 * 공격 입력 분기 함수 \n
 	 * RBD = 리바운드 대시
@@ -143,6 +142,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UInputAction> FileDriverAction;
+
+	UPROPERTY()
+	TObjectPtr<class UInputAction> PauseGameAction;
 	
 	/**
 	 * 캐릭터 움직임 관련 변수 리스트
@@ -331,11 +333,21 @@ private:
 
 	UPROPERTY()
 	TArray<float> RB_MultiplyValuesByObjectType;
-
-	// 타이머 델리게이트 용
+	
+	// 타이머 델리게이트 등
 private:
 	void DA_HitCheckSequence();
 	void FD_HitCheckSequence();
-	
+	void AttackCoolDownTimer();
+	void DropDownCoolDownTimer();
+	void VelocityDecelerateTimer();
+
+	// UI 관련
+private:
+	UPROPERTY()
+	TSubclassOf<UKWPauseWidget> PauseWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UKWPauseWidget> PauseWidget;
 };
 
