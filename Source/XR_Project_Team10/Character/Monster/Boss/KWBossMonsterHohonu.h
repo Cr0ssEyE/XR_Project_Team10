@@ -47,6 +47,7 @@ public:
 	FORCEINLINE void SetTarget(AActor& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
+	void EnableHealthUI();
 	
 	UFUNCTION()
 	void ActivatePatternOmen(UAnimMontage* Montage);
@@ -188,6 +189,8 @@ private:
 
 	float BS_MoveSpeed;
 
+	float BS_ElapsedTime;
+	
 	// 레이저 난사 관련 변수
 	// 중간 시연 이후에 작업
 private:
@@ -213,4 +216,8 @@ private:
 
 	UPROPERTY()
 	uint8 bIsDebugEnable : 1;
+
+private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UUserWidget> HealthWidget;
 };

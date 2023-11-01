@@ -48,6 +48,7 @@ void ATrapPad::NotifyActorBeginOverlap(AActor* OtherActor)
 			PlayableCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Gimmick);
 		}
 		ActiveInteractionCoolDown();
+		GetWorldTimerManager().SetTimer(DisableInteractionTimerHandle, this, &ATrapPad::ActiveInteractionCoolDown, InteractionCoolDown, false);
 	}
 }
 
@@ -57,12 +58,5 @@ void ATrapPad::NotifyActorEndOverlap(AActor* OtherActor)
 
 void ATrapPad::ActiveInteractionCoolDown()
 {
-	GetWorldTimerManager().SetTimer(DisableInteractionTimerHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		if(FPPTimerHelper::IsDelayElapsed(DisableInteractionTimerHandle, InteractionCoolDown))
-		{
-			GetWorldTimerManager().ClearTimer(DisableInteractionTimerHandle);
-			FPPTimerHelper::InvalidateTimerHandle(DisableInteractionTimerHandle);
-		}
-	}), 0.01f, true);
+	
 }
