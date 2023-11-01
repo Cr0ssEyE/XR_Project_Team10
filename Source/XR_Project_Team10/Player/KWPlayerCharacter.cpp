@@ -192,6 +192,26 @@ void AKWPlayerCharacter::BeginPlay()
 			PauseWidget->SetIsEnabled(false);
 		}
 	}
+	
+	if(IsValid(DeadFadeWidgetClass))
+	{
+		DeadFadeWidget = Cast<UKWFadeWidget>(CreateWidget(GetWorld(), DeadFadeWidgetClass));
+		if(DeadFadeWidget)
+		{
+			DeadFadeWidget->AddToViewport();
+			DeadFadeWidget->SetVisibility(ESlateVisibility::Hidden);
+			DeadFadeWidget->SetIsEnabled(false);
+		}
+	}
+}
+
+float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	
+	return 0;
 }
 
 // Called every frame

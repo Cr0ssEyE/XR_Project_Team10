@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
+#include "XR_Project_Team10/UI/KWFadeWidget.h"
 #include "XR_Project_Team10/UI/KWPauseWidget.h"
 #include "KWPlayerCharacter.generated.h"
 
@@ -42,6 +43,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -87,6 +90,7 @@ private:
 	uint8 bIsEnableVelocityDebugView : 1;
 	
 	uint8 bIsEnableLocationDebugView : 1;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -349,5 +353,11 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UKWPauseWidget> PauseWidget;
+
+	UPROPERTY()
+	TSubclassOf<UKWFadeWidget> DeadFadeWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UKWFadeWidget> DeadFadeWidget;
 };
 
