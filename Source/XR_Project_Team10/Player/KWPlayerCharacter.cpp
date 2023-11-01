@@ -46,6 +46,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
 	RollingMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RollingMesh"));
 	RollingMeshComponent->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
+	RollingMeshComponent->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
 	PlayerComponent = Cast<UCapsuleComponent>(RootComponent);
 	RootComponent = RootMesh;
 	PlayerComponent->SetupAttachment(RootComponent);
