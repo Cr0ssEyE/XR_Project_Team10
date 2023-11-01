@@ -19,12 +19,26 @@ public:
 
 	//virtual bool ShouldTickIfViewportsOnly() const override { return true; }
 	virtual void Tick(float DeltaTime) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
 	// IICommonMonsterBase을(를) 통해 상속
 protected:
 	virtual void BeginPlay() override;
-
+	
 	virtual void AttackOmen(AActor* Target) override;
 	virtual void Attack(AActor* Target) override;
+
+private:
+	void ApplyKnockBack();
+
+private:
+	FTimerHandle KnockBackTimerHandle;
+
+	UPROPERTY()
+	float KnockBackElapsedTime;
+
+	UPROPERTY()
+	FVector KnockBackImpactLocation;
 	
 	// 외부 수정 변수
 private:
@@ -33,9 +47,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리")
 	float AttackRange;
-
 	
-
 	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "깃털 공격력")
 	uint32 FeatherPower;
 
@@ -53,5 +65,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = FeatherAttack)
 	TSubclassOf<class ADW_FeatherProjectile> FeatherClass;
 
-	const FName FeatherSockets[3] = { TEXT("Feather_lSocket"), TEXT("Feather_mSocket"), TEXT("Feather_rSocket") };
+	const FName FeatherSockets[2] = { TEXT("Feather_lSocket"), TEXT("Feather_rSocket") };
 };

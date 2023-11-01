@@ -160,6 +160,11 @@ float AKWBossMonsterHohonu::TakeDamage(float DamageAmount, FDamageEvent const& D
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	BossHp -= DamageAmount;
+
+	if(BossHp <= 0)
+	{
+		GetController()->Destroy();
+	}
 	
 	AKWPlayerCharacter* Causer = Cast<AKWPlayerCharacter>(DamageCauser);
 	if(Causer)

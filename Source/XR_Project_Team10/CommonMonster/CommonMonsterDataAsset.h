@@ -15,6 +15,9 @@ class XR_PROJECT_TEAM10_API UCommonMonsterDataAsset : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "몬스터 메시")
+	TObjectPtr<USkeletalMesh> MonsterMesh;
+	
 	UPROPERTY(EditAnywhere, Category = InputValue, DisplayName = "몬스터 체력")
 	uint32 MonsterHP;
 

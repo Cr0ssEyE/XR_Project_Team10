@@ -4,10 +4,18 @@
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/AI/Common/KWCommonAIController.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
+#include "Components/CapsuleComponent.h"
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 
 ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	//MonsterComponent = GetCapsuleComponent();
+
+	// MonsterComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capshule"));
+	// MonsterComponent->SetSimulatePhysics(true);
+	//  RootComponent = MonsterComponent;
 
 	AIControllerClass = AKWCommonAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -26,6 +34,10 @@ void ACommonMonster::Tick(float DeltaTime)
 void ACommonMonster::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_ENEMY);
+	GetCapsuleComponent()->SetCollisionProfileName(CP_ENEMY);
+	GetMesh()->SetCollisionObjectType(ECC_ENEMY);
+	GetMesh()->SetCollisionProfileName(CP_ENEMY);	
 }
 
 void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAttackFinished)
@@ -35,10 +47,12 @@ void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAt
 
 void ACommonMonster::AttackOmen(AActor* Target)
 {
+	MonsterState = EState::E_ATTACK_OMEN;
 }
 
 void ACommonMonster::Attack(AActor* Target)
 {
+	MonsterState = EState::E_ATTACK;
 }
 
 void ACommonMonster::CheckAttackDelay()
@@ -60,11 +74,10 @@ void ACommonMonster::CommonMonsterAttack(AActor* Target)
 	Attack(Target);
 
 	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &ACommonMonster::CheckAttackDelay, 0.01f, true);
-
-	OnAttackFinished.ExecuteIfBound();
 }
 
 void ACommonMonster::CommonMonsterDead()
 {
+	
 }
 

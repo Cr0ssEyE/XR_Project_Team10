@@ -170,7 +170,7 @@ void AKWPlayerCharacter::BeginPlay()
 	
 	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->MaxWalkSpeed = CharacterData->WakingStateMoveSpeed;
-	GetCharacterMovement()->JumpZVelocity = CharacterData->WakingStateJumpValue;
+	GetCharacterMovement()->JumpZVelocity = CharacterData->WakingStateJumpValue;	
 	GetCharacterMovement()->GravityScale = CharacterData->WakingStateGravityScale;
 	GetCharacterMovement()->AirControl = CharacterData->WakingStateAirControl;
 	
@@ -629,7 +629,10 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 		VelocityDecelerateTarget = FVector::ZeroVector;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
 		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-		GetWorldTimerManager().SetTimer(CheckIdleStateTimerHandle, this, &AKWPlayerCharacter::CheckIdleStateWhenRolling, 0.01f, true);
+		if(!GetWorldTimerManager().IsTimerActive(RBD_FailedTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(CheckIdleStateTimerHandle, this, &AKWPlayerCharacter::CheckIdleStateWhenRolling, 0.01f, true);
+		}
 	}
 }
 
@@ -911,6 +914,10 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 		}
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("리바운드 패널티 적용")));
 		DisableInput(Cast<APlayerController>(GetController()));
+		if(GetWorldTimerManager().IsTimerActive(CheckIdleStateTimerHandle))
+		{
+			GetWorldTimerManager().ClearTimer(CheckIdleStateTimerHandle);
+		}
 		GetWorldTimerManager().SetTimer(RBD_FailedTimerHandle, this, &AKWPlayerCharacter::RBD_FailedPenaltyEndEvent, 0.01f, false, RB_DisableMovementTime);
 		return;
 	}
