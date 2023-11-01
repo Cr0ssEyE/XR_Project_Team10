@@ -213,7 +213,16 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	
+	Health -= DamageAmount;
+	if(Health <= 0)
+	{
+		// 죽음 애니메이션 
+		DisableInput(GetWorld()->GetFirstPlayerController());
+		DeadFadeWidget->SetVisibility(ESlateVisibility::Visible);
+		DeadFadeWidget->SetIsEnabled(true);
+		DeadFadeWidget->StartFade();
+	}
+	// 피격 애니메이션 실행
 	return 0;
 }
 
