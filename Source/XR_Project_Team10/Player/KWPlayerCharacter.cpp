@@ -63,8 +63,8 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	Camera->bUsePawnControlRotation = false;
 
 	
-	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/3-CharacterTest/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
-	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/3-CharacterTest/SM_Ball_00.SM_Ball_00'"), EAssertionLevel::Check);
+	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
+	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/28-Player-Rework/Player/SM_Ball_01.SM_Ball_01'"), EAssertionLevel::Check);
 	WalkingMesh = CharacterData->PlayerWalkingMesh;
 	//TODO: 폴더 정리 후 ConstructorHelper로 애님 인스턴스 가져오기
 	WalkingAnimInstance = CharacterData->PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass();
@@ -74,9 +74,11 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
 	MoveInputAction = CharacterData->MoveInputAction;
-	JumpAction = CharacterData->JumpAction;
+	JumpAction = CharacterData->JumpAction;	
 	AttackAction = CharacterData->AttackAction;
 	FileDriverAction = CharacterData->DropDownAction;
+
+	Health = 10;
 	
 	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
@@ -160,6 +162,7 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsEnableGearDebugView = CharacterData->bIsEnableGearDebugView;
 	bIsEnableVelocityDebugView = CharacterData->bIsEnableVelocityDebugView;
 	bIsEnableLocationDebugView = CharacterData->bIsEnableLocationDebugView;
+	bIsMovingMustRolling = CharacterData->bIsMovingMustRolling;
 	
 	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->MaxWalkSpeed = CharacterData->WakingStateMoveSpeed;
@@ -173,7 +176,6 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsRolling = false;
 	bIsFlying = false;
 	bIsUsedFlyDash = false;
-	bIsMovingMustRolling = false;
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
@@ -277,7 +279,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		PlayerTrueLocation->GetActorLocation().Z));
 	}
 
-	if(bIsEnableVelocityDebugView)
+		if(bIsEnableVelocityDebugView)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"),
 		RootMesh->GetPhysicsLinearVelocity().X,
@@ -689,6 +691,7 @@ void AKWPlayerCharacter::FD_ProceedAction()
 	RootMesh->SetSimulatePhysics(true);
 	const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
 	RootMesh->SetPhysicsLinearVelocity(DroppingVelocity);
+	GetWorldTimerManager().SetTimerForNextTick(this, &AKWPlayerCharacter::FD_HitCheckSequence);
 	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, this, &AKWPlayerCharacter::DropDownCoolDownTimer, DropDownCoolDownTime, false);
 }
 
@@ -983,8 +986,8 @@ void AKWPlayerCharacter::FD_HitCheckSequence()
 
 	if(bIsEnableHitCheckDebugView)
 	{
-		DrawDebugSphere(GetWorld(), GetActorLocation() - FVector(0.f, 0.f, 10.f), 90.f, 32, FColor::Magenta, false, 0.3f);
-	}
+		DrawDebugSphere(GetWorld(), GetActorLocation(), 90.f, 32, FColor::Magenta, false, 0.3f);
+	}	
 	
 	if(bResult)
 	{
