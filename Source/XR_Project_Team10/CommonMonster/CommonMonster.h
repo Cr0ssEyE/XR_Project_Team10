@@ -52,6 +52,8 @@ protected:
 	virtual void CommonMonsterAttack(AActor* Target) override;
 	virtual void CommonMonsterDead() override;
 
+	virtual void ApplyKnockBack();
+
 
 protected:
 	//DataAsset MonsterData => IICommonMonsterBase
@@ -73,7 +75,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 쿨타임")
 	float MonsterAttackCoolDownTime;
 
+	UPROPERTY()
+	float KnockBackElapsedTime;
+
+	UPROPERTY()
+	FVector KnockBackImpactLocation;
+
 	FTimerHandle AttackCoolDownTimerHandle;
+	FTimerHandle AttackTimerHandle;
+	FTimerHandle KnockBackTimerHandle;
+
 	
 	//Getter Setter
 public:

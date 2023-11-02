@@ -23,6 +23,7 @@ void ACrowTalon::BeginPlay()
 
 void ACrowTalon::AttackOmen(AActor* Target)
 {
+	Super::AttackOmen(Target);
 	UE_LOG(LogTemp, Log, TEXT("CrowTalon Attack Omen"));
 
 	OriPos = GetActorLocation();
@@ -31,16 +32,13 @@ void ACrowTalon::AttackOmen(AActor* Target)
 FVector AttackDir;
 void ACrowTalon::Attack(AActor* Target)
 {
+	Super::Attack(Target);
 	AttackDir = (Target->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 
 	GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
 
-	//AddActorLocalOffset(AttackDir);
+	AddActorLocalOffset(AttackDir);
 	//AddMovementInput(AttackDir);
-
-	//MonsterComponent->SetPhysicsLinearVelocity(AttackDir * RushSpeed);
-	//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), MonsterComponent->GetPhysicsLinearVelocity().X, MonsterComponent->GetPhysicsLinearVelocity().Y, MonsterComponent->GetPhysicsLinearVelocity().Z);
-	//MonsterComponent->AddForce(AttackDir * RushSpeed);
 }
 
 void ACrowTalon::AttackEndCheck() {

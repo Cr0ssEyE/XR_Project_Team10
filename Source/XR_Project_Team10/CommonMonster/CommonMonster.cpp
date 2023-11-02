@@ -81,3 +81,17 @@ void ACommonMonster::CommonMonsterDead()
 	
 }
 
+void ACommonMonster::ApplyKnockBack()
+{
+	KnockBackElapsedTime += GetWorld()->DeltaTimeSeconds;
+	if (KnockBackElapsedTime >= 0.5f)
+	{
+		return;
+	}
+
+	FVector KnockBackLocation = GetActorLocation() + (GetActorLocation() - KnockBackImpactLocation).GetSafeNormal() * 10.f;
+	KnockBackLocation.Z = 0;
+	SetActorLocation(KnockBackLocation);
+	GetWorldTimerManager().SetTimerForNextTick(this, &ACommonMonster::ApplyKnockBack);
+}
+

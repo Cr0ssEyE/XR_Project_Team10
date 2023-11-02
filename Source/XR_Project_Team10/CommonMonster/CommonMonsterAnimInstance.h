@@ -25,5 +25,6 @@ private:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite ,Category=Pawn, Meta=(AllowPrivateAccess=true))
 	float CurrentPawnSpeed;
 
-	
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	bool IsAttack;
 };

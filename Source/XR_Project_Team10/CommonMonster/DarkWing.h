@@ -28,17 +28,6 @@ protected:
 	virtual void AttackOmen(AActor* Target) override;
 	virtual void Attack(AActor* Target) override;
 
-private:
-	void ApplyKnockBack();
-
-private:
-	FTimerHandle KnockBackTimerHandle;
-
-	UPROPERTY()
-	float KnockBackElapsedTime;
-
-	UPROPERTY()
-	FVector KnockBackImpactLocation;
 	
 	// 외부 수정 변수
 private:

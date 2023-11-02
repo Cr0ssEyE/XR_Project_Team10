@@ -53,6 +53,7 @@ void ADarkWing::BeginPlay()
 //공격 전조
 void ADarkWing::AttackOmen(AActor* Target)
 {
+	Super::AttackOmen(Target);
 	// 전조
 	UE_LOG(LogTemp, Log, TEXT("DarkWing Attack Omen"));
 }
@@ -60,6 +61,7 @@ void ADarkWing::AttackOmen(AActor* Target)
 //공격
 void ADarkWing::Attack(AActor* Target)
 {
+	Super::Attack(Target);
 	// 플레이어를 향해 깃털 n개 발사
 	if (nullptr != FeatherClass) {
 
@@ -106,18 +108,4 @@ void ADarkWing::Attack(AActor* Target)
 			OnAttackFinished.ExecuteIfBound();
 		}
 	}
-}
-
-void ADarkWing::ApplyKnockBack()
-{
-	KnockBackElapsedTime += GetWorld()->DeltaTimeSeconds;
-	if(KnockBackElapsedTime >= 0.5f)
-	{
-		return;
-	}
-	
-	FVector KnockBackLocation = GetActorLocation() + (GetActorLocation() - KnockBackImpactLocation).GetSafeNormal() * 10.f;
-	KnockBackLocation.Z = 0;
-	SetActorLocation(KnockBackLocation);
-	GetWorldTimerManager().SetTimerForNextTick(this, &ADarkWing::ApplyKnockBack);
 }
