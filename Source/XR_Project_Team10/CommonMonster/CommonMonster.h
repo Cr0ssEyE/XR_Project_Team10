@@ -57,10 +57,7 @@ protected:
 	//DataAsset MonsterData => IICommonMonsterBase
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UStaticMeshComponent> MonsterStaticMesh;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UCapsuleComponent> MonsterComponent;
+	TObjectPtr<class UPrimitiveComponent> MonsterComponent;
 
 	//변수
 protected:
@@ -86,6 +83,7 @@ public:
 	__forceinline float GetMonsterSpeed() { return MonsterCurrentMoveSpeed; }
 	__forceinline void SetMonsterSpeed(float sp) { MonsterCurrentMoveSpeed = sp; }
 
+	__forceinline void SetMonsterState(EState state) { MonsterState = state; }
 	__forceinline EState GetMonsterState() { return MonsterState; }
 
 };
