@@ -63,7 +63,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	Camera->bUsePawnControlRotation = false;
 
 	
-	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/3-CharacterTest/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
+	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
 	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/28-Player-Rework/Player/SM_Ball_01.SM_Ball_01'"), EAssertionLevel::Check);
 	WalkingMesh = CharacterData->PlayerWalkingMesh;
 	//TODO: 폴더 정리 후 ConstructorHelper로 애님 인스턴스 가져오기
@@ -74,7 +74,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
 	MoveInputAction = CharacterData->MoveInputAction;
-	JumpAction = CharacterData->JumpAction;
+	JumpAction = CharacterData->JumpAction;	
 	AttackAction = CharacterData->AttackAction;
 	FileDriverAction = CharacterData->DropDownAction;
 
