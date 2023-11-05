@@ -23,10 +23,10 @@ void UCommonMonsterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	ACommonMonster* Monster = Cast<ACommonMonster>(Pawn);
 	if (Monster) {
-		if (Monster->GetMonsterState() == EState::E_ATTACK_OMEN) {
-			IsAttack = true;
+		if (Monster->GetMonsterState() == EState::E_DEAD) {
+			IsDead = true;
 		}
-		else if (Monster->GetMonsterState() == EState::E_ATTACK) {
+		else if (Monster->GetMonsterState() == EState::E_ATTACK_OMEN) {
 			IsAttack = true;
 		}
 		else {

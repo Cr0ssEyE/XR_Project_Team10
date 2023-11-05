@@ -27,4 +27,7 @@ private:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	bool IsAttack;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	bool IsDead;
 };
