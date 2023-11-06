@@ -29,15 +29,16 @@ void ACrowTalon::AttackOmen()
 	OriPos = GetActorLocation();
 }
 
-FVector AttackDir;
 void ACrowTalon::Attack()
 {
 	Super::Attack();
-	AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
+	if (nullptr != PlayerTarget) {
+		AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 
-	GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
+		GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
 
-	AddActorLocalOffset(AttackDir);
+		AddActorLocalOffset(AttackDir);
+	}
 }
 
 void ACrowTalon::AttackEndCheck() {

@@ -49,4 +49,7 @@ private:
 
 	UPROPERTY()
 	FTimerHandle RushTimerHandle;
+
+	UPROPERTY()
+	FVector AttackDir;
 };

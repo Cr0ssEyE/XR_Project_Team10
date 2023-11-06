@@ -112,9 +112,9 @@ void ACommonMonster::ApplyKnockBack()
 	{
 		return;
 	}
-
+	float OriginZ = GetActorLocation().Z;
 	FVector KnockBackLocation = GetActorLocation() + (GetActorLocation() - KnockBackImpactLocation).GetSafeNormal() * KnockBackAmount;
-	KnockBackLocation.Z = 0;
+	KnockBackLocation.Z = OriginZ;
 	SetActorLocation(KnockBackLocation);
 	GetWorldTimerManager().SetTimerForNextTick(this, &ACommonMonster::ApplyKnockBack);
 }
