@@ -3,15 +3,16 @@
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "JumpPad.generated.h"
 
 UENUM()
 enum class EJumpPadType : uint8
 {
 	E_Contact UMETA(DisplayName = "접촉"),//접촉하면 점프
-	E_Timing UMETA(DisplayName = "타이밍"),	//타이밍에 맞게 점프 누르면 더 큰 점프
+	E_Timing UMETA(DisplayName = "타이밍"),	//파일드라이버 사용시 더 큰 점프
 	E_Delay UMETA(DisplayName = "지연"),	//일정 시간 후 점프
-	E_PileDriver UMETA(DisplayName = "파일 드라이버")	//찍기
+	E_PileDriver UMETA(DisplayName = "파일 드라이버")	//파일드라이버 사용할 때만 점프
 };
 
 UCLASS()
@@ -58,13 +59,10 @@ private:
 	uint8 bIsPlayerIn : 1;
 
 	UPROPERTY()
-	float PlayerInTime;
-
-	UPROPERTY()
 	FVector JumpVelocityVector;
 
 	UPROPERTY()
-	TObjectPtr<UStaticMeshComponent> PlayerMeshComp;
+	TObjectPtr<AKWPlayerCharacter> Player;
 
 
 	FTimerHandle JumpTimerHandle;
