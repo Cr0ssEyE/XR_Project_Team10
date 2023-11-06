@@ -25,6 +25,11 @@ public:
 protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
+private:
+	void ContactJump();
+	void DelayJump();
+	void TimingJump();
+	void PileDriverJump();
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -37,14 +42,17 @@ private:
 	UPROPERTY(EditAnywhere, DisplayName = "점프 크기값")
 	float JumpForceValue;
 
-	UPROPERTY(EditAnywhere, DisplayName = "점프패드 타입에 따른 시간값 (타이밍 : 반복시간, 지연 : 지연시간)")
-	float DelayTime;
-
-	UPROPERTY(EditAnywhere, DisplayName = "점프대 트리거 종류(현재 접촉만 동작)")
+	UPROPERTY(EditAnywhere, DisplayName = "점프대 트리거 종류")
 	EJumpPadType JumpPadType;
 
 	UPROPERTY(EditAnywhere, DisplayName = "트리거시 기존 속도 초기화")
 	uint8 bResetVelocity : 1;
+
+	UPROPERTY(EditAnywhere, DisplayName = "[지연] 지연 시간")
+	float DelayTime;
+
+	UPROPERTY(EditAnywhere, DisplayName = "[타이밍] 점프 추가값")
+	float JumpAddForceValue;
 
 	UPROPERTY()
 	uint8 bIsPlayerIn : 1;
@@ -53,5 +61,11 @@ private:
 	float PlayerInTime;
 
 	UPROPERTY()
+	FVector JumpVelocityVector;
+
+	UPROPERTY()
+	TObjectPtr<UStaticMeshComponent> PlayerMeshComp;
+
+
 	FTimerHandle JumpTimerHandle;
 };

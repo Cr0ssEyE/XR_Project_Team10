@@ -18,9 +18,7 @@ AJumpPad::AJumpPad()
 	bResetVelocity = false;
 	bIsPlayerIn = false;
 
-	if (JumpPadType == EJumpPadType::E_Timing) {
-		//GetWorldTimerManager().SetTimer(JumpTimerHandle, TimingJump, DelayTime, true);
-	}
+	JumpVelocityVector = FVector(0.f, 0.f, JumpForceValue);
 }
 
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
@@ -33,37 +31,29 @@ void AJumpPad::NotifyActorBeginOverlap(AActor* OtherActor)
 		bIsPlayerIn = true;
 		PlayerInTime = 0.0f;
 
-		auto CharacterMesh = PlayableCharacter->GetMeshComp();
-		FVector JumpVelocityVector = FVector(0.f, 0.f, JumpForceValue);
+		PlayerMeshComp = PlayableCharacter->GetMeshComp();
+		
 		if(bResetVelocity)
 		{
-			CharacterMesh->SetPhysicsLinearVelocity(FVector::ZeroVector);
+			PlayerMeshComp->SetPhysicsLinearVelocity(FVector::ZeroVector);
 		}
 		switch (JumpPadType)
 		{
 		case EJumpPadType::E_Contact:
 			UE_LOG(LogTemp, Log, TEXT("contact jump"));
-
-			JumpVelocityVector += CharacterMesh->GetPhysicsLinearVelocity();
-			CharacterMesh->SetPhysicsLinearVelocity(JumpVelocityVector);
+			ContactJump();
 			break;
 		case EJumpPadType::E_Timing:
-		{
 			UE_LOG(LogTemp, Log, TEXT("timing jump"));
-			//TFunctionRef FuncRef = TimingJump(PlayableCharacter);
-			//GetWorldTimerManager().SetTimer(JumpTimerHandle, DelayJump(PlayableCharacter), DelayTime, false);
-		}
+			TimingJump();
 			break;
 		case EJumpPadType::E_Delay:
 			UE_LOG(LogTemp, Log, TEXT("delay jump"));
-
+			GetWorldTimerManager().SetTimer(JumpTimerHandle, this, &AJumpPad::DelayJump, DelayTime, false);
 			break;
 		case EJumpPadType::E_PileDriver:
 			UE_LOG(LogTemp, Log, TEXT("piledriver jump"));
-
-			//player 파일드라이버 사용 확인
-			JumpVelocityVector += CharacterMesh->GetPhysicsLinearVelocity();
-			CharacterMesh->SetPhysicsLinearVelocity(JumpVelocityVector);
+			PileDriverJump();
 			break;
 		default:
 			checkNoEntry();
@@ -71,12 +61,31 @@ void AJumpPad::NotifyActorBeginOverlap(AActor* OtherActor)
 	}
 }
 
-void DelayJump(AKWPlayerCharacter* Player) {
-
+void AJumpPad::ContactJump()
+{
+	if (nullptr != PlayerMeshComp) {
+		JumpVelocityVector += PlayerMeshComp->GetPhysicsLinearVelocity();
+		PlayerMeshComp->SetPhysicsLinearVelocity(JumpVelocityVector);
+	}
 }
 
-void TimingJump() {
-	
+void AJumpPad::DelayJump() {
+	ContactJump();
+}
+
+void AJumpPad::TimingJump() {
+	if (true) {
+		JumpVelocityVector.Z += JumpAddForceValue;
+	}
+	ContactJump();
+	JumpVelocityVector = FVector(0.f, 0.f, JumpForceValue);
+}
+
+void AJumpPad::PileDriverJump()
+{
+	if (true) {
+
+	}
 }
 
 void AJumpPad::NotifyActorEndOverlap(AActor* OtherActor)
@@ -86,5 +95,6 @@ void AJumpPad::NotifyActorEndOverlap(AActor* OtherActor)
 	if (PlayableCharacter)
 	{
 		bIsPlayerIn = false;
+		PlayerMeshComp = nullptr;
 	}
 }
