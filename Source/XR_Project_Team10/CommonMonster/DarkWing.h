@@ -25,27 +25,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	virtual void AttackOmen(AActor* Target) override;
-	virtual void Attack(AActor* Target) override;
+	virtual void AttackOmen() override;
+	virtual void Attack() override;
 
-private:
-	void ApplyKnockBack();
-
-private:
-	FTimerHandle KnockBackTimerHandle;
-
-	UPROPERTY()
-	float KnockBackElapsedTime;
-
-	UPROPERTY()
-	FVector KnockBackImpactLocation;
 	
 	// 외부 수정 변수
 private:
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 준비 시간")
-	float AttackReadyTime = 0.5;
-
-	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리")
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리 (배수)")
 	float AttackRange;
 	
 	UPROPERTY(EditAnywhere, Category = FeatherAttack, DisplayName = "깃털 공격력")

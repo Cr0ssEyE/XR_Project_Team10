@@ -25,8 +25,8 @@ class XR_PROJECT_TEAM10_API IICommonMonsterBase
 	virtual void CommonMonsterDead() = 0;			//사망
 
 protected:
-	virtual void AttackOmen(AActor* Target) = 0;		//공격 전조
-	virtual void Attack(AActor* Target) = 0;			//공격
+	virtual void AttackOmen() = 0;		//공격 전조
+	virtual void Attack() = 0;			//공격
 
 
 protected:

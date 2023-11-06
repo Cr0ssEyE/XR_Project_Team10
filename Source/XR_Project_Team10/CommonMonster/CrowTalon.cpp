@@ -1,6 +1,8 @@
 #include "XR_Project_Team10/CommonMonster/CrowTalon.h"
 #include "XR_Project_Team10/CommonMonster/CommonMonsterDataAsset.h"
 #include "UObject/ConstructorHelpers.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 ACrowTalon::ACrowTalon()
 {
@@ -19,30 +21,32 @@ void ACrowTalon::BeginPlay()
 
 }
 
-void ACrowTalon::AttackOmen(AActor* Target)
+void ACrowTalon::AttackOmen()
 {
+	Super::AttackOmen();
 	UE_LOG(LogTemp, Log, TEXT("CrowTalon Attack Omen"));
 
-	OriPos = GetOwner()->GetActorLocation();
+	OriPos = GetActorLocation();
 }
 
-void ACrowTalon::Attack(AActor* Target)
+void ACrowTalon::Attack()
 {
-	FVector AttackDir = (Target->GetActorLocation() - OriPos).GetSafeNormal();
+	Super::Attack();
+	if (nullptr != PlayerTarget) {
+		AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 
-	RushVector = MonsterComponent->GetPhysicsLinearVelocity().GetSafeNormal() * RushSpeed;
-	RushVector.Z = 0.f;
+		GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
 
-	GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
-
-	MonsterComponent->SetPhysicsLinearVelocity(AttackDir * RushSpeed);
-	UE_LOG(LogTemp, Log, TEXT("%f %f %f"), MonsterComponent->GetPhysicsLinearVelocity().X, MonsterComponent->GetPhysicsLinearVelocity().Y, MonsterComponent->GetPhysicsLinearVelocity().Z);
-	//MonsterComponent->AddForce(AttackDir * RushSpeed);
+		AddActorLocalOffset(AttackDir);
+	}
 }
 
 void ACrowTalon::AttackEndCheck() {
-	if (FVector::Dist(GetOwner()->GetActorLocation(), OriPos) >= AttackRange) {
+	SetActorLocation(GetActorLocation() + AttackDir);
+	if (FVector::Dist(GetActorLocation(), OriPos) >= AttackRange) {
 		OnAttackFinished.ExecuteIfBound();
+		MonsterState = EState::E_IDLE;
+		PlayerTarget = nullptr;
 		GetWorldTimerManager().ClearTimer(RushTimerHandle);
 		FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
 	}
@@ -51,6 +55,8 @@ void ACrowTalon::AttackEndCheck() {
 void ACrowTalon::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	OnAttackFinished.ExecuteIfBound();
+	MonsterState = EState::E_IDLE;
+	PlayerTarget = nullptr;
 }
 
 void ACrowTalon::Tick(float DeltaTime)
