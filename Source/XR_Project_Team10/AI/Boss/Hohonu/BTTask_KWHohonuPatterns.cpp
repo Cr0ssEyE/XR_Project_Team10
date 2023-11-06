@@ -35,8 +35,11 @@ EBTNodeResult::Type UBTTask_KWHohonuPatterns::ExecuteTask(UBehaviorTreeComponent
 	PatternFinished.AddLambda([&]()
 	{
 		CastChecked<AKWHohonuAIController>(OwnerComp.GetAIOwner())->ResetCoolDown(TaskPattern);
+		UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
+		Blackboard->SetValueAsBool(KEY_NEARBY_BOOLEAN, false);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	});
+	
 	ControllingPawn->SetAIPatternDelegate(PatternFinished);
 	ControllingPawn->SetPattern(TaskPattern);
 	ControllingPawn->PlayPatternAnimMontage();

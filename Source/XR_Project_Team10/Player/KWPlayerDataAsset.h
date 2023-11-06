@@ -25,7 +25,7 @@ class XR_PROJECT_TEAM10_API UKWPlayerDataAsset : public UDataAsset
 	// 캐릭터 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 메시")
-	TObjectPtr<class UStaticMesh> PlayerRollingMesh;
+	TObjectPtr<class USkeletalMesh> PlayerRollingMesh;
 
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 애니메이션 블루프린트")
 	TObjectPtr<class UAnimBlueprint> PlayerRollingAnimBlueprint;
@@ -36,6 +36,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트")
 	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
 
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "히트 체크 디버그 뷰 활성화")
+	uint8 bIsEnableHitCheckDebugView : 1;
+
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "기어 디버그 뷰 활성화")
+	uint8 bIsEnableGearDebugView : 1;
+
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "속도 디버그 뷰 활성화")
+	uint8 bIsEnableVelocityDebugView : 1;
+
+	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "좌표 디버그 뷰 활성화")
+	uint8 bIsEnableLocationDebugView : 1;
+	
 	// 카메라 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = View, DisplayName = "카메라 FOV")
@@ -55,11 +67,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 점프 높이")
 	float WakingStateJumpValue;
 
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 공중 이동 입력 민감도(0 ~ 1)")
+	float WakingStateAirControl;
+	
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 중력 영향 배율")
 	float WakingStateGravityScale;
 
 	// 구르기 상태 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "이동할 경우 구르기 상태 강제 변횐")
+	uint8 bIsMovingMustRolling : 1;
+	
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 증가 값")
 	float DefaultVelocityValue;
 
@@ -85,6 +103,12 @@ public:
 public:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공중 대시 사용 여부")
 	uint8 bCanDashOnFlying : 1;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 기본 데미지")
+	float DA_BaseDamage;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 기어 별 배율(최대 4개)")
+	TArray<float> DA_MultiplyDamageByGear;
 	
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 공격 이동속도")
 	float DA_AddVelocityValue;
@@ -99,6 +123,9 @@ public:
 	float AttackCoolDownTime;
 	
 public:
+	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 데미지")
+	float DropDownDamage;
+	
 	UPROPERTY(EditAnywhere, Category = FileDriver, DisplayName = "내려찍기 공격 속도 값")
 	float DropDownVelocityValue;
 
@@ -117,7 +144,7 @@ public:
 	TArray<float> RB_MultiplyValuesByGear;
 
 	UPROPERTY(EditAnywhere, Category = ReBound, DisplayName = "리바운드 대시 입력 시간")
-	float RBD_JustTimingValue;
+	float RBD_JustTimingCheckTime;
 
 	UPROPERTY(EditAnywhere, Category = ReBound, DisplayName = "리바운드 대시 입력 실패시 이동 비활성화 시간")
 	float RB_DisableMovementTime;
@@ -143,5 +170,5 @@ public:
 	TObjectPtr<class UInputAction> AttackAction;
 
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 파일 드라이버 입력 키")
-	TObjectPtr<class UInputAction> FileDriverAction;
+	TObjectPtr<class UInputAction> DropDownAction;
 };

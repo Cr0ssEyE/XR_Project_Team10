@@ -3,6 +3,8 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework//ProjectileMovementComponent.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
+
+#include "XR_Project_Team10/CommonMonster/DarkWing.h"
 ADW_FeatherProjectile::ADW_FeatherProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -51,6 +53,7 @@ void ADW_FeatherProjectile::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other
 	ProjectileMovementComponent->Velocity = FVector(0, 0, 0);
 
 	GetWorld()->GetTimerManager().SetTimer(DeleteTimerHandle, this, &ADW_FeatherProjectile::DestroyProjectile, FeatherDeleteTime, false);
+	
 }
 
 void ADW_FeatherProjectile::DestroyProjectile() {

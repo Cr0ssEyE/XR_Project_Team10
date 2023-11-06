@@ -7,6 +7,7 @@
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"
 #include "XR_Project_Team10/Interface/KWMonsterAIInterface.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 
 UBTDecorator_CommonAttackInRange::UBTDecorator_CommonAttackInRange()
 {
@@ -27,7 +28,7 @@ bool UBTDecorator_CommonAttackInRange::CalculateRawConditionValue(UBehaviorTreeC
 		return false;
 	}
 
-	APawn* Target = Cast<APawn>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(KEY_TARGET));
+	AKWLocationDetector* Target = Cast<AKWLocationDetector>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(KEY_TARGET));
 	if (nullptr == Target) {
 		return false;
 	}

@@ -39,28 +39,29 @@ public:
 	ACommonMonster();
 
 	virtual void Tick(float DeltaTime) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	// IICommonMonsterBase을(를) 통해 상속
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void SetCommonAttackDelegate(const FCommonAttackFinished& InOnAttackFinished) override;
 
-	virtual void AttackOmen(AActor* Target) override;
-	virtual void Attack(AActor* Target) override;
+	virtual void AttackOmen() override;
+	virtual void Attack() override;
 	void CheckAttackDelay();
 
 	virtual void CommonMonsterAttack(AActor* Target) override;
 	virtual void CommonMonsterDead() override;
+
+	virtual void ApplyKnockBack();
 
 
 protected:
 	//DataAsset MonsterData => IICommonMonsterBase
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UStaticMeshComponent> MonsterStaticMesh;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UCapsuleComponent> MonsterComponent;
+	TObjectPtr<class UPrimitiveComponent> MonsterComponent;
 
 	//변수
 protected:
@@ -76,7 +77,29 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 쿨타임")
 	float MonsterAttackCoolDownTime;
 
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 전조 진행시간")
+	float MonsterAttackOmenTime;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 진행시간")
+	float MonsterAttackTime;
+
+	UPROPERTY()
+	float KnockBackElapsedTime;
+
+	UPROPERTY()
+	FVector KnockBackImpactLocation;
+
+	UPROPERTY(EditAnywhere, Category = KnockBack, DisplayName = "넉백량")
+	float KnockBackAmount = 10.0f;
+
+	UPROPERTY()
+	AActor* PlayerTarget;
+
 	FTimerHandle AttackCoolDownTimerHandle;
+	FTimerHandle AttackOmenTimerHandle;
+	FTimerHandle AttackTimerHandle;
+	FTimerHandle KnockBackTimerHandle;
+
 	
 	//Getter Setter
 public:
@@ -86,6 +109,7 @@ public:
 	__forceinline float GetMonsterSpeed() { return MonsterCurrentMoveSpeed; }
 	__forceinline void SetMonsterSpeed(float sp) { MonsterCurrentMoveSpeed = sp; }
 
+	__forceinline void SetMonsterState(EState state) { MonsterState = state; }
 	__forceinline EState GetMonsterState() { return MonsterState; }
 
 };

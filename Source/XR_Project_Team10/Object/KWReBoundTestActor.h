@@ -20,12 +20,14 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
-private:
-	
+
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
 	UPROPERTY()
 	EReBoundObjectType ReBoundObject;
+
+	UPROPERTY()
+	FVector CollisionDirection;
 };

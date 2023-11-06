@@ -4,10 +4,12 @@
 #include "UObject/ConstructorHelpers.h"
 #include "DrawDebugHelpers.h"
 #include "XR_Project_Team10/CommonMonster/DW_FeatherProjectile.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 
 ADarkWing::ADarkWing()
 {
-	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/DarkWing"));
+	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/DarkWingData"));
 	if (DataAsset.Succeeded()) {
 		UDataAsset* dataAsset = DataAsset.Object;
 		MonsterData = Cast<UCommonMonsterDataAsset>(dataAsset);
@@ -23,52 +25,91 @@ void ADarkWing::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+float ADarkWing::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	MonsterCurrentHP -= DamageAmount;
+	if(MonsterCurrentHP <= 0 && GetController())
+	{
+		GetController()->Destroy();
+		// 사망 애니메이션 추가
+		return 0;
+	}
+	AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DamageCauser);
+	if(PlayerCharacter)
+	{
+		KnockBackImpactLocation = PlayerCharacter->GetTruePlayerLocation()->GetActorLocation();
+		KnockBackElapsedTime = 0;
+		GetWorldTimerManager().SetTimerForNextTick(this, &ADarkWing::ApplyKnockBack);
+	}
+	return 0;
+}
+
 void ADarkWing::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
+AKWLocationDetector* DetectTarget;
+FVector TargetLocation;
 //공격 전조
-void ADarkWing::AttackOmen(AActor* Target)
+void ADarkWing::AttackOmen()
 {
+	Super::AttackOmen();
 	// 전조
 	UE_LOG(LogTemp, Log, TEXT("DarkWing Attack Omen"));
+	DetectTarget = Cast<AKWLocationDetector>(PlayerTarget);
+	TargetLocation = DetectTarget->GetActorLocation();
 }
 
 //공격
-void ADarkWing::Attack(AActor* Target)
+void ADarkWing::Attack()
 {
+	Super::Attack();
+	UE_LOG(LogTemp, Log, TEXT("DarkWing Attack"));
 	// 플레이어를 향해 깃털 n개 발사
 	if (nullptr != FeatherClass) {
-
 		UWorld* World = GetWorld();
 		if (World) {
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 
-			FVector TargetLocation = Target->GetActorLocation();
-			TargetLocation.Z = 0;
-
-			for (uint32 i = 0; i < FeatherNum; i++) {
+			if (DetectTarget) {
+				FVector TargetLocationVector;
 
 				FVector MuzzleLocation;
 				FRotator MuzzleRotation;
+				FVector LeftSocket, RightSocket;
 
-				GetMesh()->GetSocketWorldLocationAndRotation(FeatherSockets[i], MuzzleLocation, MuzzleRotation);
+				GetMesh()->GetSocketWorldLocationAndRotation(FeatherSockets[0], LeftSocket, MuzzleRotation);
+				GetMesh()->GetSocketWorldLocationAndRotation(FeatherSockets[1], RightSocket, MuzzleRotation);
+				for (uint32 i = 1; i < FeatherNum + 1; i++) {
+					double Alpha = i / (double)(FeatherNum + 1);
+					MuzzleLocation = FMath::Lerp(LeftSocket, RightSocket, FVector(Alpha, Alpha, Alpha));
+					MuzzleLocation.Z = this->GetActorLocation().Z;
 
-				ADW_FeatherProjectile* Feather = World->SpawnActor<ADW_FeatherProjectile>(FeatherClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+					ADW_FeatherProjectile* Feather = World->SpawnActor<ADW_FeatherProjectile>(FeatherClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 
-				if (Feather) {
-					Feather->SetVariables(FeatherPower, FeatherSpeed, FeatherDeleteTime);
+					if (Feather) {
+						Feather->SetVariables(FeatherPower, FeatherSpeed, FeatherDeleteTime);
 
-					FVector LaunchDirection = ((TargetLocation) - MuzzleLocation).GetSafeNormal();
-					TargetLocation.Z -= LaunchDirection.Z * AttackRange;
-					LaunchDirection = ((TargetLocation)-MuzzleLocation).GetSafeNormal();
+						TargetLocationVector = MuzzleLocation + ((TargetLocation - MuzzleLocation) * AttackRange);
+						TargetLocationVector.Z = 0;
+						TargetLocationVector = (TargetLocationVector - MuzzleLocation).GetSafeNormal();
+						
+						//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocationVector.X, TargetLocationVector.Y, TargetLocationVector.Z);
+						//UE_LOG(LogTemp, Log, TEXT(""));
 
+						FVector LaunchDirection = TargetLocationVector;
 
-					Feather->FireInDirection(LaunchDirection);
+						Feather->FireInDirection(LaunchDirection);
+					}
 				}
 			}
+
+			OnAttackFinished.ExecuteIfBound();
+			MonsterState = EState::E_IDLE;
+			PlayerTarget = nullptr;
 		}
 	}
 }

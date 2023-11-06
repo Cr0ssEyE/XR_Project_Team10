@@ -3,12 +3,14 @@
 
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Player/KWPlayerDataAsset.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -18,7 +20,6 @@
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
 {
-
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
@@ -40,12 +41,15 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	GetCapsuleComponent()->SetCapsuleSize(70.f, 70.f);
 	GetMesh()->BodyInstance.bLockZRotation = true;
 	
-	RollingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
-	RollingMesh->SetSimulatePhysics(true);
-	
+	RootMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
+	RootMesh->SetSimulatePhysics(true);
+
+	RollingMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RollingMesh"));
+	RollingMeshComponent->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
 	PlayerComponent = Cast<UCapsuleComponent>(RootComponent);
-	RootComponent = RollingMesh;
+	RootComponent = RootMesh;
 	PlayerComponent->SetupAttachment(RootComponent);
+	RollingMeshComponent->SetupAttachment(RootComponent);
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetUsingAbsoluteRotation(false);
@@ -59,17 +63,22 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	Camera->bUsePawnControlRotation = false;
 
 	
-	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/3-CharacterTest/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
-
-	WalkingMesh = CharacterData-> PlayerWalkingMesh;
-	PlayerWalkingAnimBlueprint = CharacterData->PlayerWalkingAnimBlueprint;
+	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
+	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/28-Player-Rework/Player/SM_Ball_01.SM_Ball_01'"), EAssertionLevel::Check);
+	WalkingMesh = CharacterData->PlayerWalkingMesh;
+	//TODO: 폴더 정리 후 ConstructorHelper로 애님 인스턴스 가져오기
+	WalkingAnimInstance = CharacterData->PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass();
+	RollingMesh = CharacterData->PlayerRollingMesh;
+	RollingAnimInstance = CharacterData->PlayerRollingAnimBlueprint->GetAnimBlueprintGeneratedClass();
 	
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
 	MoveInputAction = CharacterData->MoveInputAction;
-	JumpAction = CharacterData->JumpAction;
+	JumpAction = CharacterData->JumpAction;	
 	AttackAction = CharacterData->AttackAction;
-	FileDriverAction = CharacterData->FileDriverAction;
+	FileDriverAction = CharacterData->DropDownAction;
+
+	Health = 10;
 	
 	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
@@ -85,51 +94,81 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	
 	RB_MultiplyValuesByGear = CharacterData->RB_MultiplyValuesByGear;
 	RB_MultiplyValuesByObjectType = CharacterData->RB_MultiplyValuesByObjectType;
-	RBD_JustTimingValue = CharacterData->RBD_JustTimingValue;
+	RBD_JustTimingCheckTime = CharacterData->RBD_JustTimingCheckTime;
 	RB_DisableMovementTime = CharacterData->RB_DisableMovementTime;
 	RBD_AddVelocityValue = CharacterData->RBD_AddVelocityValue;
 	
 	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
 	
+	DA_BaseDamage = CharacterData->DA_BaseDamage;
+	DA_MultiplyDamageByGear = CharacterData->DA_MultiplyDamageByGear;
 	DA_AddVelocityValue = CharacterData->DA_AddVelocityValue;
 	DA_DurationTime = CharacterData->DA_DurationTime;
 	DA_DecelerateValue = CharacterData->DA_DecelerateValue;
 	AttackCoolDownTime = CharacterData->AttackCoolDownTime;
 
+	DropDownDamage = CharacterData->DropDownDamage;
 	DropDownVelocityValue = CharacterData->DropDownVelocityValue;
 	DropDownMinimumHeightValue = CharacterData->DropDownMinimumHeightValue;
 	DropDownCoolDownTime = CharacterData->DropDownCoolDownTime;
 	
 	ColorsByGear = CharacterData->ColorsByGear;
+
+	bIsEnableHitCheckDebugView = false;
+	bIsEnableLocationDebugView = false;
+	bIsEnableGearDebugView = false;
+	bIsEnableVelocityDebugView = false;
 }
 
 // Called when the game starts or when spawned
 void AKWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	PlayerTrueLocation = GetWorld()->SpawnActor<AKWLocationDetector>();
+	PlayerTrueLocation->SetTargetCharacter(this);
+	PlayerTrueLocation->SetHitChannelType(ECC_PLAYER);
+	PlayerTrueLocation->SetHitChannelProfile(CP_PLAYER);
+	PlayerTrueLocation->SetHitBoxExtent(70.f);
+
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_PLAYER);
+	GetCapsuleComponent()->SetCollisionProfileName(CP_PLAYER, true);
+	
 	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
-	GetMesh()->UpdateCollisionProfile();
 	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
-	GetMesh()->SetAnimClass(PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass());
+	GetMesh()->SetAnimClass(WalkingAnimInstance);
+
+	RollingMeshComponent->SetCollisionObjectType(ECC_PLAYER);
+	RollingMeshComponent->SetCollisionProfileName(CP_PLAYER, true);
+	RollingMeshComponent->SetSkeletalMesh(RollingMesh);
+	RollingMeshComponent->SetAnimClass(RollingAnimInstance);
+	RollingMeshComponent->SetWorldScale3D(FVector::ZeroVector);
 	
-	RollingMesh->SetCollisionObjectType(ECC_PLAYER);
-	RollingMesh->UpdateCollisionProfile();
-	RollingMesh->SetCollisionProfileName(CP_PLAYER, true);
-	RollingMesh->SetMassOverrideInKg(NAME_None, 50.f);
-	RollingMesh->SetStaticMesh(nullptr);
-	RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	RollingMesh->BodyInstance.bLockZRotation = true;
+	RootMesh->SetCollisionObjectType(ECC_PLAYER);
+	RootMesh->SetCollisionProfileName(CP_PLAYER, true);
+	RootMesh->SetMassOverrideInKg(NAME_None, 50.f);
+	RootMesh->SetStaticMesh(RootStaticMesh);
+	RootMesh->SetScalarParameterValueOnMaterials("Opacity", 0.f);
+	RootMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RootMesh->BodyInstance.bLockZRotation = true;
 	
 	Camera->FieldOfView = CharacterData->CameraFOV;
 	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
 	SpringArm->TargetArmLength =CharacterData->SpringArmLength;
 	SpringArm->SetRelativeRotation(FRotator(CharacterData->SpringArmAngle, 0.f,0.f));
+
+	bIsEnableHitCheckDebugView = CharacterData->bIsEnableHitCheckDebugView;
+	bIsEnableGearDebugView = CharacterData->bIsEnableGearDebugView;
+	bIsEnableVelocityDebugView = CharacterData->bIsEnableVelocityDebugView;
+	bIsEnableLocationDebugView = CharacterData->bIsEnableLocationDebugView;
+	bIsMovingMustRolling = CharacterData->bIsMovingMustRolling;
+	
 	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->MaxWalkSpeed = CharacterData->WakingStateMoveSpeed;
-	GetCharacterMovement()->JumpZVelocity = CharacterData->WakingStateJumpValue;
+	GetCharacterMovement()->JumpZVelocity = CharacterData->WakingStateJumpValue;	
 	GetCharacterMovement()->GravityScale = CharacterData->WakingStateGravityScale;
+	GetCharacterMovement()->AirControl = CharacterData->WakingStateAirControl;
 	
 	CurrentGearState = EGearState::GearOne;
 	bIsDead = false;
@@ -140,88 +179,113 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsReBounding = false;
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
+	bIsKnockBackOnGoing = false;
 }
 
 // Called every frame
 void AKWPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// SpringArm->SetRelativeLocation(RootComponent->GetRelativeLocation());
-
-	if(PlayerComponent->GetRelativeScale3D() != FVector::ZeroVector)
+	
+	if(!bIsRolling)
 	{
 		SpringArm->SetRelativeLocation(PlayerComponent->GetComponentToWorld().GetLocation());
+		PlayerTrueLocation->SetActorLocation(PlayerComponent->GetComponentToWorld().GetLocation());
 	}
 	else
 	{	
-		SpringArm->SetRelativeLocation(RootComponent->GetComponentToWorld().GetLocation());;
+		SpringArm->SetRelativeLocation(RootComponent->GetComponentToWorld().GetLocation());
+		RollingMeshComponent->SetWorldLocation(GetActorLocation() + FVector(0.f, 0.f, -0.f));
+		PlayerTrueLocation->SetActorLocation(GetActorLocation());
+	}
+
+	if(!bIsRolling)
+	{
+		return;
+	}
+
+	if(!bIsMoving && bIsRolling && !bIsAttackOnGoing && !GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle) && RootMesh->GetPhysicsLinearVelocity().Length() > 100.f)
+	{
+		GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
 	}
 	
-	if(!bIsMoving && bIsRolling && RollingMesh->GetPhysicsLinearVelocity().Length() > 100.f)
+	if(!GetWorldTimerManager().IsTimerActive(CheckGearStateTimerHandle))
 	{
-		VelocityDecelerateTimer();
+		GetWorldTimerManager().SetTimer(CheckGearStateTimerHandle, this, &AKWPlayerCharacter::CheckGearState, 3.f, true);
 	}
+	const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
+	const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
+	RollingMeshComponent->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
 
-	if(bIsRolling)
-	{
-		CheckGearState();
-		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
-		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
-		RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
-
-		FVector PlaneVelocityVector = RollingMesh->GetPhysicsLinearVelocity();
-		if(abs(PlaneVelocityVector.Z) > DropDownMinimumHeightValue)
-		{
-			bIsFlying = true;
-		}
-
-		// 체공 체크용 충돌 체크.
-		// 추후 공 모델링 적용시 소켓을 사용하여 바닥 위치 지정
-		FHitResult HitResult;
-		FCollisionQueryParams Params(NAME_None, false, this);
-		bool bResult = GetWorld()->SweepSingleByChannel(
+	// 체공 체크용 충돌 체크.
+	// 추후 공 모델링 적용시 소켓을 사용하여 바닥 위치 지정
+	
+	FVector StartLocation = GetActorLocation();
+	FVector EndLocation = StartLocation - FVector(0.f, 0.f, DropDownMinimumHeightValue);
+	
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	bool bResult = GetWorld()->LineTraceSingleByProfile(
 		HitResult,
-		GetActorLocation(),
-		GetActorLocation() - FVector(0.f, 0.f, 70.f),
-		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel1,
-		FCollisionShape::MakeBox(FVector(10.f, 10.f, 10.f)),
-		Params);
+		StartLocation,
+		EndLocation,
+		CP_STATIC_ONLY,
+		Params
+	);
 			
-		if(bResult)
+	if(bResult)
+	{
+		bIsFlying = false;
+		bIsUsedFlyDash = false;
+	}
+	else
+	{
+		bIsFlying = true;
+	}
+	
+	FVector PlaneVelocityVector = RootMesh->GetPhysicsLinearVelocity();
+	PlaneVelocityVector.Z = 0.f;
+	if(PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2 && !bIsAttackOnGoing)
+	{
+		float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+		float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
+		float LengthZ = RootMesh->GetPhysicsLinearVelocity().Z;
+			
+		if (bIsReBounding)	
 		{
-			bIsFlying = false;
-			bIsUsedFlyDash = false;
+			float ReBoundingClampValue = SystemMaxVelocityValue;
+			LengthX = FMath::Clamp(PlaneVelocityVector.X, -ReBoundingClampValue, ReBoundingClampValue);
+			LengthY = FMath::Clamp(PlaneVelocityVector.Y, -ReBoundingClampValue, ReBoundingClampValue);
+			LengthZ = FMath::Clamp(LengthZ, -ReBoundingClampValue, ReBoundingClampValue);
 		}
-		
-		PlaneVelocityVector.Z = 0.f;
-		if(float VelocityLength = PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2 && !bIsAttackOnGoing)
+			
+		if (LengthZ > SystemMaxVelocityValue)
 		{
-			float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
-			float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
-			float LengthZ = RollingMesh->GetPhysicsLinearVelocity().Z;
-			
-			if (bIsReBounding)
-			{
-				float ReBoundingClampValue = SystemMaxVelocityValue;
-				LengthX = FMath::Clamp(PlaneVelocityVector.X, -ReBoundingClampValue, ReBoundingClampValue);
-				LengthY = FMath::Clamp(PlaneVelocityVector.Y, -ReBoundingClampValue, ReBoundingClampValue);
-				LengthZ = FMath::Clamp(LengthZ, -ReBoundingClampValue, ReBoundingClampValue);
-			}
-			
-			if (LengthZ > SystemMaxVelocityValue)
-			{
-				LengthZ = FMath::Clamp(LengthZ, -SystemMaxVelocityValue, SystemMaxVelocityValue);
-			}
-			RollingMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
+			LengthZ = FMath::Clamp(LengthZ, -SystemMaxVelocityValue, SystemMaxVelocityValue);
 		}
+		RootMesh->SetPhysicsLinearVelocity(FVector(LengthX, LengthY, LengthZ));
 	}
 
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
-	
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), RollingMesh->GetPhysicsLinearVelocity().Size2D()));
-	
-	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"), RollingMesh->GetPhysicsLinearVelocity().X, RollingMesh->GetPhysicsLinearVelocity().Y, RollingMesh->GetPhysicsLinearVelocity().Z));
+	if(bIsEnableGearDebugView)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%d"), static_cast<uint8>(CurrentGearState)));
+	}
+
+	if(bIsEnableLocationDebugView)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"),
+		PlayerTrueLocation->GetActorLocation().X,
+		PlayerTrueLocation->GetActorLocation().Y,
+		PlayerTrueLocation->GetActorLocation().Z));
+	}
+
+		if(bIsEnableVelocityDebugView)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f %f %f"),
+		RootMesh->GetPhysicsLinearVelocity().X,
+		RootMesh->GetPhysicsLinearVelocity().Y,
+		RootMesh->GetPhysicsLinearVelocity().Z));
+	}
 }
 
 // Called to bind functionality to input
@@ -251,10 +315,16 @@ void AKWPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 {
-	if(bIsReBounding || bIsAttackOnGoing)
+	if(bIsReBounding || bIsAttackOnGoing || bIsKnockBackOnGoing)
 	{
 		return;
 	}
+	
+	if(!bIsRolling && bIsMovingMustRolling)
+	{
+		ToggleCharacterType();
+	}
+	
 	bIsMoving = true;
 	MoveInputValue = Value.Get<FVector2D>();
 	float MovementVectorSizeSquared = MoveInputValue.SquaredLength();
@@ -263,9 +333,6 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 		MoveInputValue.Normalize();
 	}
 
-	// Camera->GetForwardVector().X;
-	// Camera->GetRightVector().Y;
-
 	FVector MoveDirection = FVector(MoveInputValue.X, MoveInputValue.Y, 0.f);
 	
 	if(bIsRolling && CurrentGearState != EGearState::GearThree && CurrentGearState != EGearState::GearFour)
@@ -273,43 +340,44 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 		FVector AddVelocityResult = MoveDirection * DefaultVelocityValue;
 		AddVelocityResult.Z = 0.f;
 		
-		if(RollingMesh->GetPhysicsLinearVelocity().X >= CurrentMaxVelocityValue && MoveDirection.X > 0)
+		if(RootMesh->GetPhysicsLinearVelocity().X >= CurrentMaxVelocityValue && MoveDirection.X > 0)
 		{
 			AddVelocityResult.X = 0.f;
 		}
-		else if(RollingMesh->GetPhysicsLinearVelocity().X <= -CurrentMaxVelocityValue && MoveDirection.X < 0)
+		else if(RootMesh->GetPhysicsLinearVelocity().X <= -CurrentMaxVelocityValue && MoveDirection.X < 0)
 		{
 			AddVelocityResult.X = 0.f;
 		}
 		
-		if(RollingMesh->GetPhysicsLinearVelocity().Y >= CurrentMaxVelocityValue && MoveDirection.Y > 0)
+		if(RootMesh->GetPhysicsLinearVelocity().Y >= CurrentMaxVelocityValue && MoveDirection.Y > 0)
 		{
 			AddVelocityResult.Y = 0.f;
 		}
-		else if(RollingMesh->GetPhysicsLinearVelocity().Y <= -CurrentMaxVelocityValue && MoveDirection.Y < 0)
+		else if(RootMesh->GetPhysicsLinearVelocity().Y <= -CurrentMaxVelocityValue && MoveDirection.Y < 0)
 		{
 			AddVelocityResult.Y = 0.f;
 		}
 		
-		if(MoveInputValue.X == 0 && RollingMesh->GetPhysicsLinearVelocity().X > 10.f)
+		if(MoveInputValue.X == 0 && RootMesh->GetPhysicsLinearVelocity().X > 10.f)
 		{
 			AddVelocityResult.X = -10.f;
 		}
-		else if(MoveInputValue.X == 0 && RollingMesh->GetPhysicsLinearVelocity().X < -10.f)
+		else if(MoveInputValue.X == 0 && RootMesh->GetPhysicsLinearVelocity().X < -10.f)
 		{
 			AddVelocityResult.X = 10.f;
 		}
 		
-		if(MoveInputValue.Y == 0 && RollingMesh->GetPhysicsLinearVelocity().Y > 10.f)
+		if(MoveInputValue.Y == 0 && RootMesh->GetPhysicsLinearVelocity().Y > 10.f)
 		{
 			AddVelocityResult.Y = -10.f;
 		}
-		else if(MoveInputValue.Y == 0 && RollingMesh->GetPhysicsLinearVelocity().Y < -10.f)
+		else if(MoveInputValue.Y == 0 && RootMesh->GetPhysicsLinearVelocity().Y < -10.f)
 		{
 			AddVelocityResult.Y = 10.f;
 		}
 		
-		RollingMesh->SetPhysicsLinearVelocity(RollingMesh->GetPhysicsLinearVelocity() + AddVelocityResult);
+		RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() + AddVelocityResult);
+		// RollingMeshComponent->AddLocalRotation(FRotator(0.f, 1.f, 0.f));
 	}
 	else
 	{
@@ -324,7 +392,13 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 	if(bIsRolling)
 	{
 		CurrentGearState = EGearState::GearOne;
-		VelocityDecelerateTimer();
+		if(!bIsAttackOnGoing || !bIsFlying)
+		{
+			if(!GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
+			{
+				GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
+			}
+		}
 	}
 }
 
@@ -348,7 +422,7 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 	if(bIsRolling)
 	{
 		const FVector JumpVelocityVector = FVector(0.f, 0.f, AddJumpForceValue);
-		RollingMesh->SetPhysicsLinearVelocity(RollingMesh->GetPhysicsLinearVelocity() + JumpVelocityVector);
+		RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() + JumpVelocityVector);
 	}
 	else
 	{
@@ -358,43 +432,24 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::ToggleCharacterTypeAction(const FInputActionValue& Value)
 {
-	if(bIsFlying || bIsAttackOnGoing || bIsReBounding)
-	{
-		return;
-	}
-	
-	if(bIsRolling)
-	{
-		bIsRolling = false;
-		RollingMesh->SetStaticMesh(nullptr);
-		RollingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		RollingMesh->SetRelativeRotation(FRotator::ZeroRotator);
-		
-		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		PlayerComponent->SetWorldLocation(RollingMesh->GetComponentToWorld().GetLocation());
-		PlayerComponent->SetRelativeScale3D(FVector::OneVector);
-	}
-	else
-	{
-		bIsRolling = true;
-		RollingMesh->SetStaticMesh(CharacterData->PlayerRollingMesh);
-		RollingMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		RollingMesh->SetWorldLocation(PlayerComponent->GetComponentToWorld().GetLocation());
-		
-		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		PlayerComponent->SetRelativeScale3D(FVector::ZeroVector);
-	}
+	ToggleCharacterType();
 }
 
 void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 {
+	if(!bIsRolling || bIsAttackOnGoing || (!bIsMoving && !bIsReBounding) || bIsKnockBackOnGoing)
+	{
+		return;
+	}
+
 	if(bIsReBounding)
 	{
 		if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
 		{
 			return;
 		}
-		RBD_JustTimingProceedAction();
+		bIsInputJustAction = true;
+		GetWorldTimerManager().SetTimer(RBD_JustTimingCheckHandle, this, &AKWPlayerCharacter::RBD_JustTimingProceedAction, 0.01f, false, RBD_JustTimingCheckTime);
 	}
 	else
 	{
@@ -403,7 +458,7 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 			return;
 		}
 
-		if(bCanDashOnFlying && !bIsUsedFlyDash)
+		if(bCanDashOnFlying && !bIsUsedFlyDash && !DA_ElapsedTime)
 		{
 			bIsUsedFlyDash = true;
 			DA_ProceedAction();
@@ -413,16 +468,16 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 		FHitResult HitResult;
 		FCollisionQueryParams Params(NAME_None, false, this);
 		
-		bool bResult = GetWorld()->SweepSingleByChannel(
+		bool bResult = GetWorld()->SweepSingleByProfile(
 		HitResult,
 		GetActorLocation(),
 		GetActorLocation(),
 		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel1,
+		CP_PLAYER,
 		FCollisionShape::MakeSphere(70.0f),
 		Params);
 			
-		if(bResult)
+		if(bResult && !DA_ElapsedTime)
 		{
 			DA_ProceedAction();
 		}
@@ -431,116 +486,176 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
 {
-	if(bIsReBounding || GetWorldTimerManager().IsTimerActive(DropDownTimerHandle) || GetWorldTimerManager().IsTimerActive(DropDownCoolDownTimerHandle))
+	if(bIsReBounding || bIsKnockBackOnGoing || GetWorldTimerManager().IsTimerActive(DropDownTimerHandle) || GetWorldTimerManager().IsTimerActive(DropDownCoolDownTimerHandle))
 	{
 		return;
 	}
 
-	if(bIsFlying && abs(RollingMesh->GetPhysicsLinearVelocity().Z) > DropDownMinimumHeightValue)
+	FVector StartLocation = GetActorLocation();
+	FVector EndLocation = StartLocation - FVector(0.f, 0.f, DropDownMinimumHeightValue);
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionQueryParams(NAME_None, false, this);
+
+	bool bHit = GetWorld()->LineTraceSingleByProfile(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		CP_STATIC_ONLY,
+		CollisionQueryParams
+	);
+	
+	if(bIsFlying && !bHit)
 	{
-		FD_ProceedAction();
+		RootMesh->SetSimulatePhysics(false);
+		// TODO: 파일드라이버 공중 정지 시간 데이터 에셋으로 빼기
+		GetWorldTimerManager().SetTimer(DropDownTimerHandle, this, &AKWPlayerCharacter::FD_ProceedAction, 0.01f, false, 0.2f);
 	}
 }
 
 void AKWPlayerCharacter::AttackCoolDownTimer()
 {
-	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(AttackCoolDownTimerHandle, AttackCoolDownTime))
-			{
-				GetWorldTimerManager().ClearTimer(AttackCoolDownTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(AttackCoolDownTimerHandle);
-			}
-		}), 0.01f, true);
+	// Do SomeThing;
 }
 
 void AKWPlayerCharacter::DropDownCoolDownTimer()
 {
-	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(DropDownCoolDownTimerHandle, DropDownCoolDownTime))
-			{
-				GetWorldTimerManager().ClearTimer(DropDownCoolDownTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DropDownCoolDownTimerHandle);
-			}
-		}), 0.01f, true);
+	// Do SomeThing
 }
 
 void AKWPlayerCharacter::VelocityDecelerateTimer()
 {
-	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle) || bIsReBounding)
+	if(bIsReBounding || bIsKnockBackOnGoing)
 	{
 		return;
 	}
-	if(CurrentGearState == EGearState::GearThree)
+	
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate Ing")));
+	
+	if(static_cast<uint8>(CurrentGearState) > static_cast<uint8>(EGearState::GearTwo))
 	{
 		CurrentGearState = EGearState::GearTwo;
 	}
 
-	GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, FTimerDelegate::CreateLambda([&]()
+	if(bIsAttackOnGoing)
+	{
+		RootMesh->AddForce(RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000 * (1 + DA_DecelerateValue));
+		// RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() * (0.99f * (1 / DA_DecelerateValue)));
+	}
+	else
+	{
+		RootMesh->AddForce(RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000);
+		// RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() * 0.999f);
+	}
+
+	if(RootMesh->GetPhysicsLinearVelocity().Size2D() < 100.f)
+	{
+		FVector DecelerateVector = FVector(10.f, 10.f, 0.f) * RootMesh->GetPhysicsLinearVelocity().GetSafeNormal2D();
+		RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() - DecelerateVector);
+	}
+	
+	if(abs(RootMesh->GetPhysicsLinearVelocity().X) <= abs(VelocityDecelerateTarget.X) && abs(RootMesh->GetPhysicsLinearVelocity().Y) <= abs(VelocityDecelerateTarget.Y))
+	{
+		if(bIsAttackOnGoing)
 		{
-			if(FPPTimerHelper::IsDelayElapsed(VelocityDecelerationTimerHandle, 0.01f))
-			{
-				// GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Green, FString::Printf(TEXT("Decelerate Work")));
-				if(bIsAttackOnGoing)
-				{
-					RollingMesh->AddForce(RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000 * (1 + DA_DecelerateValue));
-				}
-				else
-				{
-					RollingMesh->AddForce(RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000);
-				}
-			}
+			bIsAttackOnGoing = false;
+		}
+		VelocityDecelerateTarget = FVector::ZeroVector;
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+	}
 		
-			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) <= abs(VelocityDecelerateTarget.X) && abs(RollingMesh->GetPhysicsLinearVelocity().Y) <= abs(VelocityDecelerateTarget.Y))
-			{
-				if(bIsAttackOnGoing)
-				{
-					bIsAttackOnGoing = false;
-				}
-				VelocityDecelerateTarget = FVector::ZeroVector;
-				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
-				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(VelocityDecelerationTimerHandle);
-			}
+	if(!bIsRolling || (!bIsAttackOnGoing && bIsMoving) || abs(RootMesh->GetPhysicsLinearVelocity().Z) > 20.f)
+	{
+		if(bIsAttackOnGoing)
+		{
+			bIsAttackOnGoing = false;
+		}
+
+		VelocityDecelerateTarget = FVector::ZeroVector;
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+		if(!GetWorldTimerManager().IsTimerActive(RBD_FailedTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(CheckIdleStateTimerHandle, this, &AKWPlayerCharacter::CheckIdleStateWhenRolling, 0.01f, true);
+		}
+	}
+}
+
+void AKWPlayerCharacter::ToggleCharacterType()
+{
+	if(bIsFlying || bIsAttackOnGoing || bIsReBounding || bIsKnockBackOnGoing)
+	{
+		return;
+	}
+	
+	if(bIsRolling) // 걷기 상태 전환
+	{
+		bIsRolling = false;
+		GetWorldTimerManager().ClearTimer(CheckIdleStateTimerHandle);
+		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
+		GetWorldTimerManager().ClearTimer(DA_DurationTimerHandle);
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 		
-			if(!bIsRolling || (!bIsAttackOnGoing && bIsMoving) || abs(RollingMesh->GetPhysicsLinearVelocity().Z) > 20.f)
-			{
-				if(bIsAttackOnGoing)
-				{
-					bIsAttackOnGoing = false;
-				}
-				VelocityDecelerateTarget = FVector::ZeroVector;
-				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
-				GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(VelocityDecelerationTimerHandle);
-			}
-		}), 0.001f, true);
+		RootMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		RootMesh->SetRelativeRotation(FRotator::ZeroRotator);
+
+		RollingMeshComponent->SetWorldScale3D(FVector::ZeroVector);
+		RollingMeshComponent->SetCollisionEnabled(::ECollisionEnabled::NoCollision);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		PlayerComponent->SetWorldScale3D(FVector::OneVector);
+		PlayerComponent->SetWorldLocation(RootMesh->GetComponentToWorld().GetLocation());
+
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 걷기 상태로 전환")));
+		
+	}
+	else // 구르기 상태 전환
+	{
+		bIsRolling = true;
+		RootMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		RootMesh->SetWorldLocation(PlayerComponent->GetComponentToWorld().GetLocation());
+
+		RollingMeshComponent->SetWorldScale3D(FVector::OneVector);
+		RollingMeshComponent->SetCollisionEnabled(::ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetComponentTickEnabled(ECollisionEnabled::NoCollision);
+		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		PlayerComponent->SetWorldScale3D(FVector::ZeroVector);
+
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 구르기 상태로 전환")));
+	}
+}
+
+void AKWPlayerCharacter::CheckIdleStateWhenRolling()
+{
+	if(RootMesh->GetPhysicsLinearVelocity().Size() < 50.f && bIsRolling && !bIsMoving)
+	{
+		ToggleCharacterType();
+		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
+	}
 }
 
 void AKWPlayerCharacter::RBD_JustTimingProceedAction()
 {
-	bIsInputJustAction = true;
-	GetWorldTimerManager().SetTimer(RBD_JustTimingCheckHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		if(!bIsReBounding)
-		{
-			GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
-		}
-		if(FPPTimerHelper::IsDelayElapsed(RBD_JustTimingCheckHandle, RBD_JustTimingValue))
-		{
-			bIsInputJustAction = false;
-			GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
-		}
-	}), 0.001f, true);
+	bIsInputJustAction = false;
 }
 
 void AKWPlayerCharacter::DA_ProceedAction()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("일반 대시 시작")));
+
+	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+	}
+	
 	bIsAttackOnGoing = true;
+	AttackInputGearState = CurrentGearState;
 	CurrentGearState = EGearState::GearThree;
+	
 	FVector2D MousePosition;
 	int ScreenSizeX;
 	int ScreenSizeY;
@@ -552,208 +667,223 @@ void AKWPlayerCharacter::DA_ProceedAction()
 	const FVector MousePosition3D = FVector(-MousePosition.Y, MousePosition.X, 0.f);
 	const FVector ScreenCenter3D = FVector(-ScreenSizeY / 2, ScreenSizeX / 2, 0.0f);
 	FVector AD_Direction = (MousePosition3D - ScreenCenter3D).GetSafeNormal() * DA_AddVelocityValue;
-	AD_Direction.Z = RollingMesh->GetPhysicsLinearVelocity().Z;
-		
-	VelocityDecelerateTarget = RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
+	// AD_Direction.Z = RootMesh->GetPhysicsLinearVelocity().Z;
+	AD_Direction.Z = 0.f;
+	
+	VelocityDecelerateTarget = RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
 	VelocityDecelerateTarget.Z = 0.f;
 	if(VelocityDecelerateTarget.Length() < 100.f)
 	{
 		VelocityDecelerateTarget = FVector(100.f, 100.f, 0.f);
 	}
-	GetWorldTimerManager().SetTimer(DA_DurationTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(DA_DurationTimerHandle, DA_DurationTime))
-			{
-				CurrentGearState = EGearState::GearTwo;
-				AttackCoolDownTimer();
-				VelocityDecelerateTimer();
-				GetWorldTimerManager().ClearTimer(DA_DurationTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DA_DurationTimerHandle);
-			}
-		}), 0.01f, true);
-	RollingMesh->SetPhysicsLinearVelocity(AD_Direction);
+	
+	RootMesh->SetWorldLocation(RootMesh->GetComponentLocation() + FVector(0.f, 0.f, 30.f));
+	RootMesh->SetPhysicsLinearVelocity(AD_Direction);
+	
+	DA_Params.AddIgnoredActor(this);
+	DA_ElapsedTime = 0;
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
 }
 
 void AKWPlayerCharacter::FD_ProceedAction()
 {
-	GetWorldTimerManager().SetTimer(DropDownTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			RollingMesh->SetSimulatePhysics(false);
-			if(FPPTimerHelper::IsDelayElapsed(DropDownTimerHandle, 0.2f))
-			{
-				RollingMesh->SetSimulatePhysics(true);
-				const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
-				RollingMesh->SetPhysicsLinearVelocity(DroppingVelocity);
-				DropDownCoolDownTimer();
-				GetWorldTimerManager().ClearTimer(DropDownTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(DropDownTimerHandle);
-			}
-		}), 0.01f, true);
+	DropDownElapsedTime = 0;
+	RootMesh->SetSimulatePhysics(true);
+	const FVector DroppingVelocity = FVector(0.f, 0.f, -DropDownVelocityValue);
+	RootMesh->SetPhysicsLinearVelocity(DroppingVelocity);
+	GetWorldTimerManager().SetTimerForNextTick(this, &AKWPlayerCharacter::FD_HitCheckSequence);
+	GetWorldTimerManager().SetTimer(DropDownCoolDownTimerHandle, this, &AKWPlayerCharacter::DropDownCoolDownTimer, DropDownCoolDownTime, false);
 }
 
 void AKWPlayerCharacter::CheckGearState()
 {
-	if(bIsAttackOnGoing || GetWorldTimerManager().IsTimerActive(CheckGearStateTimerHandle))
+	if(bIsAttackOnGoing)
 	{
 		return;
 	}
-	GetWorldTimerManager().SetTimer(CheckGearStateTimerHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		if(!bIsRolling)
-		{
-			GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
-			FPPTimerHelper::InvalidateTimerHandle(CheckGearStateTimerHandle);
-		}
-		float LowerGearValue = 0.f;
-		if(static_cast<uint8>(CurrentGearState) - 1 >= 0)
-		{
-			LowerGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState) - 1];
-		}
 	
-		float UpperGearValue = 0.f;
-		if(static_cast<uint8>(CurrentGearState) + 1 < static_cast<uint8>(EGearState::EndOfGearState))
+	if(!bIsRolling)
+	{
+		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
+	}
+
+	if(RootMesh->GetPhysicsLinearVelocity().Size2D() < 50.f && bIsRolling)
+	{
+		ToggleCharacterType();
+		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
+	}
+	
+	float LowerGearValue = 0.f;
+	if(static_cast<uint8>(CurrentGearState) - 1 >= 0)
+	{
+		LowerGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState) - 1];
+	}
+	
+	float UpperGearValue = 0.f;
+	if(static_cast<uint8>(CurrentGearState) + 1 < static_cast<uint8>(EGearState::EndOfGearState))
+	{
+		UpperGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+	}
+	
+	if(LowerGearValue != 0.f && (abs(RootMesh->GetPhysicsLinearVelocity().Size2D() / 2) < LowerGearValue || abs(RootMesh->GetPhysicsLinearVelocity().X) < LowerGearValue || abs(RootMesh->GetPhysicsLinearVelocity().Y) < LowerGearValue))
+	{
+		switch (CurrentGearState)
 		{
-			UpperGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+		case EGearState::GearTwo:
+			CurrentGearState = EGearState::GearOne;
+			break;
+		case EGearState::GearThree:
+			CurrentGearState = EGearState::GearTwo;
+			break;
+		case EGearState::GearFour:
+			CurrentGearState = EGearState::GearThree;
+			break;
+		default:
+			checkNoEntry();
 		}
-		
-		if(LowerGearValue != 0.f && (abs(RollingMesh->GetPhysicsLinearVelocity().Size2D() / 2) < LowerGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().X) < LowerGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) < LowerGearValue))
+		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
+		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
+		RollingMeshComponent->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
+		CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+		return;
+	}
+	
+	// 왜 직선 기어값 변경은 두번 체크해야 하는지 이유 불명
+	{	
+		if(abs(RootMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RootMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
 		{
 			switch (CurrentGearState)
 			{
-			case EGearState::GearTwo:
-				CurrentGearState = EGearState::GearOne;
-				break;
-			case EGearState::GearThree:
+			case EGearState::GearOne:
 				CurrentGearState = EGearState::GearTwo;
 				break;
+			case EGearState::GearTwo:
+				// CurrentGearState = EGearState::GearThree;
+				break;
+			case EGearState::GearThree:
+				break;
 			case EGearState::GearFour:
-				CurrentGearState = EGearState::GearThree;
+				break;
+			default:
+				checkNoEntry();
+			}
+		}
+		if(abs(RootMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RootMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
+		{
+			switch (CurrentGearState)
+			{
+			case EGearState::GearOne:
+				CurrentGearState = EGearState::GearTwo;
+				break;
+			case EGearState::GearTwo:
+				// CurrentGearState = EGearState::GearThree;
+				break;
+			case EGearState::GearThree:
+				break;
+			case EGearState::GearFour:
 				break;
 			default:
 				checkNoEntry();
 			}
 			const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
 			const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
-			RollingMesh->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
+			RollingMeshComponent->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
 			CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
-			return;
 		}
-		
-		// 왜 직선 기어값 변경은 두번 체크해야 하는지 이유 불명
-		{	
-			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
-			{
-				switch (CurrentGearState)
-				{
-				case EGearState::GearOne:
-					CurrentGearState = EGearState::GearTwo;
-					break;
-				case EGearState::GearTwo:
-					// CurrentGearState = EGearState::GearThree;
-					break;
-				case EGearState::GearThree:
-					break;
-				case EGearState::GearFour:
-					break;
-				default:
-					checkNoEntry();
-				}
-			}
-			if(abs(RollingMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RollingMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
-			{
-				switch (CurrentGearState)
-				{
-				case EGearState::GearOne:
-					CurrentGearState = EGearState::GearTwo;
-					break;
-				case EGearState::GearTwo:
-					// CurrentGearState = EGearState::GearThree;
-					break;
-				case EGearState::GearThree:
-					break;
-				case EGearState::GearFour:
-					break;
-				default:
-					checkNoEntry();
-				}
-				CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
-			}
-		}
-	}), 1.0f, true);
+	}
 }
 
 void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)
 {
-	if(!bIsRolling || bIsReBounding || GetWorldTimerManager().IsTimerActive(RB_DelayTimerHandle))
+	// TODO:: 리바운드와 넉백을 구분할 수 있게 이펙트나 효과음 다르게 연출하기
+	if(!bIsRolling || bIsReBounding || bIsKnockBackOnGoing)
 	{
 		return;
 	}
 	bIsReBounding = true;
-	RollingMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
-	// RollingMesh->SetSimulatePhysics(false);
+	RootMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 
 	ReBoundResultValue *= RB_MultiplyValuesByObjectType[static_cast<uint8>(ObjectType)];
 	ReBoundResultValue *= RB_MultiplyValuesByGear[static_cast<uint8>(CurrentGearState)];
-	float ReBoundDelayTime = 0.01f;
-	GetWorldTimerManager().SetTimer(RB_DelayTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(RB_DelayTimerHandle, ReBoundDelayTime))
-			{
-				// RollingMesh->SetSimulatePhysics(true);
-				// RollingMesh->SetAllPhysicsLinearVelocity(ReBoundResultValue);
-				RollingMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
-				RB_CheckContactToFloor();
-				GetWorldTimerManager().ClearTimer(RB_DelayTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(RB_DelayTimerHandle);
-			}
-		}), 0.01f, true);
+	RootMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
+	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, this, &AKWPlayerCharacter::RB_CheckContactToFloor, 0.1f, false, 0.5f);
+}
+
+void AKWPlayerCharacter::RB_ApplyKnockBackByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)
+{
+	// TODO:: 리바운드와 넉백을 구분할 수 있게 이펙트나 효과음 다르게 연출하기
+	if(!bIsRolling || bIsReBounding || bIsKnockBackOnGoing)
+	{
+		return;
+	}
+	bIsKnockBackOnGoing = true;
+	RootMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+
+	ReBoundResultValue *= RB_MultiplyValuesByObjectType[static_cast<uint8>(ObjectType)];
+	ReBoundResultValue *= RB_MultiplyValuesByGear[static_cast<uint8>(CurrentGearState)];
+	RootMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
+	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, this, &AKWPlayerCharacter::RB_CheckContactToFloor, 0.1f, false, 0.5f);
 }
 
 void AKWPlayerCharacter::RB_CheckContactToFloor()
 {
-	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, FTimerDelegate::CreateLambda([&]()
-	{
-		FHitResult HitResult;
-		FCollisionQueryParams Params(NAME_None, false, this);
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
 		
-		bool bResult = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		GetActorLocation(),
-		GetActorLocation(),
-		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel1,
-		FCollisionShape::MakeSphere(70.0f),
-		Params);
+	bool bResult = GetWorld()->SweepSingleByProfile(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation() - FVector(0.f, 0.f, 90.f),
+	FQuat::Identity,
+	CP_PLAYER,
+	FCollisionShape::MakeBox(FVector(50.f, 50.f, 1.f)),
+	Params);
 
-		if(bResult)
+	if(bResult)
+	{
+		if(bIsKnockBackOnGoing)
+		{
+			bIsKnockBackOnGoing = false;
+			return;
+		}
+		
+		if(bIsInputJustAction)
 		{
 			bIsReBounding = false;
-			if(bIsInputJustAction)
+			bIsInputJustAction = false;
+			if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
 			{
-				bIsReBounding = false;
-				bIsInputJustAction = false;
-				if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
-				{
-					GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-					FPPTimerHelper::InvalidateTimerHandle(RBD_JustTimingCheckHandle);
-				}
-				RBD_SuccessEvent();
+				GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
 			}
-			else
-			{
-				RBD_FailedEvent();
-			}
-			GetWorldTimerManager().ClearTimer(RB_ContactCheckHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RB_ContactCheckHandle);
+			RBD_SuccessEvent();
+			return;
 		}
-	}), 0.01f, true);
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("리바운드 패널티 적용")));
+		DisableInput(Cast<APlayerController>(GetController()));
+		if(GetWorldTimerManager().IsTimerActive(CheckIdleStateTimerHandle))
+		{
+			GetWorldTimerManager().ClearTimer(CheckIdleStateTimerHandle);
+		}
+		GetWorldTimerManager().SetTimer(RBD_FailedTimerHandle, this, &AKWPlayerCharacter::RBD_FailedPenaltyEndEvent, 0.01f, false, RB_DisableMovementTime);
+		return;
+	}
+	GetWorldTimerManager().SetTimerForNextTick(this, &AKWPlayerCharacter::RB_CheckContactToFloor);
 }
 
 void AKWPlayerCharacter::RBD_SuccessEvent()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("리바운드 대시 시작")));
+	
 	// 리바운드 대쉬 실행
+	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
+	}
+	
 	bIsAttackOnGoing = true;
+	AttackInputGearState = EGearState::GearFour;
 	CurrentGearState = EGearState::GearFour;
+	
 	FVector2D MousePosition;
 	int ScreenSizeX;
 	int ScreenSizeY;
@@ -764,31 +894,110 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 		
 	const FVector MousePosition3D = FVector(-MousePosition.Y, MousePosition.X, 0.f);
 	const FVector ScreenCenter3D = FVector(-ScreenSizeY / 2, ScreenSizeX / 2, 0.0f);
-	const FVector AD_Direction = (MousePosition3D - ScreenCenter3D).GetSafeNormal();
-
-	VelocityDecelerateTarget = RollingMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue * 0.75;
+	FVector AD_Direction = (MousePosition3D - ScreenCenter3D).GetSafeNormal() * RBD_AddVelocityValue;
+	AD_Direction.Z = 0.f;
 	
-	GetWorldTimerManager().SetTimer(RBD_SucceedTimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			if(FPPTimerHelper::IsDelayElapsed(RBD_SucceedTimerHandle, DA_DurationTime))
-			{
-				CurrentGearState = EGearState::GearTwo;
-				VelocityDecelerateTimer();
-				GetWorldTimerManager().ClearTimer(RBD_SucceedTimerHandle);
-				FPPTimerHelper::InvalidateTimerHandle(RBD_SucceedTimerHandle);
-			}
-		}), 0.01f, true);
-	RollingMesh->SetPhysicsLinearVelocity(AD_Direction * RBD_AddVelocityValue);
+	RootMesh->SetWorldLocation(RootMesh->GetComponentLocation() + FVector(0.f, 0.f, 30.f));
+	VelocityDecelerateTarget = RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
+	RootMesh->SetPhysicsLinearVelocity(AD_Direction);
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
 }
 
-void AKWPlayerCharacter::RBD_FailedEvent()
+void AKWPlayerCharacter::RBD_FailedPenaltyEndEvent()
 {
-	// 입력 실패로 간주하고 실패 애니메이션 적용 및 입력 비활성화
-	DisableInput(Cast<APlayerController>(GetController()));
-	GetWorldTimerManager().SetTimer(RBD_FailedTimerHandle, FTimerDelegate::CreateLambda([&]()
+	bIsReBounding = false;
+	EnableInput(Cast<APlayerController>(GetController()));
+}
+
+void AKWPlayerCharacter::DA_HitCheckSequence()
+{
+	DA_ElapsedTime += GetWorld()->DeltaTimeSeconds;
+	if(DA_ElapsedTime >= DA_DurationTime)
+	{
+		DA_ElapsedTime = 0;
+		CurrentGearState = EGearState::GearTwo;
+		DA_Params.ClearIgnoredActors();
+		GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &AKWPlayerCharacter::AttackCoolDownTimer, AttackCoolDownTime, false);
+		if(!GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
 		{
-			EnableInput(Cast<APlayerController>(GetController()));
-		}), RB_DisableMovementTime, false);
+			GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
+			return;
+		}
+	}
+	
+	FHitResult HitResult;
+	// TODO: 히트 박스 범위 데이터 에셋으로 받기
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation(),
+	FQuat::Identity,
+	ECC_ENEMY_ONLY,
+	FCollisionShape::MakeSphere(90.0f),
+	DA_Params);
+
+	if(bIsEnableHitCheckDebugView)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), 90.f, 32, FColor::Magenta, false, 0.3f);
+	}
+	
+	if(bResult)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
+		
+		FDamageEvent DamageEvent;
+		HitResult.GetActor()->TakeDamage(DA_BaseDamage * DA_MultiplyDamageByGear[static_cast<uint8>(AttackInputGearState)], DamageEvent, GetController(), this);
+		DA_Params.AddIgnoredActor(HitResult.GetActor());
+	}
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
+}
+
+void AKWPlayerCharacter::FD_HitCheckSequence()
+{
+	FHitResult GroundResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	// TODO: 히트 박스 범위 데이터 에셋으로 받기
+	bool GroundCheck = GetWorld()->SweepSingleByChannel(
+	GroundResult,
+	GetActorLocation(),
+	GetActorLocation() - FVector(0.f, 0.f, 90.f),
+	FQuat::Identity,
+	ECC_WorldDynamic,
+	FCollisionShape::MakeBox(FVector(10.f, 10.f, 5.f)),
+	Params);
+
+	if(GroundCheck)
+	{
+		// TODO: 바닥에 충격파 히트 체크및 이펙트
+		return;
+	}
+	
+	FHitResult HitResult;
+	// TODO: 히트 박스 범위 데이터 에셋으로 받기
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation() - FVector(0.f, 0.f, 10.f),
+	FQuat::Identity,
+	ECC_ENEMY_ONLY,
+	FCollisionShape::MakeSphere(90.0f),
+	FD_Params);
+
+	if(bIsEnableHitCheckDebugView)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), 90.f, 32, FColor::Magenta, false, 0.3f);
+	}	
+	
+	if(bResult)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
+		
+		FDamageEvent DamageEvent;
+		HitResult.GetActor()->TakeDamage(DropDownDamage, DamageEvent, GetController(), this);
+		FD_Params.AddIgnoredActor(HitResult.GetActor());
+	}
+	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::FD_HitCheckSequence);
 }
 
 
