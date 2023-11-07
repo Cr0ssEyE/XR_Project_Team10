@@ -294,26 +294,37 @@ private:
 	
 	TArray<FLinearColor> ColorsByGear;
 	
+	UPROPERTY()
 	uint8 bIsDead : 1;
 	
+	UPROPERTY()
 	uint8 bIsMoving : 1;
 	
+	UPROPERTY()
 	uint8 bIsRolling : 1;
 
+	UPROPERTY()
 	uint8 bIsFlying : 1;
 
+	UPROPERTY()
 	uint8 bIsUsedFlyDash : 1;
 
+	UPROPERTY()
 	uint8 bIsMovingMustRolling : 1;
 
+	UPROPERTY()
 	uint8 bIsRollingIdleToWalk : 1;
-	
+
+	UPROPERTY()
 	uint8 bIsReBounding : 1;
 
+	UPROPERTY()
 	uint8 bIsKnockBackOnGoing : 1;
 	
+	UPROPERTY()
 	uint8 bIsInputJustAction : 1;
 	
+	UPROPERTY()
 	uint8 bIsAttackOnGoing : 1;
 
 	/** 리바운드 관련 함수 리스트\n

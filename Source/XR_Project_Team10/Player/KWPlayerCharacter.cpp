@@ -1034,6 +1034,10 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 		
 		FDamageEvent DamageEvent;
 		HitResult.GetActor()->TakeDamage(DA_BaseDamage * DA_MultiplyDamageByGear[static_cast<uint8>(AttackInputGearState)], DamageEvent, GetController(), this);
+		FVector CollisionDirection = (GetActorLocation() - HitResult.GetActor()->GetActorLocation()).GetSafeNormal();
+		CollisionDirection.Z = 1.5f;
+		CollisionDirection *= 1000.f;
+		RB_ApplyReBoundByObjectType(CollisionDirection, EReBoundObjectType::Enemy);
 		DA_Params.AddIgnoredActor(HitResult.GetActor());
 	}
 	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
