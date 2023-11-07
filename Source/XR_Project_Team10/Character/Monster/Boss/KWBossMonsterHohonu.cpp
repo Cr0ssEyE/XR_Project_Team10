@@ -369,7 +369,7 @@ void AKWBossMonsterHohonu::OmenPattern_SL()
 	{
 		AIOwner->GetBlackboardComponent()->SetValueAsBool(KEY_HOHONU_SL_TURN, false);
 	}
-	HohonuLaserSweepEffect->SetRelativeRotation(FRotator(0.f, 95.f, 0.f));
+	HohonuLaserSweepEffect->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
 	
 	if(bIsSweepLeftToRight)
 	{
@@ -427,7 +427,7 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 	}
 	
 	FVector StartLocation = HohonuLaserSweepEffect->GetComponentLocation();
-	FVector EndLocation = StartLocation + HohonuLaserSweepEffect->GetForwardVector() * SL_Distance;
+	FVector EndLocation = StartLocation + HohonuLaserSweepEffect->GetUpVector() * SL_Distance;
 	
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams Params(NAME_None, false, this);
@@ -665,7 +665,12 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 	
 	FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 	AddActorLocalRotation(FRotator(0.f, WW_RotateSpeed * 0.01f, 0.f));
-	AddMovementInput(MoveDirection);
+
+	// TODO: 매직 넘버 수정
+	if(FVector::DistXY(GetActorLocation(), TargetPlayer->GetActorLocation()) > 500.f)
+	{
+		AddMovementInput(MoveDirection);
+	}
 	if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
 	{
 		GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeedPerSecond * FPPTimerHelper::GetActualDeltaTime(WW_TimerHandle);

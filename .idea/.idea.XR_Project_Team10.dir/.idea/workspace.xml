@@ -8,15 +8,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JHT2/0/N5/G8WOAFDLN0W86VQTAWYEDX.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JHT2/6/9A/4BICEXLIM0WKP56NHC5UX1.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/21-Hohonu/AI/Hohonu/BT_BossHohonu.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/21-Hohonu/AI/Hohonu/BT_BossHohonu.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/40-Second-Round-Table/MainDesign_round_JGG1.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/40-Second-Round-Table/MainDesign_round_JGG1.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CommonMonster.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CommonMonster.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CommonMonster.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CommonMonster.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/CrowTalon.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/CrowTalon.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/DarkWingData.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/DarkWingData.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JGG1/7/3U/2OUT5CVP5IQXP6330XUI0X.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JGG1/7/3U/2OUT5CVP5IQXP6330XUI0X.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -223,7 +224,7 @@
       <workItem from="1698796827036" duration="6207000" />
       <workItem from="1698821307981" duration="905000" />
       <workItem from="1699376777169" duration="10895000" />
-      <workItem from="1699391711639" duration="634000" />
+      <workItem from="1699391711639" duration="1958000" />
     </task>
     <servers />
   </component>

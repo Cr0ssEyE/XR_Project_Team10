@@ -52,6 +52,9 @@ void AKWHohonuCrystal::BeginPlay()
 	CollisionCapsule->SetCapsuleSize(40.f, 50.f);
 	CollisionCapsule->SetRelativeLocation(FVector(0.f, 0.f, -50.f));
 	CollisionCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	StaticMeshComponent->SetCollisionObjectType(ECC_ENEMY);
+	StaticMeshComponent->SetCollisionProfileName(CP_ENEMY);
 	
 	SC_Hp = BossHohonuDataAsset->SC_Hp;
 	CurrentHp = SC_Hp;
