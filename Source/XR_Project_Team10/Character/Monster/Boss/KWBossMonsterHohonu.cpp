@@ -24,11 +24,11 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	AIControllerClass = AKWHohonuAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
-	BossMonsterStatusData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/21-Hohonu/Datas/Hohonu_DataAsset.Hohonu_DataAsset'"));
+	BossMonsterStatusData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.Hohonu_DataAsset'"));
 
-	BossMonsterAnimData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossAnimDataAsset'/Game/21-Hohonu/Datas/Hohonu_AnimDataAsset.Hohonu_AnimDataAsset'"));
+	BossMonsterAnimData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossAnimDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_AnimDataAsset.Hohonu_AnimDataAsset'"));
 
-	BossMonsterAIData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuAIDataAsset'/Game/21-Hohonu/Datas/Hohonu_AIDataAsset.Hohonu_AIDataAsset'"));
+	BossMonsterAIData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuAIDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_AIDataAsset.Hohonu_AIDataAsset'"));
 
 	SetActorScale3D(FVector::OneVector * 2);
 	GetCapsuleComponent()->SetCapsuleSize(50.f, 50.f);
@@ -163,7 +163,10 @@ float AKWBossMonsterHohonu::TakeDamage(float DamageAmount, FDamageEvent const& D
 
 	if(BossHp <= 0)
 	{
-		GetController()->Destroy();
+		if(GetController())
+		{
+			GetController()->Destroy();
+		}
 	}
 	
 	AKWPlayerCharacter* Causer = Cast<AKWPlayerCharacter>(DamageCauser);
@@ -339,7 +342,7 @@ void AKWBossMonsterHohonu::OmenPattern_SC()
 	}
 	SC_SpawnCount = 0;
 
-	SC_Instances[SC_SpawnCount]->SetActorLocation(FVector(TargetPlayer->GetActorLocation().X, TargetPlayer->GetActorLocation().Y, SC_SpawnHeight));
+	SC_Instances[SC_SpawnCount]->SetActorLocation(FVector(TargetPlayer->GetActorLocation().X, TargetPlayer->GetActorLocation().Y, TargetPlayer->GetActorLocation().Z + SC_SpawnHeight));
 	SC_Instances[SC_SpawnCount]->ActivateAndDropDownSequence();
 	SC_SpawnCount++;
 	
@@ -404,7 +407,7 @@ void AKWBossMonsterHohonu::ExecutePattern_SC()
 	if(SC_SpawnCount < SC_Instances.Num())
 	{
 		SC_Instances[SC_SpawnCount]->ActivateAndDropDownSequence();
-		SC_Instances[SC_SpawnCount]->SetActorLocation(FVector(TargetPlayer->GetActorLocation().X, TargetPlayer->GetActorLocation().Y, SC_SpawnHeight));
+		SC_Instances[SC_SpawnCount]->SetActorLocation(FVector(TargetPlayer->GetActorLocation().X, TargetPlayer->GetActorLocation().Y, TargetPlayer->GetActorLocation().Z + SC_SpawnHeight));
 		SC_SpawnCount++;
 		if(SC_SpawnCount == SC_Instances.Num())
 		{

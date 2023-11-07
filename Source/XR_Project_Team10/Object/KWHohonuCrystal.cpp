@@ -16,7 +16,7 @@ AKWHohonuCrystal::AKWHohonuCrystal()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	BossHohonuDataAsset = FPPConstructorHelper::FindAndGetObject<UKWBossHohonuDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/21-Hohonu/Datas/Hohonu_DataAsset.Hohonu_DataAsset'"));
+	BossHohonuDataAsset = FPPConstructorHelper::FindAndGetObject<UKWBossHohonuDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.Hohonu_DataAsset'"));
 	
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CrystalMesh"));
 
@@ -29,19 +29,19 @@ AKWHohonuCrystal::AKWHohonuCrystal()
 	WaveVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("WaveVFX"));
 	
 	DestroyVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DestroyVFX"));
-	
-	StaticMeshComponent->SetupAttachment(RootComponent);
-	CollisionCapsule->SetupAttachment(RootComponent);
-	SummonVFX->SetupAttachment(RootComponent);
-	DropDownVFX->SetupAttachment(RootComponent);
-	WaveVFX->SetupAttachment(RootComponent);
-	DestroyVFX->SetupAttachment(RootComponent);
 
 	StaticMeshComponent->SetStaticMesh(BossHohonuDataAsset->SC_Mesh);
 	SummonVFX->SetAsset(BossHohonuDataAsset->SC_SummonVFX);
 	DropDownVFX->SetAsset(BossHohonuDataAsset->SC_DropDownVFX);
 	WaveVFX->SetAsset(BossHohonuDataAsset->SC_WaveVFX);
 	DestroyVFX->SetAsset(BossHohonuDataAsset->SC_DestroyVFX);
+
+	StaticMeshComponent->SetupAttachment(RootComponent);
+	CollisionCapsule->SetupAttachment(StaticMeshComponent);
+	SummonVFX->SetupAttachment(StaticMeshComponent);
+	DropDownVFX->SetupAttachment(StaticMeshComponent);
+	WaveVFX->SetupAttachment(StaticMeshComponent);
+	DestroyVFX->SetupAttachment(StaticMeshComponent);
 }
 
 // Called when the game starts or when spawned
@@ -76,7 +76,22 @@ void AKWHohonuCrystal::BeginPlay()
 void AKWHohonuCrystal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	bool bResult = GetWorld()->LineTraceSingleByProfile(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() - FVector(0.f, 0.f, -BossHohonuDataAsset->SC_SpawnHeight),
+		CP_STATIC_ONLY,
+		Params
+	);
+	
+	if(bResult)
+	{
+		DropDownVFX->SetWorldLocation(HitResult.Location);
+		WaveVFX->SetWorldLocation(HitResult.Location);
+	}
 }
 
 void AKWHohonuCrystal::Destroyed()
@@ -147,6 +162,7 @@ void AKWHohonuCrystal::ActivateAndDropDownSequence()
 	CurrentHp = SC_Hp;
 	StaticMeshComponent->SetVisibility(true);
 	SummonVFX->Activate(true);
+	DropDownVFX->Activate(true);
 	GetWorldTimerManager().SetTimer(DropDownTimerHandle, this, &AKWHohonuCrystal::DropDownSequence, 0.01f, false, SC_DropDownDelay);
 }
 
@@ -198,6 +214,7 @@ void AKWHohonuCrystal::DropDownSequence()
 		DropDownVFX->Activate(true);
 		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SC_CurrentAttackRange = 0;
+		WaveVFX->Activate(true);
 		GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttack, 0.01f, true);
 		return;
 	}
