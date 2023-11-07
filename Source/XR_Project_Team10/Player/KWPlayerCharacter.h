@@ -43,7 +43,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
+	FORCEINLINE void SetInputActivate(bool Value) {Value ? EnableInput(GetWorld()->GetFirstPlayerController()) : DisableInput(GetWorld()->GetFirstPlayerController()); }
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -77,7 +78,7 @@ private:
 	TSubclassOf<class UAnimInstance> RollingAnimInstance;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAnimMontage> DeadAnimMontage;
+	TObjectPtr<UAnimMontage> KiwiAnimMontage;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
@@ -371,9 +372,9 @@ private:
 	TObjectPtr<UKWPauseWidget> PauseWidget;
 
 	UPROPERTY()
-	TSubclassOf<UKWFadeWidget> DeadFadeWidgetClass;
+	TSubclassOf<UKWFadeWidget> ScreenFadeWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UKWFadeWidget> DeadFadeWidget;
+	TObjectPtr<UKWFadeWidget> ScreenFadeWidget;
 };
 

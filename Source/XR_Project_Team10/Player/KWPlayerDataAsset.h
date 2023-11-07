@@ -40,7 +40,7 @@ public:
 	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
 
 	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 죽음 애니메이션 몽타주")
-	TObjectPtr<UAnimMontage> DeadAnimMontage;
+	TObjectPtr<UAnimMontage> KiwiAnimMontage;
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Debug, DisplayName = "히트 체크 디버그 뷰 활성화")
