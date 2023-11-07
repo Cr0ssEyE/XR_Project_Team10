@@ -296,6 +296,8 @@ private:
 	uint8 bIsUsedFlyDash : 1;
 
 	uint8 bIsMovingMustRolling : 1;
+
+	uint8 bIsRollingIdleToWalk : 1;
 	
 	uint8 bIsReBounding : 1;
 

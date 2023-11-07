@@ -3,6 +3,7 @@
 
 #include "XR_Project_Team10/Object/KWPlayerSavePoint.h"
 
+#include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
@@ -13,10 +14,15 @@ AKWPlayerSavePoint::AKWPlayerSavePoint()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh->SetCollisionProfileName(CP_GIMMICK);
+	BaseMesh->SetCollisionObjectType(ECC_PLAYER_ONLY);
 	RootComponent = BaseMesh;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
 	CollisionBox->SetBoxExtent(FVector::OneVector * 100.f);
+	CollisionBox->SetCollisionProfileName(CP_GIMMICK);
+	CollisionBox->SetCollisionObjectType(ECC_PLAYER_ONLY);
+	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionBox->SetupAttachment(RootComponent);
 
 	PlayerSpawnLocation = CreateDefaultSubobject<USceneComponent>(TEXT("SpawnLocation"));

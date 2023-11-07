@@ -7,8 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "KWPlayerSavePoint.generated.h"
 
-class AKWPlayerSavePoint;
-DECLARE_MULTICAST_DELEGATE_OneParam(FRegisterSavePointDelegate, AKWPlayerSavePoint*)
+DECLARE_MULTICAST_DELEGATE_OneParam(FRegisterSavePointDelegate, AActor*)
 
 UCLASS()
 class XR_PROJECT_TEAM10_API AKWPlayerSavePoint : public AActor

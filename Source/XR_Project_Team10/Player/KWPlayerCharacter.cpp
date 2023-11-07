@@ -168,6 +168,7 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsEnableVelocityDebugView = CharacterData->bIsEnableVelocityDebugView;
 	bIsEnableLocationDebugView = CharacterData->bIsEnableLocationDebugView;
 	bIsMovingMustRolling = CharacterData->bIsMovingMustRolling;
+	bIsRollingIdleToWalk = CharacterData->bIsRollingIdleToWalk;
 	
 	PlayerComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->MaxWalkSpeed = CharacterData->WakingStateMoveSpeed;
@@ -216,12 +217,14 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	Health -= DamageAmount;
 	if(Health <= 0)
-	{
+	{	
 		// 죽음 애니메이션 
-		DisableInput(GetWorld()->GetFirstPlayerController());
-		DeadFadeWidget->SetVisibility(ESlateVisibility::Visible);
-		DeadFadeWidget->SetIsEnabled(true);
-		DeadFadeWidget->StartFade();
+		// DisableInput(GetWorld()->GetFirstPlayerController());
+		// DeadFadeWidget->SetVisibility(ESlateVisibility::Visible);
+		// DeadFadeWidget->SetIsEnabled(true);
+		// DeadFadeWidget->StartFade();
+		//TODO: 죽음 애니메이션 및 페이드 후 적용
+		UGameplayStatics::OpenLevel(this, GetWorld()->OriginalWorldName);
 	}
 	// 피격 애니메이션 실행
 	return 0;
@@ -686,9 +689,9 @@ void AKWPlayerCharacter::ToggleCharacterType()
 
 void AKWPlayerCharacter::CheckIdleStateWhenRolling()
 {
-	if(RootMesh->GetPhysicsLinearVelocity().Size() < 50.f && bIsRolling && !bIsMoving)
+	if(RootMesh->GetPhysicsLinearVelocity().Size() < 50.f && bIsRolling && !bIsMoving && bIsRollingIdleToWalk)
 	{
-		//ToggleCharacterType();
+		ToggleCharacterType();
 		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
 	}
 }
@@ -1014,12 +1017,12 @@ void AKWPlayerCharacter::FD_HitCheckSequence()
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 	// TODO: 히트 박스 범위 데이터 에셋으로 받기
-	bool GroundCheck = GetWorld()->SweepSingleByChannel(
+	bool GroundCheck = GetWorld()->SweepSingleByProfile(
 	GroundResult,
 	GetActorLocation(),
 	GetActorLocation() - FVector(0.f, 0.f, 90.f),
 	FQuat::Identity,
-	ECC_WorldDynamic,
+	CP_PLAYER,
 	FCollisionShape::MakeBox(FVector(10.f, 10.f, 5.f)),
 	Params);
 

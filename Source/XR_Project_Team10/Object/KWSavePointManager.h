@@ -25,7 +25,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void RegisterSavePoint(AKWPlayerSavePoint* SavePoint);
+	void RegisterSavePoint(AActor* SavePoint);
 	
 protected:
 	UPROPERTY(EditAnywhere)

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "XR_Project_Team10/Util/KWSavePointManager.h"
+#include "XR_Project_Team10/Object/KWSavePointManager.h"
 
 #include "XR_Project_Team10/Game/KWGameInstance.h"
 
@@ -36,11 +36,12 @@ void AKWSavePointManager::Tick(float DeltaTime)
 
 }
 
-void AKWSavePointManager::RegisterSavePoint(AKWPlayerSavePoint* SavePoint)
+void AKWSavePointManager::RegisterSavePoint(AActor* SavePoint)
 {
+	AKWPlayerSavePoint* PlayerSavePoint = CastChecked<AKWPlayerSavePoint>(SavePoint);
 	for (int p = 0; p < SavePoints.Num(); p++)
 	{
-		if(SavePoint == SavePoints[p])
+		if(PlayerSavePoint == SavePoints[p])
 		{
 			UKWGameInstance* GameInstance = GetWorld()->GetGameInstanceChecked<UKWGameInstance>();
 			GameInstance->SetSavePoint(p);

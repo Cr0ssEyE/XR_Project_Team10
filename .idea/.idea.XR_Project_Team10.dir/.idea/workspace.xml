@@ -8,14 +8,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSavePointManager.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSavePointManager.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSaveSettingOption.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSaveSettingOption.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/34-SavePointTest/NewMap.umap" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/34-SavePointTest/SavePointTestMap.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWHohonuCrystal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWPlayerSavePoint.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWPlayerSavePoint.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSavePointManager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSavePointManager.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,33 +29,6 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
