@@ -50,6 +50,15 @@
 		{
 			"Name": "PhysicsControl",
 			"Enabled": true
+		},
+		{
+			"Name": "ActorPalette",
+			"Enabled": true
+		},
+		{
+			"Name": "ActorLocker",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/9280e03740c64592ad81b9fe751cec7e"
 		}
 	]
 }

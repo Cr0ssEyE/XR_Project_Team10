@@ -8,16 +8,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/MF_MapAdjustments_Default.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/34-SavePointTest/NewMap.umap" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/34-SavePointTest/SavePointTestMap.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/MF_MapAdjustments.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master_Mask.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master_Mask.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Bridge_2/MI_Bridge_B.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Bridge_2/MI_Bridge_B.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Square_Stone/T_4/MI_SquareStone_D.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Square_Stone/T_4/MI_SquareStone_D.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/MSPresets/M_MS_Default_Fuzz_Material/M_MS_Default_Fuzz_Material.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/MSPresets/M_MS_Default_Fuzz_Material/M_MS_Default_Fuzz_Material.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/MSPresets/M_MS_Default_Fuzz_Material_VT/M_MS_Default_Fuzz_Material_VT.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/MSPresets/M_MS_Default_Fuzz_Material_VT/M_MS_Default_Fuzz_Material_VT.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TopDown/Maps/TopDownMap/8/SW/01YFQ5IXW1XTXZN6OR11T0.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/TopDown/Maps/TopDownMap/8/SW/01YFQ5IXW1XTXZN6OR11T0.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWPlayerSavePoint.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Object/KWPlayerSavePoint.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSavePointManager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSavePointManager.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,23 +29,6 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
@@ -84,7 +68,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;1-Graphic-Resource&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;34-PauseUI-SavePoint&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,

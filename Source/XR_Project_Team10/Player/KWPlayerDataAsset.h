@@ -75,8 +75,11 @@ public:
 
 	// 구르기 상태 관련 변수
 public:
-	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "이동할 경우 구르기 상태 강제 변횐")
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "이동할 경우 구르기 상태 강제 변환")
 	uint8 bIsMovingMustRolling : 1;
+
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태에서 일정 속도 이하에서 이동 입력 없을 경우 걷기로 전환")
+	uint8 bIsRollingIdleToWalk : 1;
 	
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 증가 값")
 	float DefaultVelocityValue;
@@ -171,4 +174,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 파일 드라이버 입력 키")
 	TObjectPtr<class UInputAction> DropDownAction;
+
+	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 일시정지 입력 키")
+	TObjectPtr<class UInputAction> PauseGameAction;
+	
 };

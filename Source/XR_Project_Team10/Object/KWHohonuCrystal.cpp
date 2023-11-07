@@ -5,10 +5,10 @@
 
 #include "Engine/DamageEvents.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
-#include "XR_Project_Team10/Object/KWLocationDetector.h"
 
 // Sets default values
 AKWHohonuCrystal::AKWHohonuCrystal()
@@ -236,17 +236,17 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 		for (auto Result : HitResult)
 		{
 			AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
-			if (PlayerCharacterLocation)
+			if(PlayerCharacterLocation)
 			{
 				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("파동 범위 내 플레이어 감지")));
 				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
 				FVector PlayerLocation = PlayerCharacterLocation->GetActorLocation();
 				FVector XYDistance = GetActorLocation() - PlayerLocation;
 				XYDistance.Z = 0.f;
-
-				if (XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && PlayerLocation.Z < GetActorLocation().Z + 80.f)
+                
+				if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && PlayerLocation.Z < GetActorLocation().Z + 80.f)
 				{
-					if (!bIsActivate)
+					if(!bIsActivate)
 					{
 						GetWorldTimerManager().ClearTimer(WaveAttackHitCheckTimerHandle);
 					}
