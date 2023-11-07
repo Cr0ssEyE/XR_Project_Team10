@@ -33,11 +33,12 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
-	
+
+	MeshOriginScale = FVector::OneVector * 2.5f;
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	GetMesh()->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
+	GetMesh()->SetRelativeScale3D(MeshOriginScale);
 	GetCapsuleComponent()->SetCapsuleSize(70.f, 70.f);
 	GetMesh()->BodyInstance.bLockZRotation = true;
 	
@@ -46,7 +47,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
 	RollingMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RollingMesh"));
 	RollingMeshComponent->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
-	RollingMeshComponent->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
+	RollingMeshComponent->SetRelativeScale3D(MeshOriginScale);
 	PlayerComponent = Cast<UCapsuleComponent>(RootComponent);
 	RootComponent = RootMesh;
 	PlayerComponent->SetupAttachment(RootComponent);
@@ -66,11 +67,16 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	
 	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
 	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/28-Player-Rework/Player/SM_Ball_01.SM_Ball_01'"), EAssertionLevel::Check);
+
+	PlayerHp = CharacterData->PlayerHp;
+	
 	WalkingMesh = CharacterData->PlayerWalkingMesh;
+	RollingMesh = CharacterData->PlayerRollingMesh;
+	
 	//TODO: 폴더 정리 후 ConstructorHelper로 애님 인스턴스 가져오기
 	WalkingAnimInstance = CharacterData->PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass();
-	RollingMesh = CharacterData->PlayerRollingMesh;
 	RollingAnimInstance = CharacterData->PlayerRollingAnimBlueprint->GetAnimBlueprintGeneratedClass();
+	DeadAnimMontage = CharacterData->DeadAnimMontage;
 	
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
@@ -79,8 +85,6 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	AttackAction = CharacterData->AttackAction;
 	FileDriverAction = CharacterData->DropDownAction;
 	PauseGameAction = CharacterData->PauseGameAction;
-
-	Health = 10;
 
 	bCanDashOnFlying = CharacterData->bCanDashOnFlying;
 	DefaultVelocityValue = CharacterData->DefaultVelocityValue;
@@ -124,6 +128,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
 	PauseWidget = CreateDefaultSubobject<UKWPauseWidget>(TEXT("PauseWidget"));
 	PauseWidgetClass = FPPConstructorHelper::FindAndGetClass<UKWPauseWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.WB_PauseWidget_C'"), EAssertionLevel::Check);
+	DeadFadeWidget = CreateDefaultSubobject<UKWFadeWidget>(TEXT("DeadFadeWidget"));
 }
 
 // Called when the game starts or when spawned
@@ -215,16 +220,16 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	Health -= DamageAmount;
-	if(Health <= 0)
+	PlayerHp -= DamageAmount;
+	if(PlayerHp <= 0)
 	{	
-		// 죽음 애니메이션 
-		// DisableInput(GetWorld()->GetFirstPlayerController());
-		// DeadFadeWidget->SetVisibility(ESlateVisibility::Visible);
-		// DeadFadeWidget->SetIsEnabled(true);
-		// DeadFadeWidget->StartFade();
-		//TODO: 죽음 애니메이션 및 페이드 후 적용
-		UGameplayStatics::OpenLevel(this, GetWorld()->OriginalWorldName);
+		if(bIsRolling)
+		{
+			ToggleCharacterType();
+		}
+		DisableInput(GetWorld()->GetFirstPlayerController());
+		GetMesh()->GetAnimInstance()->Montage_Play(DeadAnimMontage);
+		return 0;
 	}
 	// 피격 애니메이션 실행
 	return 0;
@@ -676,7 +681,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		RootMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		RootMesh->SetWorldLocation(PlayerComponent->GetComponentToWorld().GetLocation());
 
-		RollingMeshComponent->SetWorldScale3D(FVector::OneVector);
+		RollingMeshComponent->SetWorldScale3D(MeshOriginScale);
 		RollingMeshComponent->SetCollisionEnabled(::ECollisionEnabled::QueryAndPhysics);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -849,6 +854,19 @@ void AKWPlayerCharacter::CheckGearState()
 			CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
 		}
 	}
+}
+
+void AKWPlayerCharacter::PlayDeadAnim()
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(DeadAnimMontage);
+}
+
+void AKWPlayerCharacter::StartFadeOut()
+{
+	//TODO: 죽음 애니메이션 및 페이드 후 적용
+	DeadFadeWidget->SetVisibility(ESlateVisibility::Visible);
+	DeadFadeWidget->SetIsEnabled(true);
+	DeadFadeWidget->StartFade();
 }
 
 void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)

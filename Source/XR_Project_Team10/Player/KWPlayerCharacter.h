@@ -38,8 +38,8 @@ public:
 	AKWPlayerCharacter();
 
 	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
-	FORCEINLINE float GetHp() { return Health; }
-	FORCEINLINE void SetHp(float Value) { Health = Value; }
+	FORCEINLINE float GetHp() { return PlayerHp; }
+	FORCEINLINE void SetHp(float Value) { PlayerHp = Value; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -75,6 +75,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TSubclassOf<class UAnimInstance> RollingAnimInstance;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAnimMontage> DeadAnimMontage;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
@@ -83,7 +86,10 @@ private:
 	TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY()
-	float Health;
+	float PlayerHp;
+
+	UPROPERTY()
+	FVector MeshOriginScale;
 	
 	uint8 bIsEnableHitCheckDebugView : 1;
 
@@ -270,6 +276,8 @@ private:
 	 **/
 private:
 	void CheckGearState();
+	void PlayDeadAnim();
+	void StartFadeOut();
 	
 	/**
 	 * 플레이어 상태 관련 변수 리스트
