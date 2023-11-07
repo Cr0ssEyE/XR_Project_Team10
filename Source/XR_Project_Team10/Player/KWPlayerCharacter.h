@@ -39,6 +39,7 @@ public:
 
 	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
 	FORCEINLINE float GetHp() { return Health; }
+	FORCEINLINE void SetHp(float Value) { Health = Value; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

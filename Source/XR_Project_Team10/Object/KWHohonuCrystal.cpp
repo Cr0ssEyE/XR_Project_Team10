@@ -5,6 +5,7 @@
 
 #include "Engine/DamageEvents.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
@@ -234,15 +235,16 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 	{
 		for (auto Result : HitResult)
 		{
-			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(Result.GetActor());
-			if(PlayerCharacter)
+			AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
+			if(PlayerCharacterLocation)
 			{
 				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("파동 범위 내 플레이어 감지")));
-				FVector TargetLocation = PlayerCharacter->GetActorLocation();
-				FVector XYDistance = GetActorLocation() - TargetLocation;
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
+				FVector PlayerLocation = PlayerCharacterLocation->GetActorLocation();
+				FVector XYDistance = GetActorLocation() - PlayerLocation;
 				XYDistance.Z = 0.f;
-				
-				if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && TargetLocation.Z < GetActorLocation().Z + 80.f)
+                
+				if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && PlayerLocation.Z < GetActorLocation().Z + 80.f)
 				{
 					if(!bIsActivate)
 					{
@@ -253,7 +255,7 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 					PlayerCharacter->TakeDamage(SC_WaveDamage, DamageEvent, GetController(), this);
 					bIsWaveDamageCaused = true;
 					//TODO: 나중에 매직넘버 처리
-					FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+					FVector PlayerDirection = (PlayerCharacterLocation->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 					PlayerDirection.Z = 10.f;
 					ReBoundVector = PlayerDirection * 100.f;
 					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
