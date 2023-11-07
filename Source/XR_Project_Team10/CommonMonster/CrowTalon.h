@@ -31,9 +31,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리")
 	float AttackRange = 0.5;
 
-
 	UPROPERTY(EditAnywhere, Category = RushAttack, DisplayName = "돌진 공격력")
-	int RushPower = 0.5;
+	int RushPower = 1;
 
 	UPROPERTY(EditAnywhere, Category = RushAttack, DisplayName = "돌진 속도")
 	float RushSpeed = 0.5;
@@ -52,4 +51,9 @@ private:
 
 	UPROPERTY()
 	FVector AttackDir;
+
+	UPROPERTY()
+	FVector ReBoundVector;
+	
+	uint8 bIsDamageCaused : 1;
 };
