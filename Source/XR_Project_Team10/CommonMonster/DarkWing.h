@@ -19,7 +19,6 @@ public:
 
 	//virtual bool ShouldTickIfViewportsOnly() const override { return true; }
 	virtual void Tick(float DeltaTime) override;
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
 	// IICommonMonsterBase을(를) 통해 상속
 protected:
@@ -50,6 +49,12 @@ private:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = FeatherAttack)
 	TSubclassOf<class ADW_FeatherProjectile> FeatherClass;
+
+	UPROPERTY()
+	TObjectPtr<class AKWLocationDetector> DetectTarget;
+
+	UPROPERTY()
+	FVector TargetLocation;
 
 	const FName FeatherSockets[2] = { TEXT("Feather_lSocket"), TEXT("Feather_rSocket") };
 };

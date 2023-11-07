@@ -6,6 +6,11 @@
 
 ACrowTalon::ACrowTalon()
 {
+	ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Game/1-Graphic-Resource/Monster/Monster_2/death/NormalMonster2_Dead"));
+	if (DeadMontageRef.Object) {
+		DeadMontage = DeadMontageRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/CrowTalon"));
 	if (DataAsset.Succeeded()) {
 		UDataAsset* dataAsset = DataAsset.Object;

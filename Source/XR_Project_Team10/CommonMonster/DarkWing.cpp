@@ -18,6 +18,10 @@ ADarkWing::ADarkWing()
 		if (Feather.Succeeded()) {
 			FeatherClass = Feather.Object->GeneratedClass;
 	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Game/1-Graphic-Resource/Monster/Monster_1/Dead/NormalMonster1_Dead"));
+	if (DeadMontageRef.Object) {
+		DeadMontage = DeadMontageRef.Object;
+	}
 }
 
 void ADarkWing::Tick(float DeltaTime)
@@ -25,33 +29,11 @@ void ADarkWing::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-float ADarkWing::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	AActor* DamageCauser)
-{
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	MonsterCurrentHP -= DamageAmount;
-	if(MonsterCurrentHP <= 0 && GetController())
-	{
-		GetController()->Destroy();
-		// 사망 애니메이션 추가
-		return 0;
-	}
-	AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DamageCauser);
-	if(PlayerCharacter)
-	{
-		KnockBackImpactLocation = PlayerCharacter->GetTruePlayerLocation()->GetActorLocation();
-		KnockBackElapsedTime = 0;
-		GetWorldTimerManager().SetTimerForNextTick(this, &ADarkWing::ApplyKnockBack);
-	}
-	return 0;
-}
-
 void ADarkWing::BeginPlay()
 {
 	Super::BeginPlay();
 }
-AKWLocationDetector* DetectTarget;
-FVector TargetLocation;
+
 //공격 전조
 void ADarkWing::AttackOmen()
 {
