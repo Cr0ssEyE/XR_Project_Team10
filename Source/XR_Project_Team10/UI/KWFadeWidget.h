@@ -7,6 +7,7 @@
 #include "Components/Image.h"
 #include "KWFadeWidget.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FFadeSequenceEndDelegate, bool)
 /**
  * 
  */
@@ -17,10 +18,16 @@ class XR_PROJECT_TEAM10_API UKWFadeWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
-	void StartFade();
+	void StartFadeIn();
+	void StartFadeOut();
+
+	FORCEINLINE float GetFadeOpacity() const { return FadeImage->GetRenderOpacity(); }
+
+	FFadeSequenceEndDelegate FadeSequenceEndDelegate;
 	
 protected:
-	void FadeSequence();
+	void FadeInSequence();
+	void FadeOutSequence();
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (BindWidget))

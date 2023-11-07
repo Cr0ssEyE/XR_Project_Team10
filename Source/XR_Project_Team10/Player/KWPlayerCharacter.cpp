@@ -8,6 +8,7 @@
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "KWPlayerAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
@@ -15,6 +16,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Constant/KWAnimMontageSectionName.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 
 // Sets default values
@@ -76,7 +78,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	//TODO: 폴더 정리 후 ConstructorHelper로 애님 인스턴스 가져오기
 	WalkingAnimInstance = CharacterData->PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass();
 	RollingAnimInstance = CharacterData->PlayerRollingAnimBlueprint->GetAnimBlueprintGeneratedClass();
-	DeadAnimMontage = CharacterData->DeadAnimMontage;
+	KiwiAnimMontage = CharacterData->KiwiAnimMontage;
 	
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
 	ToggleTypeAction = CharacterData->ToggleTypeAction;
@@ -128,7 +130,8 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
 	PauseWidget = CreateDefaultSubobject<UKWPauseWidget>(TEXT("PauseWidget"));
 	PauseWidgetClass = FPPConstructorHelper::FindAndGetClass<UKWPauseWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.WB_PauseWidget_C'"), EAssertionLevel::Check);
-	DeadFadeWidget = CreateDefaultSubobject<UKWFadeWidget>(TEXT("DeadFadeWidget"));
+	ScreenFadeWidget = CreateDefaultSubobject<UKWFadeWidget>(TEXT("DeadFadeWidget"));
+	ScreenFadeWidgetClass = FPPConstructorHelper::FindAndGetClass<UKWFadeWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_FadeWidget.WB_FadeWidget_C'"), EAssertionLevel::Check);
 }
 
 // Called when the game starts or when spawned
@@ -148,7 +151,11 @@ void AKWPlayerCharacter::BeginPlay()
 	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
 	GetMesh()->SetAnimClass(WalkingAnimInstance);
-
+	UKWPlayerAnimInstance* PlayerAnimInstance = Cast<UKWPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	if(PlayerAnimInstance)
+	{
+		PlayerAnimInstance->EndDeadAnimDelegate.AddUObject(this, &AKWPlayerCharacter::StartFadeOut);
+	}
 	RollingMeshComponent->SetCollisionObjectType(ECC_PLAYER);
 	RollingMeshComponent->SetCollisionProfileName(CP_PLAYER, true);
 	RollingMeshComponent->SetSkeletalMesh(RollingMesh);
@@ -203,14 +210,15 @@ void AKWPlayerCharacter::BeginPlay()
 		}
 	}
 	
-	if(IsValid(DeadFadeWidgetClass))
+	if(IsValid(ScreenFadeWidgetClass))
 	{
-		DeadFadeWidget = Cast<UKWFadeWidget>(CreateWidget(GetWorld(), DeadFadeWidgetClass));
-		if(DeadFadeWidget)
+		ScreenFadeWidget = Cast<UKWFadeWidget>(CreateWidget(GetWorld(), ScreenFadeWidgetClass));
+		if(ScreenFadeWidget)
 		{
-			DeadFadeWidget->AddToViewport();
-			DeadFadeWidget->SetVisibility(ESlateVisibility::Hidden);
-			DeadFadeWidget->SetIsEnabled(false);
+			ScreenFadeWidget->AddToViewport();
+			ScreenFadeWidget->SetVisibility(ESlateVisibility::Hidden);
+			ScreenFadeWidget->SetIsEnabled(false);
+			ScreenFadeWidget->FadeSequenceEndDelegate.AddUObject(this, &AKWPlayerCharacter::SetInputActivate);
 		}
 	}
 }
@@ -219,7 +227,7 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
+	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
 	PlayerHp -= DamageAmount;
 	if(PlayerHp <= 0)
 	{	
@@ -228,7 +236,7 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			ToggleCharacterType();
 		}
 		DisableInput(GetWorld()->GetFirstPlayerController());
-		GetMesh()->GetAnimInstance()->Montage_Play(DeadAnimMontage);
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_DEAD, KiwiAnimMontage);
 		return 0;
 	}
 	// 피격 애니메이션 실행
@@ -858,15 +866,18 @@ void AKWPlayerCharacter::CheckGearState()
 
 void AKWPlayerCharacter::PlayDeadAnim()
 {
-	GetMesh()->GetAnimInstance()->Montage_Play(DeadAnimMontage);
+	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
 }
 
 void AKWPlayerCharacter::StartFadeOut()
 {
 	//TODO: 죽음 애니메이션 및 페이드 후 적용
-	DeadFadeWidget->SetVisibility(ESlateVisibility::Visible);
-	DeadFadeWidget->SetIsEnabled(true);
-	DeadFadeWidget->StartFade();
+	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
+	GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_DEAD_LOOP, KiwiAnimMontage);
+	GetMesh()->GetAnimInstance()->Montage_Pause(KiwiAnimMontage);
+	ScreenFadeWidget->SetVisibility(ESlateVisibility::Visible);
+	ScreenFadeWidget->SetIsEnabled(true);
+	ScreenFadeWidget->StartFadeOut();
 }
 
 void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)

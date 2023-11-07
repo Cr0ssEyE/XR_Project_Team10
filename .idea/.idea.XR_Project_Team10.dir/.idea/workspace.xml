@@ -10,10 +10,8 @@
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerAnimInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerAnimInstance.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/UI/Pause_UI/T_Lobby_Btn.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/UI/Pause_UI/T_Lobby_Btn.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +22,19 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
@@ -163,5 +174,16 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp</url>
+          <line>596</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
