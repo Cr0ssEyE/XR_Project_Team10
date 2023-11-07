@@ -43,7 +43,6 @@ float ACommonMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	if (MonsterCurrentHP <= 0 && GetController()) {
 		GetController()->Destroy();
 		CommonMonsterDead();
-		return 0;
 	}
 	AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DamageCauser);
 	if (PlayerCharacter) {
@@ -105,7 +104,10 @@ void ACommonMonster::CommonMonsterDead()
 {
 	MonsterState = EState::E_DEAD;
 	PlayDeadAnimation();
-	Controller->UnPossess();
+	if(Controller)
+	{
+		Controller->UnPossess();
+	}
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	GetWorldTimerManager().SetTimer(AfterDeadTimerHandle, this, &ACommonMonster::AfterDead, MonsterDisableTime, false);
@@ -120,7 +122,7 @@ void ACommonMonster::PlayDeadAnimation()
 
 void ACommonMonster::AfterDead()
 {
-	SetActorHiddenInGame(true);
+	Destroy();
 }
 
 void ACommonMonster::ApplyKnockBack()
