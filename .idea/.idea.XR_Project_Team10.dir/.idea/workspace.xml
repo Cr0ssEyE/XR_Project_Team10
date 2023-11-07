@@ -8,33 +8,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/ABP_Player_Kiwi_Roll.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AS_Player_Kiwi_Dead_Loop/Driving_AS_Player_Kiwi_Dead_Loop.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_FadeWidget.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Kiwi_Sphere_1107_re.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Kiwi_Sphere_1107_re_Anim.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Kiwi_Sphere_1107_re_PhysicsAsset.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Kiwi_Sphere_1107_re_Skeleton.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Kiwi_Sphere_1107_re_Skeleton_AnimBlueprint.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/ABP_Player_Kiwi.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/ABP_Player_Kiwi.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AM_Player_Kiwi.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AM_Player_Kiwi.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AS_Player_Kiwi_Damage.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AS_Player_Kiwi_Damage.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AS_Player_Kiwi_Dead.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AS_Player_Kiwi_Dead.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AS_Player_Kiwi_Dead_Loop.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/Animation/AS_Player_Kiwi_Dead_Loop.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/SkeletalMesh/PHYS_Player_Kiwi_Roll.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/SkeletalMesh/PHYS_Player_Kiwi_Roll.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/SkeletalMesh/SKM_Player_Kiwi_Roll.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/SkeletalMesh/SKM_Player_Kiwi_Roll.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/SkeletalMesh/SK_Player_Kiwi_Roll.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Player/SkeletalMesh/SK_Player_Kiwi_Roll.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/11-Player-Anim/SkeletalMesh/SKEL_Player_Kiwi.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/11-Player-Anim/SkeletalMesh/SKEL_Player_Kiwi.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/34-SavePointTest/SavePointTestMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/34-SavePointTest/SavePointTestMap.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Constant/KWAnimMontageSectionName.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Constant/KWAnimMontageSectionName.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerDataAsset.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/UI/Pause_UI/T_Lobby_Btn.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/UI/Pause_UI/T_Lobby_Btn.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,5 +174,16 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp</url>
+          <line>596</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
