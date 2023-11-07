@@ -205,6 +205,8 @@ private:
 	UPROPERTY()
 	FVector VelocityDecelerateTarget;
 
+public:
+	uint8 IsDropDownActive : 1 = false;
 	/** 공격 관련 변수 리스트 \n
 	* 약어 정리 \n
 	* DA = DashAttack \n 

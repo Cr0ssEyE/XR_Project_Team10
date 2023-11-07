@@ -688,7 +688,7 @@ void AKWPlayerCharacter::CheckIdleStateWhenRolling()
 {
 	if(RootMesh->GetPhysicsLinearVelocity().Size() < 50.f && bIsRolling && !bIsMoving)
 	{
-		ToggleCharacterType();
+		//ToggleCharacterType();
 		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
 	}
 }
@@ -1009,6 +1009,7 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 
 void AKWPlayerCharacter::FD_HitCheckSequence()
 {
+	IsDropDownActive = true;
 	FHitResult GroundResult;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
@@ -1024,6 +1025,7 @@ void AKWPlayerCharacter::FD_HitCheckSequence()
 
 	if(GroundCheck)
 	{
+		IsDropDownActive = false;
 		// TODO: 바닥에 충격파 히트 체크및 이펙트
 		return;
 	}
