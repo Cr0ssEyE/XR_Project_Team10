@@ -53,6 +53,8 @@ protected:
 
 	virtual void CommonMonsterAttack(AActor* Target) override;
 	virtual void CommonMonsterDead() override;
+	void PlayDeadAnimation();
+	void AfterDead();
 
 	virtual void ApplyKnockBack();
 
@@ -92,6 +94,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = KnockBack, DisplayName = "넉백량")
 	float KnockBackAmount = 10.0f;
 
+	UPROPERTY(EditAnywhere, Category = Dead, DisplayName = "사망 후 비활성화되는 시간")
+	float MonsterDisableTime = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
 	UPROPERTY()
 	AActor* PlayerTarget;
 
@@ -99,7 +107,7 @@ protected:
 	FTimerHandle AttackOmenTimerHandle;
 	FTimerHandle AttackTimerHandle;
 	FTimerHandle KnockBackTimerHandle;
-
+	FTimerHandle AfterDeadTimerHandle;
 	
 	//Getter Setter
 public:
