@@ -65,7 +65,7 @@ void ACrowTalon::AttackEndCheck()
 	ECC_PLAYER_ONLY,
 	FCollisionShape::MakeBox(FVector(100.f, 100.f, 100.f)),
 	Params);
-	DrawDebugBox(GetWorld(), GetActorLocation() + GetActorForwardVector() * 200.f, FVector(100.f, 100.f, 100.f), FColor::Blue, false, 0.3f);
+	// DrawDebugBox(GetWorld(), GetActorLocation() + GetActorForwardVector() * 200.f, FVector(100.f, 100.f, 100.f), FColor::Blue, false, 0.3f);
 	if(bResult)
 	{
 		AKWLocationDetector* PlayerLocation = Cast<AKWLocationDetector>(HitResult.GetActor());
