@@ -8,7 +8,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniBushes/MiniBush02/MI_MiniBush_B2.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/4/R0/USMOD9CIWTXCR77PHLPYRA.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/7/8B/T33JSXODRSPVFVXR6UQLQY.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/7/XG/MUKMX1939LG7WGKBOG922V.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/E/FU/H4SOWB9VKUE5WOL37IIUDC.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master_Foliage.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master_Foliage.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniBushes/MiniBush01/MI_MiniBush_A.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniBushes/MiniBush01/MI_MiniBush_A.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniBushes/MiniBush02/MI_MiniBush_B.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniBushes/MiniBush02/MI_MiniBush_B.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniBushes/MiniBush03/MI_MiniBush_C.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniBushes/MiniBush03/MI_MiniBush_C.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Plant_Grass/MI_Floor_Grass.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Plant_Grass/MI_Floor_Grass.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/VFX/DarkWing/Vfx_feather_attack/niagara/NS_DarkWing_Father_Projectlie.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/VFX/DarkWing/Vfx_feather_attack/niagara/NS_DarkWing_Father_Projectlie.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_01_0.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_01_0.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_01_1.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_01_1.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_01_2.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_01_2.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_02_0.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_02_0.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_02_1.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_02_1.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_02_2.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/3-CharacterTest/modi_Prob/SM_MiniTree_02_2.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/MG/Z2GA2VRL07FVDNGPD4M839.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/MG/Z2GA2VRL07FVDNGPD4M839.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/3/Q3/4IFMM08QASKA1HIM4VFO9C.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/3/Q3/4IFMM08QASKA1HIM4VFO9C.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/4/E8/9K0H9JKR3N9AUOVF77A6DD.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/4/E8/9K0H9JKR3N9AUOVF77A6DD.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/XW/2XNH0MYZU89647S9RHVBMB.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/XW/2XNH0MYZU89647S9RHVBMB.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/6/SZ/XMNN684TOIKH2JW7NOBRPN.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/6/SZ/XMNN684TOIKH2JW7NOBRPN.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/D/1S/RC7J08DWWVEL7U7QBG0N3D.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/D/1S/RC7J08DWWVEL7U7QBG0N3D.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/E/PY/Z3E5ED167LYSTQB2R6K416.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/E/PY/Z3E5ED167LYSTQB2R6K416.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/AI/Boss/Hohonu/BTService_KWPlayerDetect.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/AI/Boss/Hohonu/BTService_KWPlayerDetect.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/AI/Common/BTService_KWCommonDetect.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/AI/Common/BTService_KWCommonDetect.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CrowTalon.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CrowTalon.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +47,8 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
@@ -160,16 +190,5 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp</url>
-          <line>712</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

@@ -227,6 +227,11 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	if(PlayerHp <= 0)
+	{
+		return 0;
+	}
+	
 	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
 	PlayerHp -= DamageAmount;
 	if(PlayerHp <= 0)
