@@ -8,27 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/7/22/LWJIKUN5J4GQY1UQFBPVDH.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/__ExternalObjects__/40-Second-Round-Table/MainDesign_round2/E/0N/LB46I8RQFEGH30278R9WC5.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/MasterMaterial/M_Master.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniStones/Rock1/MI_MiniStone_A.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/MiniStones/Rock1/MI_MiniStone_A.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Plant_Grass/MI_Floor_Grass.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/Plant_Grass/MI_Floor_Grass.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/3-CharacterTest/Maps/DemonstrationLevel/A/XY/06JAD87L2YUR8CXHG4TQ27.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/3-CharacterTest/Maps/DemonstrationLevel/A/XY/06JAD87L2YUR8CXHG4TQ27.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/0/B9/52831A2QDA25F18XQSN74J.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/0/B9/52831A2QDA25F18XQSN74J.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/MG/Z2GA2VRL07FVDNGPD4M839.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/MG/Z2GA2VRL07FVDNGPD4M839.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/S9/A75MZ5DYEAA2HVYMF1FNE7.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/VU/BIAPCL5VV7YXNCEFQ6XFRY.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/VU/BIAPCL5VV7YXNCEFQ6XFRY.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/XW/2XNH0MYZU89647S9RHVBMB.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/XW/2XNH0MYZU89647S9RHVBMB.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/6/Y5/XUH9CRH1IC0NJQQ4QI395B.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/8/6Z/1ZBFMS4SFZDQ3ONLI740KN.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/8/6Z/1ZBFMS4SFZDQ3ONLI740KN.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/A/YM/IDNPKAZ6T4M78MQ9J7JXCA.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/D/NU/RINSHKL3GX779G3HWW5VW0.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/E/2X/M9VLWYXNEYVUJ9JC6YN44B.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/E/2X/M9VLWYXNEYVUJ9JC6YN44B.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/F/0L/WEEFAUA737K7O70YEUJUYO.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
