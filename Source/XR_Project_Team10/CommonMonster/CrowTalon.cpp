@@ -82,11 +82,11 @@ void ACrowTalon::AttackEndCheck()
 				FDamageEvent DamageEvent;
 				PlayerCharacter->TakeDamage(RushPower, DamageEvent, nullptr, this);
 				
-				FVector PlayerDirection = PlayerLocation->GetActorLocation() - GetActorLocation();
-				//TODO: 매직넘버 수정하기
-				ReBoundVector = PlayerDirection * 10.f;
-				ReBoundVector.Z = 3000.f;
-				PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				// FVector PlayerDirection = PlayerLocation->GetActorLocation() - GetActorLocation();
+				// TODO: 매직넘버 수정하기
+				// ReBoundVector = PlayerDirection * 10.f;
+				// ReBoundVector.Z = 3000.f;
+				// PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 				
 				GetWorldTimerManager().ClearTimer(RushTimerHandle);
 				FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
