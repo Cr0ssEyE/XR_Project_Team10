@@ -504,7 +504,6 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 	{
 		return;
 	}
-
 	if(bIsReBounding)
 	{
 		if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
@@ -887,13 +886,14 @@ void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue
 	{
 		return;
 	}
+	bIsAttackOnGoing = false;
 	bIsReBounding = true;
 	RootMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 
 	ReBoundResultValue *= RB_MultiplyValuesByObjectType[static_cast<uint8>(ObjectType)];
 	ReBoundResultValue *= RB_MultiplyValuesByGear[static_cast<uint8>(CurrentGearState)];
 	RootMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
-	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, this, &AKWPlayerCharacter::RB_CheckContactToFloor, 0.1f, false, 0.5f);
+	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, this, &AKWPlayerCharacter::RB_CheckContactToFloor, 0.01f, false, 0.3f);
 }
 
 void AKWPlayerCharacter::RB_ApplyKnockBackByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)
@@ -903,13 +903,14 @@ void AKWPlayerCharacter::RB_ApplyKnockBackByObjectType(FVector& ReBoundResultVal
 	{
 		return;
 	}
+	bIsAttackOnGoing = false;
 	bIsKnockBackOnGoing = true;
 	RootMesh->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 
 	ReBoundResultValue *= RB_MultiplyValuesByObjectType[static_cast<uint8>(ObjectType)];
 	ReBoundResultValue *= RB_MultiplyValuesByGear[static_cast<uint8>(CurrentGearState)];
 	RootMesh->SetPhysicsLinearVelocity(ReBoundResultValue);
-	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, this, &AKWPlayerCharacter::RB_CheckContactToFloor, 0.1f, false, 0.5f);
+	GetWorldTimerManager().SetTimer(RB_ContactCheckHandle, this, &AKWPlayerCharacter::RB_CheckContactToFloor, 0.01f, false, 0.3f);
 }
 
 void AKWPlayerCharacter::RB_CheckContactToFloor()
@@ -920,7 +921,7 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 	bool bResult = GetWorld()->SweepSingleByProfile(
 	HitResult,
 	GetActorLocation(),
-	GetActorLocation() - FVector(0.f, 0.f, 90.f),
+	GetActorLocation() - FVector(0.f, 0.f, 80.f),
 	FQuat::Identity,
 	CP_PLAYER,
 	FCollisionShape::MakeBox(FVector(50.f, 50.f, 1.f)),
@@ -928,6 +929,11 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 
 	if(bResult)
 	{
+		if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
+		{
+			GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
+		}
+		
 		if(bIsKnockBackOnGoing)
 		{
 			bIsKnockBackOnGoing = false;
@@ -938,10 +944,6 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 		{
 			bIsReBounding = false;
 			bIsInputJustAction = false;
-			if(GetWorldTimerManager().IsTimerActive(RBD_JustTimingCheckHandle))
-			{
-				GetWorldTimerManager().ClearTimer(RBD_JustTimingCheckHandle);
-			}
 			RBD_SuccessEvent();
 			return;
 		}
