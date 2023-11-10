@@ -103,6 +103,9 @@ protected:
 	UPROPERTY()
 	AActor* PlayerTarget;
 
+	UPROPERTY()
+	FVector CollisionDirection;
+	
 	FTimerHandle AttackCoolDownTimerHandle;
 	FTimerHandle AttackOmenTimerHandle;
 	FTimerHandle AttackTimerHandle;

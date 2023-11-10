@@ -8,12 +8,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/JH/TH5OEE8V5Y8F7F75YFRDQP.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/8/SM/GQ09OSKDCKEHDY7DGZNSJ6.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Binaries/Win64/XR_Project_Team10Editor.target" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/XR_Project_Team10Editor.target" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Maps/LandScapeTestMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Maps/LandScapeTestMap.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CommonMonster.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CommonMonster.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/JumpSlide/SM_JumpSlide.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Props/JumpSlide/SM_JumpSlide.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/21-Hohonu/AI/Hohonu/BT_BossHohonu.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/21-Hohonu/AI/Hohonu/BT_BossHohonu.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/40-Second-Round-Table/MainDesign_round_JGG1.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/40-Second-Round-Table/MainDesign_round_JGG1.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/0/TJ/CTVRV7RZ0OS3COU3HO1S8C.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/0/TJ/CTVRV7RZ0OS3COU3HO1S8C.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/L9/G43LQ7UOFWRI5YLO8S7J9A.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/L9/G43LQ7UOFWRI5YLO8S7J9A.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/MG/Z2GA2VRL07FVDNGPD4M839.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/2/MG/Z2GA2VRL07FVDNGPD4M839.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/4/E8/9K0H9JKR3N9AUOVF77A6DD.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/4/E8/9K0H9JKR3N9AUOVF77A6DD.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/XW/2XNH0MYZU89647S9RHVBMB.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/5/XW/2XNH0MYZU89647S9RHVBMB.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/D/1S/RC7J08DWWVEL7U7QBG0N3D.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/D/1S/RC7J08DWWVEL7U7QBG0N3D.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/D/AD/JA7VOPXXZEAZHCC28YQ12F.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round2/D/AD/JA7VOPXXZEAZHCC28YQ12F.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JGG1/C/IW/V4V9AL3AMTURB4EKDIXNU6.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JGG1/C/IW/V4V9AL3AMTURB4EKDIXNU6.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JGG1/F/2T/635ER0O4QJWL6FX95HPS2A.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/40-Second-Round-Table/MainDesign_round_JGG1/F/2T/635ER0O4QJWL6FX95HPS2A.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CrowTalon.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/CommonMonster/CrowTalon.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +51,8 @@
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://C:/UE_5.3/Engine/Source/Editor/UnrealEd/Private/Kismet2/BlueprintEditorUtils.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://C:/UE_5.3/Engine/Source/Runtime/Engine/Private/Materials/HLSLMaterialTranslator.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://C:/UE_5.3/Engine/Source/Runtime/Engine/Private/Materials/MaterialExpressions.cpp" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -55,30 +71,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "41-Common-Monster-Dead-Animation",
-    "ignore.virus.scanning.warn.message": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;40-Second-Round-Table&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "rider.external.source.directories": [
-      "C:\\Users\\cross\\AppData\\Roaming\\JetBrains\\Rider2023.2\\resharper-host\\DecompilerCache",
-      "C:\\Users\\cross\\AppData\\Roaming\\JetBrains\\Rider2023.2\\resharper-host\\SourcesCache",
-      "C:\\Users\\cross\\AppData\\Local\\Symbols\\src"
+  &quot;keyToStringList&quot;: {
+    &quot;rider.external.source.directories&quot;: [
+      &quot;C:\\Users\\cross\\AppData\\Roaming\\JetBrains\\Rider2023.2\\resharper-host\\DecompilerCache&quot;,
+      &quot;C:\\Users\\cross\\AppData\\Roaming\\JetBrains\\Rider2023.2\\resharper-host\\SourcesCache&quot;,
+      &quot;C:\\Users\\cross\\AppData\\Local\\Symbols\\src&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="XR_Project_Team10" type="Uproject" factoryName="rider.uproject">
       <option name="PROJECT_FILE_PATH" value="$PROJECT_DIR$/XR_Project_Team10.uproject" />
@@ -154,6 +170,8 @@
       <workItem from="1698745664973" duration="7000" />
       <workItem from="1698796827036" duration="6207000" />
       <workItem from="1698821307981" duration="905000" />
+      <workItem from="1699376777169" duration="10895000" />
+      <workItem from="1699391711639" duration="1958000" />
     </task>
     <servers />
   </component>

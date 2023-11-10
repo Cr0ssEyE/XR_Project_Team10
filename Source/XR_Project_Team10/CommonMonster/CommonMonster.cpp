@@ -69,7 +69,6 @@ void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAt
 
 void ACommonMonster::AttackOmen()
 {
-	MonsterState = EState::E_ATTACK_OMEN;
 	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &ACommonMonster::Attack, MonsterAttackTime, false);
 }
 
@@ -97,6 +96,7 @@ void ACommonMonster::CommonMonsterAttack(AActor* Target)
 
 	PlayerTarget = Target;
 
+	MonsterState = EState::E_ATTACK_OMEN;
 	GetWorldTimerManager().SetTimer(AttackOmenTimerHandle, this, &ACommonMonster::AttackOmen, MonsterAttackOmenTime, false);
 }
 
