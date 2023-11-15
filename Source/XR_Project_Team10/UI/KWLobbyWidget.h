@@ -19,7 +19,7 @@ class XR_PROJECT_TEAM10_API UKWLobbyWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void NativeConstruct() override;
+	virtual void NativeConstruct() override;
 	
 protected:
 	UFUNCTION()

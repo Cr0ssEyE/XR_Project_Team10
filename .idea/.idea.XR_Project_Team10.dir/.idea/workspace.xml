@@ -9,9 +9,14 @@
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/TopDown/Maps/TopDownMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/TopDown/Maps/TopDownMap.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_SettingWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_SettingWidget.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWLobbyWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWLobbyWidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSaveSettingOption.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSaveSettingOption.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSaveSettingOption.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Util/KWSaveSettingOption.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/XR_Project_Team10.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/XR_Project_Team10.Build.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,7 +162,9 @@
       <workItem from="1699376777169" duration="10895000" />
       <workItem from="1699391711639" duration="1958000" />
       <workItem from="1699935777397" duration="7935000" />
-      <workItem from="1699977129571" duration="791000" />
+      <workItem from="1699977129571" duration="973000" />
+      <workItem from="1700005926604" duration="11477000" />
+      <workItem from="1700027423165" duration="302000" />
     </task>
     <servers />
   </component>
