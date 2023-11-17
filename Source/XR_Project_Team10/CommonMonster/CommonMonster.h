@@ -11,12 +11,13 @@
 UENUM()
 enum class EState : uint8 {
 	E_IDLE,
-	E_RESEARCH,
+	/*E_RESEARCH,
 	E_RECOGNITION,
-	E_TRACKING,
+	E_TRACKING,*/
 	E_ATTACK_CONFIG,
 	E_ATTACK_OMEN,
 	E_ATTACK,
+	E_ATTACK_END,
 	E_HIT,
 	E_DEAD
 };
@@ -49,6 +50,8 @@ protected:
 
 	virtual void AttackOmen() override;
 	virtual void Attack() override;
+	virtual void AttackBehaviour();
+	virtual void AttackEnd();
 	void CheckAttackDelay();
 
 	virtual void CommonMonsterAttack(AActor* Target) override;
@@ -106,6 +109,7 @@ protected:
 	FTimerHandle AttackCoolDownTimerHandle;
 	FTimerHandle AttackOmenTimerHandle;
 	FTimerHandle AttackTimerHandle;
+	FTimerHandle AttackEndTimerHandle;
 	FTimerHandle KnockBackTimerHandle;
 	FTimerHandle AfterDeadTimerHandle;
 	

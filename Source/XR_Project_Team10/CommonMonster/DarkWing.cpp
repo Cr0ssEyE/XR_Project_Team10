@@ -47,7 +47,23 @@ void ADarkWing::AttackOmen()
 //공격
 void ADarkWing::Attack()
 {
+	float TurnSpeed = 5.f;
+	FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
+	LookVector.Z = 0.0f;
+	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
+	SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
+
 	Super::Attack();
+}
+
+void ADarkWing::AttackEnd()
+{
+	Super::AttackEnd();
+	PlayerTarget = nullptr;
+}
+
+void ADarkWing::AttackBehaviour()
+{
 	UE_LOG(LogTemp, Log, TEXT("DarkWing Attack"));
 	// 플레이어를 향해 깃털 n개 발사
 	if (nullptr != FeatherClass) {
@@ -78,7 +94,7 @@ void ADarkWing::Attack()
 						TargetLocationVector = MuzzleLocation + ((TargetLocation - MuzzleLocation) * AttackRange);
 						TargetLocationVector.Z = 0;
 						TargetLocationVector = (TargetLocationVector - MuzzleLocation).GetSafeNormal();
-						
+
 						//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocationVector.X, TargetLocationVector.Y, TargetLocationVector.Z);
 						//UE_LOG(LogTemp, Log, TEXT(""));
 
@@ -88,10 +104,6 @@ void ADarkWing::Attack()
 					}
 				}
 			}
-
-			OnAttackFinished.ExecuteIfBound();
-			MonsterState = EState::E_IDLE;
-			PlayerTarget = nullptr;
 		}
 	}
 }

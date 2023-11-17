@@ -31,27 +31,38 @@ void ACrowTalon::AttackOmen()
 	Super::AttackOmen();
 	UE_LOG(LogTemp, Log, TEXT("CrowTalon Attack Omen"));
 
-	OriPos = GetActorLocation();
 }
 
 void ACrowTalon::Attack()
 {
+	float TurnSpeed = 5.f;
+	FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
+	LookVector.Z = 0.0f;
+	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
+	SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
+
+	OriPos = GetActorLocation();
+
 	Super::Attack();
-	if (nullptr != PlayerTarget) {
-		AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
+}
 
-		GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
+void ACrowTalon::AttackBehaviour()
+{
+	AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 
-		AddActorLocalOffset(AttackDir);
-	}
+	GetWorldTimerManager().SetTimer(RushTimerHandle, this, &ACrowTalon::AttackEndCheck, 0.01f, true);
+
+	AddActorLocalOffset(AttackDir);
+}
+
+void ACrowTalon::AttackEnd()
+{
+	Super::AttackEnd();
 }
 
 void ACrowTalon::AttackEndCheck() {
 	SetActorLocation(GetActorLocation() + AttackDir);
 	if (FVector::Dist(GetActorLocation(), OriPos) >= AttackRange) {
-		OnAttackFinished.ExecuteIfBound();
-		MonsterState = EState::E_IDLE;
-		PlayerTarget = nullptr;
 		GetWorldTimerManager().ClearTimer(RushTimerHandle);
 		FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
 	}
@@ -60,8 +71,6 @@ void ACrowTalon::AttackEndCheck() {
 void ACrowTalon::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	OnAttackFinished.ExecuteIfBound();
-	MonsterState = EState::E_IDLE;
-	PlayerTarget = nullptr;
 }
 
 void ACrowTalon::Tick(float DeltaTime)

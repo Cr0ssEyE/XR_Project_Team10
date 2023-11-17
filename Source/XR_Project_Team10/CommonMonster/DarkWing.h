@@ -26,7 +26,9 @@ protected:
 	
 	virtual void AttackOmen() override;
 	virtual void Attack() override;
+	virtual void AttackEnd() override;
 
+	virtual void AttackBehaviour() override;
 	
 	// 외부 수정 변수
 private:
