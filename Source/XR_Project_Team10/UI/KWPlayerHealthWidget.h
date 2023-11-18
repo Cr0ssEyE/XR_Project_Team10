@@ -13,10 +13,10 @@
 UENUM()
 enum class EVitalImageType
 {
-	Empty,
 	Half,
 	Fill
 };
+
 /**
  * 
  */
@@ -24,33 +24,30 @@ UCLASS()
 class XR_PROJECT_TEAM10_API UKWPlayerHealthWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
+public:
+	void ApplyDecreaseHealthState();
+	void FillHealthState();
+	
 protected:
 	virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-	void ChangeImageState();
+	void PlayDecreaseHealthAnimation();
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ResetGame() { UGameplayStatics::OpenLevel(GetWorld(), "MiddleTestLevel"); }
+	void AnimTestFunction();
 	
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UImage> VitalImageA;
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TArray<UImage*> VitalImages;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TArray<UTexture2D*> TopVitalImages;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TArray<UTexture2D*> BottomVitalImages;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UImage> VitalImageB;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UImage> VitalImageC;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UImage> VitalImageD;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UImage> VitalImageE;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UButton> ReStartBtn;
+	TObjectPtr<UButton> TestBtn;
 	
 private:
 	UPROPERTY()
@@ -60,14 +57,24 @@ private:
 	TObjectPtr<UImage> FocusedImage;
 
 	UPROPERTY()
-	EVitalImageType ImageType;
+	EVitalImageType FocusImageType;
+
+	UPROPERTY(EditAnywhere)
+	float AnimationChangeSpeed;
 	
 	UPROPERTY()
 	float PlayerMaximumHealth;
 	
 	UPROPERTY()
 	float PlayerCurrentHealth;
+	
+	UPROPERTY()
+	int CurrentAnimationState;
 
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UTexture2D*> VitalImageSample;
+	UPROPERTY()
+	uint8 bIsAnimationOnGoing : 1;
+
+	UPROPERTY()
+	FTimerHandle HealthAnimationTimerHandle;
+	
 };

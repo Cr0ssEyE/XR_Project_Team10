@@ -6,100 +6,99 @@
 void UKWPlayerHealthWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	PlayerCharacter = CastChecked<AKWPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	FocusedImage = VitalImageE;
-	PlayerMaximumHealth = PlayerCharacter->GetHp();
-	PlayerCurrentHealth = PlayerMaximumHealth;
-	ImageType = EVitalImageType::Fill;
-	ReStartBtn->OnClicked.AddDynamic(this, &UKWPlayerHealthWidget::ResetGame);
 	
+	// PlayerCharacter = CastChecked<AKWPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	// PlayerMaximumHealth = PlayerCharacter->GetHp();
+	// PlayerCurrentHealth = PlayerMaximumHealth;
+	PlayerMaximumHealth = PlayerCurrentHealth = 10;
+	for (int i = 0; i < PlayerMaximumHealth; i++)
+	{
+		if(i % 2 != 0)
+		{
+			VitalImages.Emplace(CastChecked<UImage>(GetWidgetFromName(*FString::Printf(TEXT("TopHealth_%d"), i))));
+		}
+		else
+		{
+			VitalImages.Emplace(CastChecked<UImage>(GetWidgetFromName(*FString::Printf(TEXT("BottomHealth_%d"), i))));
+		}
+	}
+	
+	if(!AnimationChangeSpeed)
+	{
+		AnimationChangeSpeed = 0.04f;
+	}
+	
+	FocusedImage = VitalImages[PlayerMaximumHealth - 1];
+	FocusImageType = EVitalImageType::Fill;
+	CurrentAnimationState = 0;
+	bIsAnimationOnGoing = false;
+
+	TestBtn->OnClicked.AddDynamic(this, &UKWPlayerHealthWidget::AnimTestFunction);
 }
 
-void UKWPlayerHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void UKWPlayerHealthWidget::PlayDecreaseHealthAnimation()
 {
-	Super::NativeTick(MyGeometry, InDeltaTime);
-	if(PlayerCurrentHealth != PlayerCharacter->GetHp())
+	CurrentAnimationState++;
+	if(FocusImageType == EVitalImageType::Fill)
 	{
-		ChangeImageState();
+		FocusedImage->SetBrushFromTexture(TopVitalImages[CurrentAnimationState]);
+	}
+	else
+	{
+		FocusedImage->SetBrushFromTexture(BottomVitalImages[CurrentAnimationState]);
+	}
+	
+	if(!TopVitalImages[CurrentAnimationState] && PlayerCurrentHealth)
+	{
+		FocusedImage->SetRenderScale(FVector2d::Zero());
+		FocusedImage = VitalImages[PlayerCurrentHealth - 1];
+		CurrentAnimationState = 0;
+		bIsAnimationOnGoing = false;
+		
+		if(FocusImageType == EVitalImageType::Fill)
+		{
+			FocusImageType = EVitalImageType::Half;
+		}
+		else
+		{
+			FocusImageType = EVitalImageType::Fill;
+		}
+		
+		GetWorld()->GetTimerManager().ClearTimer(HealthAnimationTimerHandle);
 	}
 }
 
-void UKWPlayerHealthWidget::ChangeImageState()
+void UKWPlayerHealthWidget::AnimTestFunction()
 {
-	int NewHealth = PlayerCharacter->GetHp();
-	// 반칸 까임
-	if(PlayerCurrentHealth - PlayerCharacter->GetHp() == 1)
+	PlayerCurrentHealth--;
+	GetWorld()->GetTimerManager().SetTimer(HealthAnimationTimerHandle, this, &UKWPlayerHealthWidget::PlayDecreaseHealthAnimation, AnimationChangeSpeed, true);
+}
+
+void UKWPlayerHealthWidget::ApplyDecreaseHealthState()
+{
+	if(bIsAnimationOnGoing)
 	{
-		if(ImageType == EVitalImageType::Fill)
-		{
-			ImageType = EVitalImageType::Half;
-			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType)]);
-		}
-		else if(ImageType == EVitalImageType::Half)
-		{
-			FocusedImage->SetBrushFromTexture(VitalImageSample[0]);
-			if(FocusedImage == VitalImageB)
-			{
-				FocusedImage = VitalImageA;
-			}
-			else if(FocusedImage == VitalImageC)
-			{
-				FocusedImage = VitalImageB;
-			}
-			else if(FocusedImage == VitalImageD)
-			{
-				FocusedImage = VitalImageC;
-			}
-			else if(FocusedImage == VitalImageE)
-			{
-				FocusedImage = VitalImageD;
-			}
-			ImageType = EVitalImageType::Fill;
-		}
+		return;
 	}
-	else if(PlayerCurrentHealth - PlayerCharacter->GetHp() == 2) // 한번에 한칸 까임
-	{
-		if(ImageType == EVitalImageType::Fill)
-		{
-			FocusedImage->SetBrushFromTexture(VitalImageSample[0]);
-			if(FocusedImage == VitalImageB)
-			{
-				FocusedImage = VitalImageA;
-			}
-			else if(FocusedImage == VitalImageC)
-			{
-				FocusedImage = VitalImageB;
-			}
-			else if(FocusedImage == VitalImageD)
-			{
-				FocusedImage = VitalImageC;
-			}
-			else if(FocusedImage == VitalImageE)
-			{
-				FocusedImage = VitalImageD;
-			}
-		}
-		else if(ImageType == EVitalImageType::Half)
-		{
-			FocusedImage->SetBrushFromTexture(VitalImageSample[0]);
-			if(FocusedImage == VitalImageB)
-			{
-				FocusedImage = VitalImageA;
-			}
-			else if(FocusedImage == VitalImageC)
-			{
-				FocusedImage = VitalImageB;
-			}
-			else if(FocusedImage == VitalImageD)
-			{
-				FocusedImage = VitalImageC;
-			}
-			else if(FocusedImage == VitalImageE)
-			{
-				FocusedImage = VitalImageD;
-			}
-			FocusedImage->SetBrushFromTexture(VitalImageSample[static_cast<int>(ImageType)]);
-		}
-	}
+	// TODO: 이미지 바꾸는걸 애니메이션으로 처리하기
 	PlayerCurrentHealth = PlayerCharacter->GetHp();
+	bIsAnimationOnGoing = true;
+	GetWorld()->GetTimerManager().SetTimer(HealthAnimationTimerHandle, this, &UKWPlayerHealthWidget::PlayDecreaseHealthAnimation, AnimationChangeSpeed, true);
+}
+
+void UKWPlayerHealthWidget::FillHealthState()
+{
+	for (int i = 0; i < VitalImages.Num(); i++)
+	{
+		if(i % 2 == 0)
+		{
+			VitalImages[i]->SetBrushFromTexture(TopVitalImages[0]);
+		}
+		else
+		{
+			VitalImages[i]->SetBrushFromTexture(BottomVitalImages[0]);
+		}
+		VitalImages[i]->SetRenderScale(FVector2d::One());
+	}
+	PlayerCurrentHealth = PlayerMaximumHealth;
 }

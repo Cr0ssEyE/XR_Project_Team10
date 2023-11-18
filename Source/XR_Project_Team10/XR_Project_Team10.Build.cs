@@ -8,6 +8,6 @@ public class XR_Project_Team10 : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "GameplayTasks", "AdvancedWidgets", "PhysicsCore", "SlateCore"});
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "GameplayTasks", "AdvancedWidgets", "PhysicsCore", "SlateCore", "SpinePlugin"});
     }
 }

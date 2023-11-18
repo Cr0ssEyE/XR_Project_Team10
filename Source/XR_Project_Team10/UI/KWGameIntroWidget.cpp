@@ -3,3 +3,8 @@
 
 #include "XR_Project_Team10/UI/KWGameIntroWidget.h"
 
+void UKWGameIntroWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	
+}

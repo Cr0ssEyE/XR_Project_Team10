@@ -8,24 +8,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/Materials/M_EmissiveFont.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/45-UI-Test/IntroLevel.umap" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Sounds/SC_BGM.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Sounds/SC_Master.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Sounds/SC_SFX.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/CutScene/scene1.uasset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PlayerHealthWidget.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Binaries/Win64/XR_Project_Team10Editor.target" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/XR_Project_Team10Editor.target" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/45-UI-Test/LobbyLevel.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/45-UI-Test/LobbyLevel.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_LobbyWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_LobbyWidget.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_SettingWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_SettingWidget.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/Player/KWPlayerCharacter.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWFadeWidget.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWLobbyWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWLobbyWidget.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWLobbyWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWLobbyWidget.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/XR_Project_Team10.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/XR_Project_Team10.Build.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,12 +65,45 @@
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://C:/UE_5.3/Engine/Source/Editor/UnrealEd/Private/Kismet2/BlueprintEditorUtils.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://C:/UE_5.3/Engine/Source/Runtime/Engine/Private/Materials/HLSLMaterialTranslator.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://C:/UE_5.3/Engine/Source/Runtime/Engine/Private/Materials/MaterialExpressions.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWSettingWidget.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/XR_Project_Team10/XR_Project_Team10.Build.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="Toolset" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
