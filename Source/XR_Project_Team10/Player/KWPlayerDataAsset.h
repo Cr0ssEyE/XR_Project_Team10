@@ -24,28 +24,35 @@ class XR_PROJECT_TEAM10_API UKWPlayerDataAsset : public UDataAsset
 
 	// 캐릭터 관련 변수
 public:
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 메시")
+	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 체력")
+	int PlayerHp;
+	
+	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 구르기 상태 메시")
 	TObjectPtr<class USkeletalMesh> PlayerRollingMesh;
 
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 구르기 상태 애니메이션 블루프린트")
+	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 구르기 상태 애니메이션 블루프린트(제거 예정)")
 	TObjectPtr<class UAnimBlueprint> PlayerRollingAnimBlueprint;
 	
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 메시")
+	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 걷기 상태 메시")
 	TObjectPtr<class USkeletalMesh> PlayerWalkingMesh;
 
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트")
+	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트(제거 예정)")
 	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
 
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "히트 체크 디버그 뷰 활성화")
+	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 죽음 애니메이션 몽타주")
+	TObjectPtr<UAnimMontage> KiwiAnimMontage;
+	
+public:
+	UPROPERTY(EditAnywhere, Category = Debug, DisplayName = "히트 체크 디버그 뷰 활성화")
 	uint8 bIsEnableHitCheckDebugView : 1;
 
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "기어 디버그 뷰 활성화")
+	UPROPERTY(EditAnywhere, Category = Debug, DisplayName = "기어 디버그 뷰 활성화")
 	uint8 bIsEnableGearDebugView : 1;
 
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "속도 디버그 뷰 활성화")
+	UPROPERTY(EditAnywhere, Category = Debug, DisplayName = "속도 디버그 뷰 활성화")
 	uint8 bIsEnableVelocityDebugView : 1;
 
-	UPROPERTY(EditAnywhere, Category = Mesh, DisplayName = "좌표 디버그 뷰 활성화")
+	UPROPERTY(EditAnywhere, Category = Debug, DisplayName = "좌표 디버그 뷰 활성화")
 	uint8 bIsEnableLocationDebugView : 1;
 	
 	// 카메라 관련 변수
@@ -75,8 +82,11 @@ public:
 
 	// 구르기 상태 관련 변수
 public:
-	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "이동할 경우 구르기 상태 강제 변횐")
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "이동할 경우 구르기 상태 강제 변환")
 	uint8 bIsMovingMustRolling : 1;
+
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태에서 일정 속도 이하에서 이동 입력 없을 경우 걷기로 전환")
+	uint8 bIsRollingIdleToWalk : 1;
 	
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "구르기 상태 기본 이동속도 증가 값")
 	float DefaultVelocityValue;
@@ -171,4 +181,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 파일 드라이버 입력 키")
 	TObjectPtr<class UInputAction> DropDownAction;
+
+	UPROPERTY(EditAnywhere, Category = InputContext, DisplayName = "플레이어 일시정지 입력 키")
+	TObjectPtr<class UInputAction> PauseGameAction;
+	
 };

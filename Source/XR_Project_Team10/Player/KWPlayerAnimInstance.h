@@ -7,6 +7,8 @@
 #include "Animation/AnimInstance.h"
 #include "KWPlayerAnimInstance.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FEndDeadAnimDelegate)
+
 /**
  * 
  */
@@ -18,6 +20,8 @@ class XR_PROJECT_TEAM10_API UKWPlayerAnimInstance : public UAnimInstance
 public:
 	UKWPlayerAnimInstance();
 
+	FEndDeadAnimDelegate EndDeadAnimDelegate;
+	
 protected:
 	virtual void NativeInitializeAnimation() override;
 
@@ -25,6 +29,10 @@ protected:
 	
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+private:
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void AnimNotify_DeadAnimEnd() { EndDeadAnimDelegate.Broadcast(); }
+	
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	TObjectPtr<UKWKiwiAnimDataAsset> KiwiAnimDataAsset;

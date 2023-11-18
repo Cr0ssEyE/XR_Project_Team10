@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "BoostPad.generated.h"
 
@@ -18,5 +19,11 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<UStaticMeshComponent> BaseMesh;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> CollisionBox;
+
+	UPROPERTY(EditAnywhere, DisplayName = "가속 크기값")
 	float AccelarationValue = 5;
 };

@@ -56,7 +56,7 @@ void UBTService_KWPlayerDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 			{
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(KEY_TARGET, PlayerCharacter->GetTruePlayerLocation());
 				ControllingPawn->SetTarget(*PlayerCharacter->GetTruePlayerLocation());
-				DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 1.f);
+				// DrawDebugSphere(World, Center, DetectRadius, 32, FColor::Green, false, 1.f);
 			}
 		}
 	}

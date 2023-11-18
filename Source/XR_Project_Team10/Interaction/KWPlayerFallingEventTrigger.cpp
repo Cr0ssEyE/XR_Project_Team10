@@ -4,6 +4,7 @@
 #include "XR_Project_Team10/Interaction/KWPlayerFallingEventTrigger.h"
 
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 // Sets default values
@@ -13,6 +14,8 @@ AKWPlayerFallingEventTrigger::AKWPlayerFallingEventTrigger()
 	PrimaryActorTick.bCanEverTick = true;
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	TriggerBox->SetCollisionProfileName(CP_GIMMICK);
+	ReSpawnPosition = CreateDefaultSubobject<USceneComponent>(TEXT("ReSpawnPoint"));
+	ReSpawnPosition->SetupAttachment(TriggerBox);
 	RootComponent = TriggerBox;
 }
 
@@ -26,11 +29,10 @@ void AKWPlayerFallingEventTrigger::BeginPlay()
 void AKWPlayerFallingEventTrigger::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
-	AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(OtherActor);
-	if(PlayerCharacter)
+	AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(OtherActor);
+	if(PlayerCharacterLocation)
 	{
-		PlayerCharacter->SetActorLocation(ReSpawnPosition->GetActorLocation());
-		PlayerCharacter->GetMeshComp()->SetPhysicsLinearVelocity(FVector(0.f, 0.f, 0.f));
+		PlayerCharacterLocation->GetTargetCharacter()->SetActorLocation(ReSpawnPosition->GetComponentLocation());
 	}
 }
 

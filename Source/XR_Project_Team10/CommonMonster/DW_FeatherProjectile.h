@@ -1,4 +1,4 @@
-
+癤�
 #pragma once
 
 #include "CoreMinimal.h"
@@ -24,10 +24,8 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	// 초기 설정
 	void SetVariables(uint32 Damage, float Speed, float DeleteTime);
 
-	// 발사 방향 설정
 	void FireInDirection(const FVector& Direction);
 	void DestroyProjectile();
 
@@ -38,6 +36,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Movement)
 	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UNiagaraComponent> ProjectileEffectComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UNiagaraComponent> HitEffectComponent;
+	
 	FTimerHandle DeleteTimerHandle;
 
 private:
@@ -49,4 +53,5 @@ private:
 
 	UPROPERTY()
 	float FeatherDeleteTime;
+
 };
