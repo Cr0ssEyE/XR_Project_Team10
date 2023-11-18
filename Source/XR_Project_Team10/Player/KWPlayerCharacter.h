@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
 #include "XR_Project_Team10/UI/KWFadeWidget.h"
 #include "XR_Project_Team10/UI/KWPauseWidget.h"
@@ -44,7 +45,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	FORCEINLINE void SetInputActivate(bool Value) {Value ? EnableInput(GetWorld()->GetFirstPlayerController()) : DisableInput(GetWorld()->GetFirstPlayerController()); }
+	FORCEINLINE void LoadCurrentLevel(bool Value) { UGameplayStatics::OpenLevel(GetWorld(), GetWorld()->OriginalWorldName); }
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)

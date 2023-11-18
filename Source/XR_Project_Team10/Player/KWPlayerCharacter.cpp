@@ -218,7 +218,7 @@ void AKWPlayerCharacter::BeginPlay()
 			ScreenFadeWidget->AddToViewport();
 			ScreenFadeWidget->SetVisibility(ESlateVisibility::Hidden);
 			ScreenFadeWidget->SetIsEnabled(false);
-			ScreenFadeWidget->FadeSequenceEndDelegate.AddUObject(this, &AKWPlayerCharacter::SetInputActivate);
+			ScreenFadeWidget->FadeOutSequenceEndDelegate.AddUObject(this, &AKWPlayerCharacter::LoadCurrentLevel);
 		}
 	}
 }

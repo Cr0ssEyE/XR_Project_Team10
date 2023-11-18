@@ -32,6 +32,9 @@ protected:
 	FORCEINLINE void ApplySFXSliderValue(const float Value) { SFXSoundClass->Properties.Volume = Value; }
 
 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void CloseSettingWidget() { SetRenderScale(FVector2d::Zero()); }
+	
+	UFUNCTION(BlueprintCallable)
 	void ApplyResolutionType(FString ResolutionName, ESelectInfo::Type Info);
 
 	UFUNCTION(BlueprintCallable)
@@ -58,6 +61,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 	TObjectPtr<class UButton> UseWindowBtn;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	TObjectPtr<class UButton> CloseBtn;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SoundClass")

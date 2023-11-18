@@ -6,6 +6,7 @@
 #include "KWFadeWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "XR_Project_Team10/Constant/KWLevelName.h"
+#include "XR_Project_Team10/Game/KWGameInstance.h"
 
 void UKWLobbyWidget::NativeConstruct()
 {
@@ -17,23 +18,33 @@ void UKWLobbyWidget::NativeConstruct()
 	ConfirmBtn->OnClicked.AddDynamic(this, &UKWLobbyWidget::ConfirmBtnEvent);
 	CancelBtn->OnClicked.AddDynamic(this, &UKWLobbyWidget::CancelBtnEvent);
 	FirstEnterBtn->OnClicked.AddDynamic(this, &UKWLobbyWidget::FirstEnterBtnEvent);
-	FadeWidget->FadeSequenceEndDelegate.AddUObject(this, &UKWLobbyWidget::OpenIntroLevel);
+	FadeWidget->FadeOutSequenceEndDelegate.AddUObject(this, &UKWLobbyWidget::OpenIntroLevel);
 	
 	LobbyUIPanel->SetRenderScale(FVector2d::Zero());
 	LobbyUIPanel->SetRenderOpacity(0.f);
 	LobbyUIPanel->SetIsEnabled(false);
 	ExitGameCheckPanel->SetRenderScale(FVector2d::Zero());
 	SettingWidget->SetRenderScale(FVector2d::Zero());
+	FadeWidget->SetFadeSpeed(FadeSpeedPerTick);
+	FadeWidget->StartFadeIn();
 }
 
 void UKWLobbyWidget::GameStartBtnEvent()
 {
+	TObjectPtr<UKWGameInstance> CurrentGI = CastChecked<UKWGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	TObjectPtr<UKWSaveSettingOption> SaveSettingOption = CurrentGI->GetSaveSettingOption();
+	if(SaveSettingOption)
+	{
+		SettingWidget->SaveSettingData(SaveSettingOption);
+	}
+	LobbyUIPanel->SetIsEnabled(false);
 	FadeWidget->StartFadeOut();
 }
 
 void UKWLobbyWidget::SettingBtnEvent()
 {
-	SettingWidget->SetRenderScale(FVector2d::One());
+	bool IsOpened = !SettingWidget->GetRenderTransform().Scale.X;
+	SettingWidget->SetRenderScale(FVector2d::One() * IsOpened);
 }
 
 void UKWLobbyWidget::ExitGameBtnEvent()
@@ -43,6 +54,12 @@ void UKWLobbyWidget::ExitGameBtnEvent()
 
 void UKWLobbyWidget::ConfirmBtnEvent()
 {
+	TObjectPtr<UKWGameInstance> CurrentGI = CastChecked<UKWGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	TObjectPtr<UKWSaveSettingOption> SaveSettingOption = CurrentGI->GetSaveSettingOption();
+	if(SaveSettingOption)
+	{
+		SettingWidget->SaveSettingData(SaveSettingOption);
+	}
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, false);
 }
 
@@ -54,8 +71,9 @@ void UKWLobbyWidget::CancelBtnEvent()
 void UKWLobbyWidget::FirstEnterBtnEvent()
 {
 	FirstEnterBtn->SetIsEnabled(false);
+	FirstEnterBtn->SetRenderScale(FVector2d::Zero());
 	LobbyUIPanel->SetRenderScale(FVector2d::One());
-	SwapVisibilitySequence();
+	ShowLobbyUISequence();
 }
 
 void UKWLobbyWidget::OpenIntroLevel(bool Value)
@@ -64,17 +82,21 @@ void UKWLobbyWidget::OpenIntroLevel(bool Value)
 	UGameplayStatics::OpenLevel(this, INTRO_LEVEL);
 }
 
-void UKWLobbyWidget::SwapVisibilitySequence()
+void UKWLobbyWidget::ShowLobbyUISequence()
 {
-	if(FirstEnterBtn->GetRenderOpacity() > 0.f)
+	if(FirstEnterEmissionText->GetRenderOpacity() > 0.f)
 	{
-		FirstEnterBtn->SetRenderOpacity(FirstEnterBtn->GetRenderOpacity() - 0.01f);
+		FirstEnterEmissionText->SetRenderOpacity(FirstEnterBtn->GetRenderOpacity() - FadeSpeedPerTick * 2);
+		if(FirstEnterEmissionText->GetRenderOpacity() <= 0.f)
+		{
+			FirstEnterEmissionText->SetRenderScale(FVector2d::Zero());
+		}
 	}
 	if(LobbyUIPanel->GetRenderOpacity() >= 1.f)
 	{
 		LobbyUIPanel->SetIsEnabled(true);
 		return;
 	}
-	LobbyUIPanel->SetRenderOpacity(LobbyUIPanel->GetRenderOpacity() + 0.005f);
-	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWLobbyWidget::SwapVisibilitySequence);
+	LobbyUIPanel->SetRenderOpacity(LobbyUIPanel->GetRenderOpacity() + FadeSpeedPerTick);
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWLobbyWidget::ShowLobbyUISequence);
 }

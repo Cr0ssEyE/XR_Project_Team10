@@ -22,6 +22,7 @@ void UKWSettingWidget::NativeConstruct()
 	ResolutionComboBox->OnSelectionChanged.AddDynamic(this, &UKWSettingWidget::ApplyResolutionType);
 	UseFullScreenBtn->OnClicked.AddDynamic(this, &UKWSettingWidget::ApplyFullScreen);
 	UseWindowBtn->OnClicked.AddDynamic(this, &UKWSettingWidget::ApplyWindowScreen);
+	CloseBtn->OnClicked.AddDynamic(this, &UKWSettingWidget::CloseSettingWidget);
 	
 	for (int i = 0; i <= static_cast<int>(EResolutionTypes::FHD); i++)
 	{
@@ -32,44 +33,70 @@ void UKWSettingWidget::NativeConstruct()
 
 void UKWSettingWidget::SaveSettingData(UKWSaveSettingOption* SettingOption)
 {
-	
+	SettingOption->MasterSoundVolumeSliderValue = MasterSoundVolumeSlider->GetValue();
+	SettingOption->BGMSoundVolumeSliderValue = BGMSoundVolumeSlider->GetValue();
+	SettingOption->SFXSoundVolumeSliderValue = SFXSoundVolumeSlider->GetValue();
+	SettingOption->ResolutionType = ResolutionTypes;
+	SettingOption->bIsFullScreenActivate = bIsFullScreenActivate;
+
+	UGameplayStatics::SaveGameToSlot(SettingOption, SettingOption->SaveFileName, 0);
 }
 
 void UKWSettingWidget::LoadSettingData(UKWSaveSettingOption* SettingOption)
 {
+	MasterSoundVolumeSlider->SetValue(SettingOption->MasterSoundVolumeSliderValue);
+	BGMSoundVolumeSlider->SetValue(SettingOption->BGMSoundVolumeSliderValue);
+	SFXSoundVolumeSlider->SetValue(SettingOption->SFXSoundVolumeSliderValue);
+	ResolutionTypes = SettingOption->ResolutionType;
+	ResolutionComboBox->SetSelectedOption(*ResolutionEnumMap.FindKey(ResolutionTypes));
+	bIsFullScreenActivate = SettingOption->bIsFullScreenActivate;
 	
+	MasterSoundVolumeSlider->OnValueChanged.Broadcast(MasterSoundVolumeSlider->GetValue());
+	BGMSoundVolumeSlider->OnValueChanged.Broadcast(BGMSoundVolumeSlider->GetValue());
+	SFXSoundVolumeSlider->OnValueChanged.Broadcast(SFXSoundVolumeSlider->GetValue());
+	
+	ESelectInfo::Type Info = ESelectInfo::OnKeyPress;
+	ResolutionComboBox->OnSelectionChanged.Broadcast(ResolutionComboBox->GetSelectedOption(), Info);
+	bIsFullScreenActivate == true ? ApplyFullScreen() : ApplyWindowScreen();
 }
 
 void UKWSettingWidget::ApplyResolutionType(FString ResolutionName, ESelectInfo::Type Info)
 {
+	if(ResolutionName.IsEmpty())
+	{
+		return;
+	}
 	ResolutionTypes = ResolutionEnumMap[ResolutionName];
 	switch (ResolutionTypes)
 	{
 	case EResolutionTypes::SD:
-		GEngine->GameUserSettings->SetScreenResolution(FIntPoint(800, 450));
+		GEngine->GetGameUserSettings()->SetScreenResolution(FIntPoint(800, 450));
 		break;
 	case EResolutionTypes::HD:
-		GEngine->GameUserSettings->SetScreenResolution(FIntPoint(1280, 720));
+		GEngine->GetGameUserSettings()->SetScreenResolution(FIntPoint(1280, 720));
 		break;
 	case EResolutionTypes::HDP:
-		GEngine->GameUserSettings->SetScreenResolution(FIntPoint(1600, 900));
+		GEngine->GetGameUserSettings()->SetScreenResolution(FIntPoint(1600, 900));
 		break;
 	case EResolutionTypes::FHD:
-		GEngine->GameUserSettings->SetScreenResolution(FIntPoint(1920, 1080));
+		GEngine->GetGameUserSettings()->SetScreenResolution(FIntPoint(1920, 1080));
 		break;
-		default:
-			checkNoEntry();
+	default:
+		checkNoEntry();
 	}
+	GEngine->GetGameUserSettings()->ApplySettings(false);
 }
 
 void UKWSettingWidget::ApplyFullScreen()
 {
 	bIsFullScreenActivate = true;
-	GEngine->GameUserSettings->SetFullscreenMode(EWindowMode::WindowedFullscreen);
+	GEngine->GetGameUserSettings()->SetFullscreenMode(EWindowMode::WindowedFullscreen);
+	GEngine->GetGameUserSettings()->ApplySettings(false);
 }
 
 void UKWSettingWidget::ApplyWindowScreen()
 {
 	bIsFullScreenActivate = false;
-	GEngine->GameUserSettings->SetFullscreenMode(EWindowMode::Windowed);
+	GEngine->GetGameUserSettings()->SetFullscreenMode(EWindowMode::Windowed);
+	GEngine->GetGameUserSettings()->ApplySettings(false);
 }

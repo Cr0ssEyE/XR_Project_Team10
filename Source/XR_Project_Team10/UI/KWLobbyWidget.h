@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
+#include "Components/TextBlock.h"
 #include "KWLobbyWidget.generated.h"
 
 class UKWFadeWidget;
@@ -44,7 +45,7 @@ protected:
 	void OpenIntroLevel(bool Value);
 
 protected:
-	void SwapVisibilitySequence();
+	void ShowLobbyUISequence();
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (BindWidget))
@@ -62,6 +63,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (BindWidget))
 	TObjectPtr<UButton> FirstEnterBtn;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (BindWidget))
+	TObjectPtr<UTextBlock> FirstEnterEmissionText;
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> ExitGameCheckPanel;
@@ -78,4 +82,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (BindWidget))
 	TObjectPtr<UKWSettingWidget> SettingWidget;
+
+private:
+	UPROPERTY(EditAnywhere)
+	float FadeSpeedPerTick;
+	
 };
