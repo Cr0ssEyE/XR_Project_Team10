@@ -8,18 +8,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Content/1-Graphic-Resource/CutScene/scene1.uasset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_PlayerHealthWidget.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Binaries/Win64/XR_Project_Team10Editor.target" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/XR_Project_Team10Editor.target" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/45-UI-Test/LobbyLevel.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/45-UI-Test/LobbyLevel.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_LobbyWidget.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Rolling-Kiwi/Blueprint/UI/WB_LobbyWidget.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWPlayerHealthWidget.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/XR_Project_Team10.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/XR_Project_Team10.Build.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
