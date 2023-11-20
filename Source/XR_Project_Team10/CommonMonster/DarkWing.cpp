@@ -14,12 +14,7 @@ ADarkWing::ADarkWing()
 
 	FeatherClass = FPPConstructorHelper::FindAndGetClass<ADW_FeatherProjectile>(TEXT("/Script/Engine.Blueprint'/Game/9-CommonAI/AI/MyDW_FeatherProjectile.MyDW_FeatherProjectile_C'"), EAssertionLevel::Check);
 
-	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Game/1-Graphic-Resource/Monster/Monster_1/Dead/NormalMonster1_Dead"), EAssertionLevel::Check);
-	
-	// static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Game/1-Graphic-Resource/Monster/Monster_1/Dead/NormalMonster1_Dead"));
-	// if (DeadMontageRef.Object) {
-	// 	DeadMontage = DeadMontageRef.Object;
-	// }
+	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/DarkWing/Animation/AM_DarkWind_Dead.AM_DarkWind_Dead'"), EAssertionLevel::Check);
 }
 
 void ADarkWing::Tick(float DeltaTime)
