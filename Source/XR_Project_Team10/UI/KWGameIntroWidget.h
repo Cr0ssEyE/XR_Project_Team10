@@ -79,6 +79,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TArray<USpineSkeletonDataAsset*> SpineSkeletonDataArray;
+
+	UPROPERTY(EditAnywhere)
+	TArray<FDataTableRowHandle> CutSceneTextDataArray;
 	
 	UPROPERTY()
 	int CurrentScene;

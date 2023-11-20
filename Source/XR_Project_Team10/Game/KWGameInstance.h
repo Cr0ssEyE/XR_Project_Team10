@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "XR_Project_Team10/Util/KWSoundData.h"
 #include "XR_Project_Team10/Util/KWSaveSettingOption.h"
+#include "XR_Project_Team10/Util/StringDataTable.h"
 #include "KWGameInstance.generated.h"
 
 /**
@@ -21,7 +22,7 @@ public:
 	
 public:
 	FORCEINLINE TObjectPtr<UKWSaveSettingOption> GetSaveSettingOption() const { return SaveSettingOption; }
-
+	FStringDataTable* GetStringDataTable(const FName RowName);
 	FORCEINLINE TObjectPtr<UKWSoundData> GetSoundData() const { return SoundData; }
 
 	FORCEINLINE bool CheckSavePointActivate() const { return bIsSavePointActivated; }

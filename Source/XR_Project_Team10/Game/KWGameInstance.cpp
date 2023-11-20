@@ -22,3 +22,8 @@ UKWGameInstance::UKWGameInstance()
 	bIsSavePointActivated = false;
 	SavePointsArrayNum = -1;
 }
+
+FStringDataTable* UKWGameInstance::GetStringDataTable(const FName RowName)
+{
+	return StringDataTable->FindRow<FStringDataTable>(RowName, TEXT("Find StringDataTable"));
+}
