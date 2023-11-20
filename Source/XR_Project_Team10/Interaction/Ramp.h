@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -22,11 +22,14 @@ protected:
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
 private:
-	UPROPERTY(EditAnywhere, DisplayName = "°¨¼Ó °ª (0~1)")
+	UPROPERTY(EditAnywhere, DisplayName = "ê°ì† ê°’ (0~1)")
 	float DecelerationValue;
 
-	UPROPERTY(EditAnywhere, DisplayName = "Ãß°¡µÉ Y Value°ª (¹è¼ö)")
+	UPROPERTY(EditAnywhere, DisplayName = "ì¶”ê°€ë  Y Valueê°’ (ë°°ìˆ˜)")
 	float JumpValue;
+
+	UPROPERTY(EditAnywhere, DisplayName = "ì í”„ì†ë„ ë”í•´ì§ˆ ìœ„ì¹˜ (0~1)")
+	float JumpTimingZ = 0.8;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> BaseMesh;
@@ -38,5 +41,5 @@ private:
 	float StartZ = 0;
 
 	UPROPERTY()
-	float CheckZ = 50;	// Half of Collision.Z
+	float CheckZ;	// Half of Collision.Z
 };

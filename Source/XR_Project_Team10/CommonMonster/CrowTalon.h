@@ -22,6 +22,8 @@ protected:
 
 	virtual void AttackOmen() override;
 	virtual void Attack() override;
+	virtual void AttackBehaviour() override;
+	virtual void AttackEnd() override;
 
 	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 

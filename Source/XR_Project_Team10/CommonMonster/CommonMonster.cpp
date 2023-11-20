@@ -69,13 +69,36 @@ void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAt
 
 void ACommonMonster::AttackOmen()
 {
-	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &ACommonMonster::Attack, MonsterAttackTime, false);
+	MonsterState = EState::E_ATTACK_OMEN;
+	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &ACommonMonster::Attack, 0.01f, true);
 }
 
 void ACommonMonster::Attack()
 {
-	MonsterState = EState::E_ATTACK;
-	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &ACommonMonster::CheckAttackDelay, 0.01f, true);
+	if (MonsterState == EState::E_ATTACK) {
+		GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+		FPPTimerHelper::InvalidateTimerHandle(AttackTimerHandle);
+		GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &ACommonMonster::CheckAttackDelay, 0.01f, true);
+		GetWorldTimerManager().SetTimer(AttackEndTimerHandle, this, &ACommonMonster::AttackEnd, 0.01f, true);
+
+		AttackBehaviour();
+	}
+}
+
+void ACommonMonster::AttackBehaviour()
+{
+
+}
+
+void ACommonMonster::AttackEnd()
+{
+	if (MonsterState == EState::E_ATTACK_END) {
+		OnAttackFinished.ExecuteIfBound();
+		MonsterState = EState::E_IDLE;
+		GetWorldTimerManager().ClearTimer(AttackEndTimerHandle);
+		FPPTimerHelper::InvalidateTimerHandle(AttackEndTimerHandle);
+		PlayerTarget = nullptr;
+	}
 }
 
 void ACommonMonster::CheckAttackDelay()

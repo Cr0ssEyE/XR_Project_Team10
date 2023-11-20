@@ -13,13 +13,16 @@ ARamp::ARamp()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	BaseMesh->SetStaticMesh(FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/6-Interaction-object/TestRamp")));
+	BaseMesh->SetStaticMesh(FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Game/1-Graphic-Resource/Props/JumpSlide/SM_JumpSlide")));
 	RootComponent = BaseMesh;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
+	CollisionBox->SetWorldLocation(FVector(0, 0, 27.f));
 	CollisionBox->SetupAttachment(BaseMesh);
-	CollisionBox->SetBoxExtent(FVector(100.f, 100.f, 100.f));
+	CollisionBox->SetBoxExtent(FVector(20.f, 20.f, 22.f));
 	CollisionBox->SetCollisionProfileName(CP_GIMMICK);
+
+	CheckZ = CollisionBox->GetScaledBoxExtent().Z * JumpTimingZ;
 }
 
 // Called when the game starts or when spawned
