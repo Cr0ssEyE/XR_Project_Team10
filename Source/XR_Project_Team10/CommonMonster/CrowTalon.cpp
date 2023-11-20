@@ -6,19 +6,13 @@
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
+#include "XR_Project_Team10/Util/PPConstructorHelper.h"
 
 ACrowTalon::ACrowTalon()
 {
-	ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Game/1-Graphic-Resource/Monster/Monster_2/death/NormalMonster2_Dead"));
-	if (DeadMontageRef.Object) {
-		DeadMontage = DeadMontageRef.Object;
-	}
-
-	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/CrowTalon"));
-	if (DataAsset.Succeeded()) {
-		UDataAsset* dataAsset = DataAsset.Object;
-		MonsterData = Cast<UCommonMonsterDataAsset>(dataAsset);
-	}
+	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/CrowTalon/Animation/AM_CrowTalon_Dead.AM_CrowTalon_Dead'"));
+	
+	MonsterData = FPPConstructorHelper::FindAndGetObject<UCommonMonsterDataAsset>(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/CrowTalon"));
 }
 
 void ACrowTalon::Tick(float DeltaTime)
