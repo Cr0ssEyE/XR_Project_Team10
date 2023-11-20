@@ -89,6 +89,9 @@ protected:
 	float MonsterAttackTime;
 
 	UPROPERTY()
+	float MonsterAttackElapsedTime;
+	
+	UPROPERTY()
 	float KnockBackElapsedTime;
 
 	UPROPERTY()
@@ -106,6 +109,9 @@ protected:
 	UPROPERTY()
 	AActor* PlayerTarget;
 
+	UPROPERTY()
+	FVector CollisionDirection;
+	
 	FTimerHandle AttackCoolDownTimerHandle;
 	FTimerHandle AttackOmenTimerHandle;
 	FTimerHandle AttackTimerHandle;

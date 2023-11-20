@@ -38,12 +38,13 @@ public:
 	AKWPlayerCharacter();
 
 	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
-	FORCEINLINE float GetHp() { return Health; }
-	FORCEINLINE void SetHp(float Value) { Health = Value; }
+	FORCEINLINE float GetHp() { return PlayerHp; }
+	FORCEINLINE void SetHp(float Value) { PlayerHp = Value; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
+	FORCEINLINE void SetInputActivate(bool Value) {Value ? EnableInput(GetWorld()->GetFirstPlayerController()) : DisableInput(GetWorld()->GetFirstPlayerController()); }
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -75,6 +76,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TSubclassOf<class UAnimInstance> RollingAnimInstance;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAnimMontage> KiwiAnimMontage;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
@@ -83,7 +87,10 @@ private:
 	TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY()
-	float Health;
+	float PlayerHp;
+
+	UPROPERTY()
+	FVector MeshOriginScale;
 	
 	uint8 bIsEnableHitCheckDebugView : 1;
 
@@ -270,6 +277,8 @@ private:
 	 **/
 private:
 	void CheckGearState();
+	void PlayDeadAnim();
+	void StartFadeOut();
 	
 	/**
 	 * 플레이어 상태 관련 변수 리스트
@@ -285,26 +294,37 @@ private:
 	
 	TArray<FLinearColor> ColorsByGear;
 	
+	UPROPERTY()
 	uint8 bIsDead : 1;
 	
+	UPROPERTY()
 	uint8 bIsMoving : 1;
 	
+	UPROPERTY()
 	uint8 bIsRolling : 1;
 
+	UPROPERTY()
 	uint8 bIsFlying : 1;
 
+	UPROPERTY()
 	uint8 bIsUsedFlyDash : 1;
 
+	UPROPERTY()
 	uint8 bIsMovingMustRolling : 1;
 
+	UPROPERTY()
 	uint8 bIsRollingIdleToWalk : 1;
-	
+
+	UPROPERTY()
 	uint8 bIsReBounding : 1;
 
+	UPROPERTY()
 	uint8 bIsKnockBackOnGoing : 1;
 	
+	UPROPERTY()
 	uint8 bIsInputJustAction : 1;
 	
+	UPROPERTY()
 	uint8 bIsAttackOnGoing : 1;
 
 	/** 리바운드 관련 함수 리스트\n
@@ -363,9 +383,9 @@ private:
 	TObjectPtr<UKWPauseWidget> PauseWidget;
 
 	UPROPERTY()
-	TSubclassOf<UKWFadeWidget> DeadFadeWidgetClass;
+	TSubclassOf<UKWFadeWidget> ScreenFadeWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UKWFadeWidget> DeadFadeWidget;
+	TObjectPtr<UKWFadeWidget> ScreenFadeWidget;
 };
 

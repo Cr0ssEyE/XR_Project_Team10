@@ -119,6 +119,7 @@ void ACommonMonster::CommonMonsterAttack(AActor* Target)
 
 	PlayerTarget = Target;
 
+	MonsterState = EState::E_ATTACK_OMEN;
 	GetWorldTimerManager().SetTimer(AttackOmenTimerHandle, this, &ACommonMonster::AttackOmen, MonsterAttackOmenTime, false);
 }
 
