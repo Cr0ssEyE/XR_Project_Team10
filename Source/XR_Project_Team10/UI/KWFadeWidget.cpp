@@ -47,6 +47,7 @@ void UKWFadeWidget::FadeOutSequence()
 	if(FadeImage->GetRenderOpacity() >= 1.f)
 	{
 		bIsFading = false;
+		FadeImage->SetRenderOpacity(1.f);
 		FadeOutSequenceEndDelegate.Broadcast(true);
 		return;
 	}
@@ -59,6 +60,7 @@ void UKWFadeWidget::FadeInSequence()
 	if(FadeImage->GetRenderOpacity() <= 0.f)
 	{
 		bIsFading = false;
+		FadeImage->SetRenderOpacity(0.f);
 		FadeImage->SetRenderScale(FVector2D::Zero());
 		FadeInSequenceEndDelegate.Broadcast(true);
 		return;
