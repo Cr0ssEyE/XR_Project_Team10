@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "CommonMonsterAnimInstance.generated.h"
 
 /**
@@ -22,6 +23,16 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 private:
+	UFUNCTION()
+	void AnimNotify_Attack();
+
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
+
+private:
+	UPROPERTY()
+	ACommonMonster* Monster;
+
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite ,Category=Pawn, Meta=(AllowPrivateAccess=true))
 	float CurrentPawnSpeed;
 
