@@ -6,22 +6,20 @@
 #include "XR_Project_Team10/CommonMonster/DW_FeatherProjectile.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Object/KWLocationDetector.h"
+#include "XR_Project_Team10/Util/PPConstructorHelper.h"
 
 ADarkWing::ADarkWing()
 {
-	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/DarkWingData"));
-	if (DataAsset.Succeeded()) {
-		UDataAsset* dataAsset = DataAsset.Object;
-		MonsterData = Cast<UCommonMonsterDataAsset>(dataAsset);
-	}
-	static ConstructorHelpers::FObjectFinder<UBlueprint> Feather(TEXT("/Game/10-Common-Monster-Base/MyDW_FeatherProjectile"));
-		if (Feather.Succeeded()) {
-			FeatherClass = Feather.Object->GeneratedClass;
-	}
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Game/1-Graphic-Resource/Monster/Monster_1/Dead/NormalMonster1_Dead"));
-	if (DeadMontageRef.Object) {
-		DeadMontage = DeadMontageRef.Object;
-	}
+	MonsterData = FPPConstructorHelper::FindAndGetObject<UCommonMonsterDataAsset>(TEXT("/Script/XR_Project_Team10.CommonMonsterDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/DarkWingData.DarkWingData'"), EAssertionLevel::Check);
+
+	FeatherClass = FPPConstructorHelper::FindAndGetClass<ADW_FeatherProjectile>(TEXT("/Script/Engine.Blueprint'/Game/9-CommonAI/AI/MyDW_FeatherProjectile.MyDW_FeatherProjectile_C'"), EAssertionLevel::Check);
+
+	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Game/1-Graphic-Resource/Monster/Monster_1/Dead/NormalMonster1_Dead"), EAssertionLevel::Check);
+	
+	// static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Game/1-Graphic-Resource/Monster/Monster_1/Dead/NormalMonster1_Dead"));
+	// if (DeadMontageRef.Object) {
+	// 	DeadMontage = DeadMontageRef.Object;
+	// }
 }
 
 void ADarkWing::Tick(float DeltaTime)

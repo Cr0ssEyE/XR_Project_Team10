@@ -68,7 +68,7 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 
 	
 	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
-	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/28-Player-Rework/Player/SM_Ball_01.SM_Ball_01'"), EAssertionLevel::Check);
+	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/1-Graphic-Resource/Player/SM_DummyBall.SM_DummyBall'"), EAssertionLevel::Check);
 
 	PlayerHp = CharacterData->PlayerHp;
 	
