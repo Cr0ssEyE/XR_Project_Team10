@@ -14,8 +14,8 @@
 
 AKWHohonuAIController::AKWHohonuAIController()
 {
-	BlackboardData = FPPConstructorHelper::FindAndGetObject<UBlackboardData>(TEXT("/Script/AIModule.BlackboardData'/Game/21-Hohonu/AI/Hohonu/BB_BossHohonu.BB_BossHohonu'"));
-	BehaviorTree = FPPConstructorHelper::FindAndGetObject<UBehaviorTree>(TEXT("/Script/AIModule.BehaviorTree'/Game/21-Hohonu/AI/Hohonu/BT_BossHohonu.BT_BossHohonu'"));
+	BlackboardData = FPPConstructorHelper::FindAndGetObject<UBlackboardData>(TEXT("/Script/AIModule.BlackboardData'/Game/Rolling-Kiwi/AI/Hohonu/BB_BossHohonu.BB_BossHohonu'"));
+	BehaviorTree = FPPConstructorHelper::FindAndGetObject<UBehaviorTree>(TEXT("/Script/AIModule.BehaviorTree'/Game/Rolling-Kiwi/AI/Hohonu/BT_BossHohonu.BT_BossHohonu'"));
 }
 
 void AKWHohonuAIController::ActivateAI()

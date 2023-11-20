@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
+#include "XR_Project_Team10/UI/KWFadeWidget.h"
+#include "XR_Project_Team10/UI/KWPauseWidget.h"
 #include "KWPlayerCharacter.generated.h"
 
 UENUM()
@@ -36,11 +38,13 @@ public:
 	AKWPlayerCharacter();
 
 	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
-	FORCEINLINE float GetHp() { return Health; }
+	FORCEINLINE float GetHp() { return PlayerHp; }
+	FORCEINLINE void SetHp(float Value) { PlayerHp = Value; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	FORCEINLINE void SetInputActivate(bool Value) {Value ? EnableInput(GetWorld()->GetFirstPlayerController()) : DisableInput(GetWorld()->GetFirstPlayerController()); }
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -72,6 +76,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TSubclassOf<class UAnimInstance> RollingAnimInstance;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAnimMontage> KiwiAnimMontage;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
@@ -80,7 +87,10 @@ private:
 	TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY()
-	float Health;
+	float PlayerHp;
+
+	UPROPERTY()
+	FVector MeshOriginScale;
 	
 	uint8 bIsEnableHitCheckDebugView : 1;
 
@@ -89,6 +99,7 @@ private:
 	uint8 bIsEnableVelocityDebugView : 1;
 	
 	uint8 bIsEnableLocationDebugView : 1;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -96,6 +107,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
 	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RootMesh; }
 
 	/**
@@ -109,10 +122,8 @@ protected:
 	void ToggleCharacterTypeAction(const FInputActionValue& Value);
 	void AttackActionSequence(const FInputActionValue& Value);
 	void DropDownActionSequence(const FInputActionValue& Value);
-	void AttackCoolDownTimer();
-	void DropDownCoolDownTimer();
-	void VelocityDecelerateTimer();
-
+	void TogglePauseWidget();
+	
 	/**
 	 * 공격 입력 분기 함수 \n
 	 * RBD = 리바운드 대시
@@ -146,6 +157,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UInputAction> FileDriverAction;
+
+	UPROPERTY()
+	TObjectPtr<class UInputAction> PauseGameAction;
 	
 	/**
 	 * 캐릭터 움직임 관련 변수 리스트
@@ -198,6 +212,8 @@ private:
 	UPROPERTY()
 	FVector VelocityDecelerateTarget;
 
+public:
+	uint8 IsDropDownActive : 1 = false;
 	/** 공격 관련 변수 리스트 \n
 	* 약어 정리 \n
 	* DA = DashAttack \n 
@@ -261,6 +277,8 @@ private:
 	 **/
 private:
 	void CheckGearState();
+	void PlayDeadAnim();
+	void StartFadeOut();
 	
 	/**
 	 * 플레이어 상태 관련 변수 리스트
@@ -276,24 +294,37 @@ private:
 	
 	TArray<FLinearColor> ColorsByGear;
 	
+	UPROPERTY()
 	uint8 bIsDead : 1;
 	
+	UPROPERTY()
 	uint8 bIsMoving : 1;
 	
+	UPROPERTY()
 	uint8 bIsRolling : 1;
 
+	UPROPERTY()
 	uint8 bIsFlying : 1;
 
+	UPROPERTY()
 	uint8 bIsUsedFlyDash : 1;
 
+	UPROPERTY()
 	uint8 bIsMovingMustRolling : 1;
-	
+
+	UPROPERTY()
+	uint8 bIsRollingIdleToWalk : 1;
+
+	UPROPERTY()
 	uint8 bIsReBounding : 1;
 
+	UPROPERTY()
 	uint8 bIsKnockBackOnGoing : 1;
 	
+	UPROPERTY()
 	uint8 bIsInputJustAction : 1;
 	
+	UPROPERTY()
 	uint8 bIsAttackOnGoing : 1;
 
 	/** 리바운드 관련 함수 리스트\n
@@ -334,11 +365,27 @@ private:
 
 	UPROPERTY()
 	TArray<float> RB_MultiplyValuesByObjectType;
-
-	// 타이머 델리게이트 용
+	
+	// 타이머 델리게이트 등
 private:
 	void DA_HitCheckSequence();
 	void FD_HitCheckSequence();
-	
+	void AttackCoolDownTimer();
+	void DropDownCoolDownTimer();
+	void VelocityDecelerateTimer();
+
+	// UI 관련
+private:
+	UPROPERTY()
+	TSubclassOf<UKWPauseWidget> PauseWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UKWPauseWidget> PauseWidget;
+
+	UPROPERTY()
+	TSubclassOf<UKWFadeWidget> ScreenFadeWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UKWFadeWidget> ScreenFadeWidget;
 };
 

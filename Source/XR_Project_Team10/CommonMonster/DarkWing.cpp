@@ -6,18 +6,15 @@
 #include "XR_Project_Team10/CommonMonster/DW_FeatherProjectile.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Object/KWLocationDetector.h"
+#include "XR_Project_Team10/Util/PPConstructorHelper.h"
 
 ADarkWing::ADarkWing()
 {
-	static ConstructorHelpers::FObjectFinder<UDataAsset> DataAsset(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/DarkWingData"));
-	if (DataAsset.Succeeded()) {
-		UDataAsset* dataAsset = DataAsset.Object;
-		MonsterData = Cast<UCommonMonsterDataAsset>(dataAsset);
-	}
-	static ConstructorHelpers::FObjectFinder<UBlueprint> Feather(TEXT("/Game/10-Common-Monster-Base/MyDW_FeatherProjectile"));
-		if (Feather.Succeeded()) {
-			FeatherClass = Feather.Object->GeneratedClass;
-	}
+	MonsterData = FPPConstructorHelper::FindAndGetObject<UCommonMonsterDataAsset>(TEXT("/Script/XR_Project_Team10.CommonMonsterDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/DarkWingData.DarkWingData'"), EAssertionLevel::Check);
+
+	FeatherClass = FPPConstructorHelper::FindAndGetClass<ADW_FeatherProjectile>(TEXT("/Script/Engine.Blueprint'/Game/9-CommonAI/AI/MyDW_FeatherProjectile.MyDW_FeatherProjectile_C'"), EAssertionLevel::Check);
+
+	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/DarkWing/Animation/AM_DarkWind_Dead.AM_DarkWind_Dead'"), EAssertionLevel::Check);
 }
 
 void ADarkWing::Tick(float DeltaTime)
@@ -25,33 +22,11 @@ void ADarkWing::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-float ADarkWing::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	AActor* DamageCauser)
-{
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	MonsterCurrentHP -= DamageAmount;
-	if(MonsterCurrentHP <= 0 && GetController())
-	{
-		GetController()->Destroy();
-		// 사망 애니메이션 추가
-		return 0;
-	}
-	AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DamageCauser);
-	if(PlayerCharacter)
-	{
-		KnockBackImpactLocation = PlayerCharacter->GetTruePlayerLocation()->GetActorLocation();
-		KnockBackElapsedTime = 0;
-		GetWorldTimerManager().SetTimerForNextTick(this, &ADarkWing::ApplyKnockBack);
-	}
-	return 0;
-}
-
 void ADarkWing::BeginPlay()
 {
 	Super::BeginPlay();
 }
-AKWLocationDetector* DetectTarget;
-FVector TargetLocation;
+
 //공격 전조
 void ADarkWing::AttackOmen()
 {
@@ -65,7 +40,23 @@ void ADarkWing::AttackOmen()
 //공격
 void ADarkWing::Attack()
 {
+	float TurnSpeed = 5.f;
+	FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
+	LookVector.Z = 0.0f;
+	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
+	SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
+
 	Super::Attack();
+}
+
+void ADarkWing::AttackEnd()
+{
+	Super::AttackEnd();
+	PlayerTarget = nullptr;
+}
+
+void ADarkWing::AttackBehaviour()
+{
 	UE_LOG(LogTemp, Log, TEXT("DarkWing Attack"));
 	// 플레이어를 향해 깃털 n개 발사
 	if (nullptr != FeatherClass) {
@@ -96,7 +87,7 @@ void ADarkWing::Attack()
 						TargetLocationVector = MuzzleLocation + ((TargetLocation - MuzzleLocation) * AttackRange);
 						TargetLocationVector.Z = 0;
 						TargetLocationVector = (TargetLocationVector - MuzzleLocation).GetSafeNormal();
-						
+
 						//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocationVector.X, TargetLocationVector.Y, TargetLocationVector.Z);
 						//UE_LOG(LogTemp, Log, TEXT(""));
 
@@ -106,10 +97,6 @@ void ADarkWing::Attack()
 					}
 				}
 			}
-
-			OnAttackFinished.ExecuteIfBound();
-			MonsterState = EState::E_IDLE;
-			PlayerTarget = nullptr;
 		}
 	}
 }

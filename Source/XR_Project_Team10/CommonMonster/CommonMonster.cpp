@@ -4,6 +4,7 @@
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/AI/Common/KWCommonAIController.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
@@ -11,6 +12,7 @@
 ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
 
 	//MonsterComponent = GetCapsuleComponent();
 
@@ -20,7 +22,6 @@ ACommonMonster::ACommonMonster()
 
 	AIControllerClass = AKWCommonAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
 
 	if (nullptr != MonsterData) {
 		MonsterCurrentHP = MonsterData->MonsterHP;
@@ -36,11 +37,12 @@ void ACommonMonster::Tick(float DeltaTime)
 float ACommonMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	UE_LOG(LogTemp, Log, TEXT("TakeDamage"));
 	MonsterCurrentHP -= DamageAmount;
 	if (MonsterCurrentHP <= 0 && GetController()) {
 		GetController()->Destroy();
-		MonsterState = EState::E_DEAD;
-		return 0;
+		CommonMonsterDead();
 	}
 	AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(DamageCauser);
 	if (PlayerCharacter) {
@@ -68,13 +70,35 @@ void ACommonMonster::SetCommonAttackDelegate(const FCommonAttackFinished& InOnAt
 void ACommonMonster::AttackOmen()
 {
 	MonsterState = EState::E_ATTACK_OMEN;
-	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &ACommonMonster::Attack, MonsterAttackTime, false);
+	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &ACommonMonster::Attack, 0.01f, true);
 }
 
 void ACommonMonster::Attack()
 {
-	MonsterState = EState::E_ATTACK;
-	GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &ACommonMonster::CheckAttackDelay, 0.01f, true);
+	if (MonsterState == EState::E_ATTACK) {
+		GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+		FPPTimerHelper::InvalidateTimerHandle(AttackTimerHandle);
+		GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &ACommonMonster::CheckAttackDelay, 0.01f, true);
+		GetWorldTimerManager().SetTimer(AttackEndTimerHandle, this, &ACommonMonster::AttackEnd, 0.01f, true);
+
+		AttackBehaviour();
+	}
+}
+
+void ACommonMonster::AttackBehaviour()
+{
+
+}
+
+void ACommonMonster::AttackEnd()
+{
+	if (MonsterState == EState::E_ATTACK_END) {
+		OnAttackFinished.ExecuteIfBound();
+		MonsterState = EState::E_IDLE;
+		GetWorldTimerManager().ClearTimer(AttackEndTimerHandle);
+		FPPTimerHelper::InvalidateTimerHandle(AttackEndTimerHandle);
+		PlayerTarget = nullptr;
+	}
 }
 
 void ACommonMonster::CheckAttackDelay()
@@ -95,15 +119,34 @@ void ACommonMonster::CommonMonsterAttack(AActor* Target)
 
 	PlayerTarget = Target;
 
+	MonsterState = EState::E_ATTACK_OMEN;
 	GetWorldTimerManager().SetTimer(AttackOmenTimerHandle, this, &ACommonMonster::AttackOmen, MonsterAttackOmenTime, false);
 }
 
 void ACommonMonster::CommonMonsterDead()
 {
-	
+	MonsterState = EState::E_DEAD;
+	PlayDeadAnimation();
+	if(Controller)
+	{
+		Controller->UnPossess();
+	}
+	SetActorEnableCollision(false);
+	SetActorTickEnabled(false);
+	GetWorldTimerManager().SetTimer(AfterDeadTimerHandle, this, &ACommonMonster::AfterDead, MonsterDisableTime, false);
 }
 
+void ACommonMonster::PlayDeadAnimation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(DeadMontage, 1.0f);
+}
 
+void ACommonMonster::AfterDead()
+{
+	Destroy();
+}
 
 void ACommonMonster::ApplyKnockBack()
 {

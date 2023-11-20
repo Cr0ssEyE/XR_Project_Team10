@@ -5,6 +5,7 @@
 
 #include "Engine/DamageEvents.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 #include "XR_Project_Team10/Util/PPTimerHelper.h"
@@ -15,7 +16,7 @@ AKWHohonuCrystal::AKWHohonuCrystal()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	BossHohonuDataAsset = FPPConstructorHelper::FindAndGetObject<UKWBossHohonuDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/21-Hohonu/Datas/Hohonu_DataAsset.Hohonu_DataAsset'"));
+	BossHohonuDataAsset = FPPConstructorHelper::FindAndGetObject<UKWBossHohonuDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.Hohonu_DataAsset'"));
 	
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CrystalMesh"));
 
@@ -28,19 +29,19 @@ AKWHohonuCrystal::AKWHohonuCrystal()
 	WaveVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("WaveVFX"));
 	
 	DestroyVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DestroyVFX"));
-	
-	StaticMeshComponent->SetupAttachment(RootComponent);
-	CollisionCapsule->SetupAttachment(RootComponent);
-	SummonVFX->SetupAttachment(RootComponent);
-	DropDownVFX->SetupAttachment(RootComponent);
-	WaveVFX->SetupAttachment(RootComponent);
-	DestroyVFX->SetupAttachment(RootComponent);
 
 	StaticMeshComponent->SetStaticMesh(BossHohonuDataAsset->SC_Mesh);
 	SummonVFX->SetAsset(BossHohonuDataAsset->SC_SummonVFX);
 	DropDownVFX->SetAsset(BossHohonuDataAsset->SC_DropDownVFX);
 	WaveVFX->SetAsset(BossHohonuDataAsset->SC_WaveVFX);
 	DestroyVFX->SetAsset(BossHohonuDataAsset->SC_DestroyVFX);
+
+	StaticMeshComponent->SetupAttachment(RootComponent);
+	CollisionCapsule->SetupAttachment(StaticMeshComponent);
+	SummonVFX->SetupAttachment(StaticMeshComponent);
+	DropDownVFX->SetupAttachment(StaticMeshComponent);
+	WaveVFX->SetupAttachment(StaticMeshComponent);
+	DestroyVFX->SetupAttachment(StaticMeshComponent);
 }
 
 // Called when the game starts or when spawned
@@ -51,6 +52,9 @@ void AKWHohonuCrystal::BeginPlay()
 	CollisionCapsule->SetCapsuleSize(40.f, 50.f);
 	CollisionCapsule->SetRelativeLocation(FVector(0.f, 0.f, -50.f));
 	CollisionCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	StaticMeshComponent->SetCollisionObjectType(ECC_ENEMY);
+	StaticMeshComponent->SetCollisionProfileName(CP_ENEMY);
 	
 	SC_Hp = BossHohonuDataAsset->SC_Hp;
 	CurrentHp = SC_Hp;
@@ -75,7 +79,22 @@ void AKWHohonuCrystal::BeginPlay()
 void AKWHohonuCrystal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	bool bResult = GetWorld()->LineTraceSingleByProfile(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() - FVector(0.f, 0.f, -BossHohonuDataAsset->SC_SpawnHeight),
+		CP_STATIC_ONLY,
+		Params
+	);
+	
+	if(bResult)
+	{
+		DropDownVFX->SetWorldLocation(HitResult.Location);
+		WaveVFX->SetWorldLocation(HitResult.Location);
+	}
 }
 
 void AKWHohonuCrystal::Destroyed()
@@ -146,6 +165,7 @@ void AKWHohonuCrystal::ActivateAndDropDownSequence()
 	CurrentHp = SC_Hp;
 	StaticMeshComponent->SetVisibility(true);
 	SummonVFX->Activate(true);
+	DropDownVFX->Activate(true);
 	GetWorldTimerManager().SetTimer(DropDownTimerHandle, this, &AKWHohonuCrystal::DropDownSequence, 0.01f, false, SC_DropDownDelay);
 }
 
@@ -197,6 +217,7 @@ void AKWHohonuCrystal::DropDownSequence()
 		DropDownVFX->Activate(true);
 		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SC_CurrentAttackRange = 0;
+		WaveVFX->Activate(true);
 		GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttack, 0.01f, true);
 		return;
 	}
@@ -234,15 +255,16 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 	{
 		for (auto Result : HitResult)
 		{
-			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(Result.GetActor());
-			if(PlayerCharacter)
+			AKWLocationDetector* PlayerCharacterLocation = Cast<AKWLocationDetector>(Result.GetActor());
+			if(PlayerCharacterLocation)
 			{
 				// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("파동 범위 내 플레이어 감지")));
-				FVector TargetLocation = PlayerCharacter->GetActorLocation();
-				FVector XYDistance = GetActorLocation() - TargetLocation;
+				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerCharacterLocation->GetTargetCharacter());
+				FVector PlayerLocation = PlayerCharacterLocation->GetActorLocation();
+				FVector XYDistance = GetActorLocation() - PlayerLocation;
 				XYDistance.Z = 0.f;
-				
-				if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && TargetLocation.Z < GetActorLocation().Z + 80.f)
+                
+				if(XYDistance.Length() >= SC_CurrentAttackRange - SC_WaveLength && PlayerLocation.Z < GetActorLocation().Z + 80.f)
 				{
 					if(!bIsActivate)
 					{
@@ -253,7 +275,7 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 					PlayerCharacter->TakeDamage(SC_WaveDamage, DamageEvent, GetController(), this);
 					bIsWaveDamageCaused = true;
 					//TODO: 나중에 매직넘버 처리
-					FVector PlayerDirection = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+					FVector PlayerDirection = (PlayerCharacterLocation->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 					PlayerDirection.Z = 10.f;
 					ReBoundVector = PlayerDirection * 100.f;
 					PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);

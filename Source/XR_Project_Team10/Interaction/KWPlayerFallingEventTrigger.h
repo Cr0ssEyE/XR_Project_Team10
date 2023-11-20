@@ -26,6 +26,6 @@ private:
 	TObjectPtr<UBoxComponent> TriggerBox;
 	
 	UPROPERTY(EditAnywhere, DisplayName = "재생성 위치")
-	TObjectPtr<AActor> ReSpawnPosition;
+	TObjectPtr<USceneComponent> ReSpawnPosition;
 	
 };

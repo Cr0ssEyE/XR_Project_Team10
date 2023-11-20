@@ -11,12 +11,13 @@
 UENUM()
 enum class EState : uint8 {
 	E_IDLE,
-	E_RESEARCH,
+	/*E_RESEARCH,
 	E_RECOGNITION,
-	E_TRACKING,
+	E_TRACKING,*/
 	E_ATTACK_CONFIG,
 	E_ATTACK_OMEN,
 	E_ATTACK,
+	E_ATTACK_END,
 	E_HIT,
 	E_DEAD
 };
@@ -49,10 +50,14 @@ protected:
 
 	virtual void AttackOmen() override;
 	virtual void Attack() override;
+	virtual void AttackBehaviour();
+	virtual void AttackEnd();
 	void CheckAttackDelay();
 
 	virtual void CommonMonsterAttack(AActor* Target) override;
 	virtual void CommonMonsterDead() override;
+	void PlayDeadAnimation();
+	void AfterDead();
 
 	virtual void ApplyKnockBack();
 
@@ -84,6 +89,9 @@ protected:
 	float MonsterAttackTime;
 
 	UPROPERTY()
+	float MonsterAttackElapsedTime;
+	
+	UPROPERTY()
 	float KnockBackElapsedTime;
 
 	UPROPERTY()
@@ -92,14 +100,24 @@ protected:
 	UPROPERTY(EditAnywhere, Category = KnockBack, DisplayName = "넉백량")
 	float KnockBackAmount = 10.0f;
 
+	UPROPERTY(EditAnywhere, Category = Dead, DisplayName = "사망 후 비활성화되는 시간")
+	float MonsterDisableTime = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
 	UPROPERTY()
 	AActor* PlayerTarget;
 
+	UPROPERTY()
+	FVector CollisionDirection;
+	
 	FTimerHandle AttackCoolDownTimerHandle;
 	FTimerHandle AttackOmenTimerHandle;
 	FTimerHandle AttackTimerHandle;
+	FTimerHandle AttackEndTimerHandle;
 	FTimerHandle KnockBackTimerHandle;
-
+	FTimerHandle AfterDeadTimerHandle;
 	
 	//Getter Setter
 public:
