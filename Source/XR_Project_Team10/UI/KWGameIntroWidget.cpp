@@ -14,9 +14,9 @@ void UKWGameIntroWidget::NativeConstruct()
 	SkipCurrentCutSceneBtn->OnClicked.AddDynamic(this, &UKWGameIntroWidget::SkipCurrentSceneBtnEvent);
 	
 	CurrentScene = 0;
-	CutSceneWidget->Atlas = SpineAtlasDataArray[0];
-	CutSceneWidget->SkeletonData = SpineSkeletonDataArray[0];
-	
+	// CutSceneWidget->Atlas = SpineAtlasDataArray[0];
+	// CutSceneWidget->SkeletonData = SpineSkeletonDataArray[0];
+	ChangeTestImage->SetBrushFromTexture(TestImageArray[0]);
 	FadeWidget->SetFadeSpeed(SceneFadeSpeed);
 	FadeWidget->FadeOutSequenceEndDelegate.AddUObject(this, &UKWGameIntroWidget::LoadMainLevel);
 	
@@ -107,13 +107,14 @@ void UKWGameIntroWidget::UpdateAutoPlaySecond()
 void UKWGameIntroWidget::SwapCutSceneAndText()
 {
 	CurrentScene++;
-	if(CurrentScene >= SpineAtlasDataArray.Num())
+	if(CurrentScene >= TestImageArray.Num())
 	{
 		return;
 	}
 	
-	CutSceneWidget->Atlas = SpineAtlasDataArray[CurrentScene];
-	CutSceneWidget->SkeletonData = SpineSkeletonDataArray[CurrentScene];
+	// CutSceneWidget->Atlas = SpineAtlasDataArray[CurrentScene];
+	// CutSceneWidget->SkeletonData = SpineSkeletonDataArray[CurrentScene];
+	ChangeTestImage->SetBrushFromTexture(TestImageArray[CurrentScene]);
 	// TODO:: CSV에서 읽어오기
 	CutSceneText->SetText(FText::FromString(FString(TEXT(""))));
 }

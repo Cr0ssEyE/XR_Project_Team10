@@ -39,9 +39,12 @@ protected:
 	void LoadMainLevel(bool Value);
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
-	TObjectPtr<USpineWidget> CutSceneWidget;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	// TObjectPtr<USpineWidget> CutSceneWidget;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	TObjectPtr<UImage> ChangeTestImage;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 	TObjectPtr<UImage> CutSceneFadeImage;
 	
@@ -68,6 +71,9 @@ protected:
 	TObjectPtr<UKWFadeWidget> FadeWidget;
 	
 private:
+	UPROPERTY(EditAnywhere)
+	TArray<UTexture2D*> TestImageArray;
+	
 	UPROPERTY(EditAnywhere)
 	TArray<USpineAtlasAsset*> SpineAtlasDataArray;
 

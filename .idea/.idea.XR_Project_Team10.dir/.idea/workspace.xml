@@ -9,6 +9,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b936f40a-299a-4ca0-af3f-535aa49d2dfc" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.XR_Project_Team10.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Binaries/Win64/UnrealEditor-XR_Project_Team10.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/XR_Project_Team10/UI/KWGameIntroWidget.h" afterDir="false" />
     </list>
@@ -213,6 +214,7 @@
       <workItem from="1699977129571" duration="973000" />
       <workItem from="1700005926604" duration="11477000" />
       <workItem from="1700027423165" duration="302000" />
+      <workItem from="1700462774153" duration="1509000" />
     </task>
     <servers />
   </component>
