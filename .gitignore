@@ -76,4 +76,4 @@ DerivedDataCache/*
 *.exp
 
 Binaries/Win64/UnrealEditor-XR_Project_Team10.pdb
-
+.idea/*
