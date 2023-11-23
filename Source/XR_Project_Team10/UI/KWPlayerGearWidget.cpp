@@ -68,11 +68,14 @@ void UKWPlayerGearWidget::PlayGearChangeAnimation()
 
 void UKWPlayerGearWidget::AnimTestFunction()
 {
+	int NextGear = 0;
 	if(NewGearState != EGearState::EndOfGearState)
 	{
-		int NextGear = static_cast<int>(NewGearState) + 1;
+		NextGear = static_cast<int>(NewGearState) + 1;
 		NewGearState = static_cast<EGearState>(NextGear);
 		NewGearImage->SetRenderScale(FVector2d::One());
 	}
+	NewGearState = static_cast<EGearState>(NextGear);
+	NewGearImage->SetRenderScale(FVector2d::One());
 	GetWorld()->GetTimerManager().SetTimer(GearAnimationTimerHandle, this, &UKWPlayerGearWidget::PlayGearChangeAnimation, AnimationChangeSpeed, true);
 }
