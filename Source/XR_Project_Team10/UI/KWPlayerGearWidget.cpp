@@ -33,7 +33,6 @@ void UKWPlayerGearWidget::ApplyPlayerGearState(EGearState GearState)
 
 void UKWPlayerGearWidget::PlayGearChangeAnimation()
 {
-	CurrentAnimationState++;
 	UTexture2D* NextTexture2D = nullptr;
 	switch (NewGearState)
 	{
@@ -49,12 +48,14 @@ void UKWPlayerGearWidget::PlayGearChangeAnimation()
 	case EGearState::GearFour:
 		NextTexture2D = GearFourImages[CurrentAnimationState];
 		break;
+	case EGearState::EndOfGearState:
+		break;
 	default:
 		checkNoEntry();
 	}
-	if(!GearOneImages[CurrentAnimationState + 1])
+	if(!NextTexture2D)
 	{
-		CurrentGearImage->SetBrushFromTexture(NextTexture2D);
+		CurrentGearImage->SetRenderScale(FVector2d::One());
 		NewGearImage->SetBrushFromTexture(nullptr);
 		NewGearImage->SetRenderScale(FVector2d::Zero());
 		bIsAnimationOnGoing = false;
@@ -63,19 +64,20 @@ void UKWPlayerGearWidget::PlayGearChangeAnimation()
 		GetWorld()->GetTimerManager().ClearTimer(GearAnimationTimerHandle);
 		return;
 	}
+	NewGearImage->SetRenderScale(FVector2d::One());
 	NewGearImage->SetBrushFromTexture(NextTexture2D);
+	CurrentGearImage->SetBrushFromTexture(NextTexture2D);
+	CurrentAnimationState++;
 }
 
 void UKWPlayerGearWidget::AnimTestFunction()
 {
 	int NextGear = 0;
-	if(NewGearState != EGearState::EndOfGearState)
+		if(NewGearState != EGearState::GearFour && NewGearState != EGearState::EndOfGearState)
 	{
-		NextGear = static_cast<int>(NewGearState) + 1;
-		NewGearState = static_cast<EGearState>(NextGear);
-		NewGearImage->SetRenderScale(FVector2d::One());
+		NextGear = static_cast<int>(NewGearState) + 1;	
 	}
+	CurrentGearImage->SetRenderScale(FVector2d::Zero());
 	NewGearState = static_cast<EGearState>(NextGear);
-	NewGearImage->SetRenderScale(FVector2d::One());
 	GetWorld()->GetTimerManager().SetTimer(GearAnimationTimerHandle, this, &UKWPlayerGearWidget::PlayGearChangeAnimation, AnimationChangeSpeed, true);
 }
