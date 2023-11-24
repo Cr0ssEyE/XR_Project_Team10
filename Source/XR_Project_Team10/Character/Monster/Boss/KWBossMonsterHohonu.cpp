@@ -31,12 +31,15 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	BossMonsterAIData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuAIDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_AIDataAsset.Hohonu_AIDataAsset'"));
 
 	SetActorScale3D(FVector::OneVector * 2);
-	GetCapsuleComponent()->SetCapsuleSize(50.f, 50.f);
+	GetCapsuleComponent()->SetCapsuleSize(100.f, 50.f);
 
 	HitCheckBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("HitCheckBox"));
 	HitCheckBoxComponent->SetupAttachment(GetMesh());
+	HitCheckBoxComponent->SetCanEverAffectNavigation(false);
+	HitCheckBoxComponent->bDynamicObstacle = true;
 	HitCheckBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	HitCheckBoxComponent->SetCollisionProfileName(CP_ENEMY);
+	HitCheckBoxComponent->SetCollisionObjectType(ECC_ENEMY);
 	
 	HohonuRingEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuRingVFX"));
 	HohonuHeadEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuHeadVFX"));
@@ -689,6 +692,23 @@ void AKWBossMonsterHohonu::ExecutePattern_BS()
 	{
 		return;
 	}
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	bool ObjectResult = GetWorld()->LineTraceSingleByProfile(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() - GetActorForwardVector() * 500.f,
+		CP_STATIC_ONLY,
+		Params
+	);
+
+	if(ObjectResult)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("후방 오브젝트 감지")));
+		return;
+	}
+	
 	SetActorLocation( GetActorLocation() + GetActorForwardVector() * - BS_MoveSpeed * 0.01f);
 	GetWorldTimerManager().SetTimerForNextTick(this, &AKWBossMonsterHohonu::ExecutePattern_BS);
 }

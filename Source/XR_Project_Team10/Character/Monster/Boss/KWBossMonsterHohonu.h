@@ -90,7 +90,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UKWBossHohonuAnimInstance> HohonuAnimInstance;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UBoxComponent> HitCheckBoxComponent;
 	
 	UPROPERTY()
