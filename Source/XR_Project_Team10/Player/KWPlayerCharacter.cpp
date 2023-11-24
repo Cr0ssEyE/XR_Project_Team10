@@ -66,7 +66,8 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
-	
+	PlayerWidgetController = CreateDefaultSubobject<UKWPlayerWidgetController>(TEXT("PlayerWidgetController"));
+
 	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
 	RootStaticMesh = FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/1-Graphic-Resource/Player/SM_DummyBall.SM_DummyBall'"), EAssertionLevel::Check);
 
@@ -128,10 +129,6 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	bIsEnableGearDebugView = false;
 	bIsEnableVelocityDebugView = false;
 
-	PauseWidget = CreateDefaultSubobject<UKWPauseWidget>(TEXT("PauseWidget"));
-	PauseWidgetClass = FPPConstructorHelper::FindAndGetClass<UKWPauseWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_PauseWidget.WB_PauseWidget_C'"), EAssertionLevel::Check);
-	ScreenFadeWidget = CreateDefaultSubobject<UKWFadeWidget>(TEXT("DeadFadeWidget"));
-	ScreenFadeWidgetClass = FPPConstructorHelper::FindAndGetClass<UKWFadeWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_FadeWidget.WB_FadeWidget_C'"), EAssertionLevel::Check);
 }
 
 // Called when the game starts or when spawned
@@ -198,29 +195,8 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsInputJustAction = false;
 	bIsAttackOnGoing = false;
 	bIsKnockBackOnGoing = false;
+
 	
-	if(IsValid(PauseWidgetClass))
-	{
-		PauseWidget = Cast<UKWPauseWidget>(CreateWidget(GetWorld(), PauseWidgetClass));
-		if(PauseWidget)
-		{
-			PauseWidget->AddToViewport();
-			PauseWidget->SetVisibility(ESlateVisibility::Hidden);
-			PauseWidget->SetIsEnabled(false);
-		}
-	}
-	
-	if(IsValid(ScreenFadeWidgetClass))
-	{
-		ScreenFadeWidget = Cast<UKWFadeWidget>(CreateWidget(GetWorld(), ScreenFadeWidgetClass));
-		if(ScreenFadeWidget)
-		{
-			ScreenFadeWidget->AddToViewport();
-			ScreenFadeWidget->SetVisibility(ESlateVisibility::Hidden);
-			ScreenFadeWidget->SetIsEnabled(false);
-			ScreenFadeWidget->FadeOutSequenceEndDelegate.AddUObject(this, &AKWPlayerCharacter::LoadCurrentLevel);
-		}
-	}
 }
 
 float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
@@ -234,6 +210,7 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	
 	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
 	PlayerHp -= DamageAmount;
+	PlayerWidgetController->UpdateHealthWidget(false);
 	if(PlayerHp <= 0)
 	{	
 		if(bIsRolling)
@@ -265,6 +242,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		PlayerTrueLocation->SetActorLocation(GetActorLocation());
 	}
 
+	PlayerWidgetController->UpdateGearWidget(CurrentGearState);
 	if(!bIsRolling)
 	{
 		return;
@@ -279,10 +257,6 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	{
 		GetWorldTimerManager().SetTimer(CheckGearStateTimerHandle, this, &AKWPlayerCharacter::CheckGearState, 3.f, true);
 	}
-	const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
-	const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
-	RollingMeshComponent->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
-
 	// 체공 체크용 충돌 체크.
 	// 추후 공 모델링 적용시 소켓을 사용하여 바닥 위치 지정
 	
@@ -582,24 +556,7 @@ void AKWPlayerCharacter::DropDownActionSequence(const FInputActionValue& Value)
 
 void AKWPlayerCharacter::TogglePauseWidget()
 {
-	if(PauseWidget->IsVisible())
-	{
-		FInputModeGameOnly GameOnlyInputMode;
-		GameOnlyInputMode.SetConsumeCaptureMouseDown(false);
-		GetLocalViewingPlayerController()->SetInputMode(GameOnlyInputMode);
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
-		PauseWidget->SetVisibility(ESlateVisibility::Hidden);
-		PauseWidget->SetIsEnabled(false);
-	}
-	else
-	{
-		FInputModeUIOnly UIOnlyInputMode;
-		GetLocalViewingPlayerController()->SetInputMode(UIOnlyInputMode);
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.00001f);
-		PauseWidget->ResumeGameDelegate.AddUObject(this, &AKWPlayerCharacter::TogglePauseWidget);
-		PauseWidget->SetVisibility(ESlateVisibility::Visible);
-		PauseWidget->SetIsEnabled(true);
-	}
+	PlayerWidgetController->TogglePauseWidget();
 }
 
 void AKWPlayerCharacter::VelocityDecelerateTimer()
@@ -684,6 +641,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		PlayerComponent->SetWorldScale3D(FVector::OneVector);
 		PlayerComponent->SetWorldLocation(RootMesh->GetComponentToWorld().GetLocation());
 
+		CurrentGearState = EGearState::KiwiMode;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 걷기 상태로 전환")));
 		
 	}
@@ -700,6 +658,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetWorldScale3D(FVector::ZeroVector);
 
+		CurrentGearState = EGearState::GearOne;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 구르기 상태로 전환")));
 	}
 }
@@ -795,7 +754,7 @@ void AKWPlayerCharacter::CheckGearState()
 	}
 	
 	float UpperGearValue = 0.f;
-	if(static_cast<uint8>(CurrentGearState) + 1 < static_cast<uint8>(EGearState::EndOfGearState))
+	if(static_cast<uint8>(CurrentGearState) + 1 < static_cast<uint8>(EGearState::KiwiMode))
 	{
 		UpperGearValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
 	}
@@ -814,11 +773,8 @@ void AKWPlayerCharacter::CheckGearState()
 			CurrentGearState = EGearState::GearThree;
 			break;
 		default:
-			checkNoEntry();
+			return;
 		}
-		const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
-		const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
-		RollingMeshComponent->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
 		CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
 		return;
 	}
@@ -860,12 +816,10 @@ void AKWPlayerCharacter::CheckGearState()
 			default:
 				checkNoEntry();
 			}
-			const FLinearColor Color = ColorsByGear[static_cast<uint8>(CurrentGearState)];
-			const FVector ColorVector = FVector(Color.R, Color.G, Color.B);
-			RollingMeshComponent->SetVectorParameterValueOnMaterials("GlowColor", ColorVector);
 			CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
 		}
 	}
+	PlayerWidgetController->UpdateGearWidget(CurrentGearState);
 }
 
 void AKWPlayerCharacter::PlayDeadAnim()
@@ -875,13 +829,10 @@ void AKWPlayerCharacter::PlayDeadAnim()
 
 void AKWPlayerCharacter::StartFadeOut()
 {
-	//TODO: 죽음 애니메이션 및 페이드 후 적용
 	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
 	GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_DEAD_LOOP, KiwiAnimMontage);
 	GetMesh()->GetAnimInstance()->Montage_Pause(KiwiAnimMontage);
-	ScreenFadeWidget->SetVisibility(ESlateVisibility::Visible);
-	ScreenFadeWidget->SetIsEnabled(true);
-	ScreenFadeWidget->StartFadeOut();
+	PlayerWidgetController->StartFadeOut();
 }
 
 void AKWPlayerCharacter::RB_ApplyReBoundByObjectType(FVector& ReBoundResultValue, EReBoundObjectType ObjectType)

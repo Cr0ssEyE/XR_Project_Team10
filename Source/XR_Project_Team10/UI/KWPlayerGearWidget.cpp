@@ -6,7 +6,7 @@
 void UKWPlayerGearWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	NewGearState = EGearState::EndOfGearState;
+	NewGearState = EGearState::KiwiMode;
 
 	if(!AnimationChangeSpeed)
 	{
@@ -15,18 +15,19 @@ void UKWPlayerGearWidget::NativeConstruct()
 	CurrentAnimationState = 0;
 	bIsAnimationOnGoing = false;
 	NewGearImage->SetRenderScale(FVector2d::Zero());
-	TestBtn->OnClicked.AddDynamic(this, &UKWPlayerGearWidget::AnimTestFunction);
+	// TestBtn->OnClicked.AddDynamic(this, &UKWPlayerGearWidget::AnimTestFunction);
 }
 
 
 void UKWPlayerGearWidget::ApplyPlayerGearState(EGearState GearState)
 {
-	if(bIsAnimationOnGoing)
+	if(bIsAnimationOnGoing || NewGearState == GearState)
 	{	
 		return;
 	}
+	
 	NewGearState = GearState;
-	NewGearImage->SetRenderScale(FVector2d::One());
+	CurrentGearImage->SetRenderScale(FVector2d::Zero());
 	GetWorld()->GetTimerManager().SetTimer(GearAnimationTimerHandle, this, &UKWPlayerGearWidget::PlayGearChangeAnimation, AnimationChangeSpeed, true);
 }
 
@@ -48,7 +49,8 @@ void UKWPlayerGearWidget::PlayGearChangeAnimation()
 	case EGearState::GearFour:
 		NextTexture2D = GearFourImages[CurrentAnimationState];
 		break;
-	case EGearState::EndOfGearState:
+	case EGearState::KiwiMode:
+		NextTexture2D = KiwiModeImages[CurrentAnimationState];
 		break;
 	default:
 		checkNoEntry();
@@ -73,9 +75,9 @@ void UKWPlayerGearWidget::PlayGearChangeAnimation()
 void UKWPlayerGearWidget::AnimTestFunction()
 {
 	int NextGear = 0;
-		if(NewGearState != EGearState::GearFour && NewGearState != EGearState::EndOfGearState)
+	if(NewGearState != EGearState::KiwiMode)
 	{
-		NextGear = static_cast<int>(NewGearState) + 1;	
+		NextGear = static_cast<int>(NewGearState) + 1;
 	}
 	CurrentGearImage->SetRenderScale(FVector2d::Zero());
 	NewGearState = static_cast<EGearState>(NextGear);

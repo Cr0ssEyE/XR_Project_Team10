@@ -4,23 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "KWPlayerWidgetController.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Enumeration/KWPlayerGearType.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
-#include "XR_Project_Team10/UI/KWFadeWidget.h"
-#include "XR_Project_Team10/UI/KWPauseWidget.h"
 #include "KWPlayerCharacter.generated.h"
-
-UENUM()
-enum class EGearState : uint8 
-{
-	GearOne = 0,
-	GearTwo = 1,
-	GearThree = 2,
-	GearFour = 3,
-	EndOfGearState
-};
 
 // 플레이어 캐릭터
 UCLASS()
@@ -45,7 +34,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	FORCEINLINE void LoadCurrentLevel(bool Value) { UGameplayStatics::OpenLevel(GetWorld(), GetWorld()->OriginalWorldName); }
 	// Default Data
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -80,6 +68,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAnimMontage> KiwiAnimMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UKWPlayerWidgetController> PlayerWidgetController;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
@@ -374,19 +365,6 @@ private:
 	void AttackCoolDownTimer();
 	void DropDownCoolDownTimer();
 	void VelocityDecelerateTimer();
-
-	// UI 관련
-private:
-	UPROPERTY()
-	TSubclassOf<UKWPauseWidget> PauseWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UKWPauseWidget> PauseWidget;
-
-	UPROPERTY()
-	TSubclassOf<UKWFadeWidget> ScreenFadeWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UKWFadeWidget> ScreenFadeWidget;
+	
 };
 

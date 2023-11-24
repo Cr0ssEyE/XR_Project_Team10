@@ -2,6 +2,7 @@
 
 
 #include "XR_Project_Team10/UI/KWPlayerHealthWidget.h"
+#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 
 void UKWPlayerHealthWidget::NativeConstruct()
 {
@@ -33,7 +34,7 @@ void UKWPlayerHealthWidget::NativeConstruct()
 	CurrentAnimationState = 0;
 	bIsAnimationOnGoing = false;
 
-	TestBtn->OnClicked.AddDynamic(this, &UKWPlayerHealthWidget::AnimTestFunction);
+	// TestBtn->OnClicked.AddDynamic(this, &UKWPlayerHealthWidget::AnimTestFunction);
 }
 
 void UKWPlayerHealthWidget::PlayDecreaseHealthAnimation()
@@ -81,7 +82,7 @@ void UKWPlayerHealthWidget::ApplyDecreaseHealthState()
 		return;
 	}
 	// TODO: 이미지 바꾸는걸 애니메이션으로 처리하기
-	PlayerCurrentHealth = PlayerCharacter->GetHp();
+	PlayerCurrentHealth--;
 	bIsAnimationOnGoing = true;
 	GetWorld()->GetTimerManager().SetTimer(HealthAnimationTimerHandle, this, &UKWPlayerHealthWidget::PlayDecreaseHealthAnimation, AnimationChangeSpeed, true);
 }

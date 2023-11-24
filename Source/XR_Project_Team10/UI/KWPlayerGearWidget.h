@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/Image.h"
 #include "Blueprint/UserWidget.h"
-#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
+#include "Components/Button.h"
+#include "XR_Project_Team10/Enumeration/KWPlayerGearType.h"
 #include "KWPlayerGearWidget.generated.h"
 
 /**
@@ -48,8 +49,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TArray<UTexture2D*> GearFourImages;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UButton> TestBtn;
+	// UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
+	// TObjectPtr<UButton> TestBtn;
 
 private:
 	EGearState NewGearState;

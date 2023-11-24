@@ -6,9 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
-#include "Kismet/GameplayStatics.h"
-#include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "KWPlayerHealthWidget.generated.h"
+
+class AKWPlayerCharacter;
 
 UENUM()
 enum class EVitalImageType
@@ -46,8 +46,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TArray<UTexture2D*> BottomVitalImages;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UButton> TestBtn;
+	// UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
+	// TObjectPtr<UButton> TestBtn;
 	
 private:
 	UPROPERTY()
