@@ -30,7 +30,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 
 	BossMonsterAIData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuAIDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_AIDataAsset.Hohonu_AIDataAsset'"));
 
-	SetActorScale3D(FVector::OneVector * 2);
+	SetActorScale3D(FVector::OneVector * 1.5);
 	GetCapsuleComponent()->SetCapsuleSize(100.f, 50.f);
 
 	HitCheckBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("HitCheckBox"));
@@ -48,6 +48,10 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	
 	HohonuLaserSweepEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLaserSweepVFX"));
 	HohonuLaserSweepEffect->SetupAttachment(GetMesh());
+
+	HohonuLaserBurnEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HohonuLaserBurnVFX"));
+	HohonuLaserBurnEffect->SetupAttachment(GetMesh());
+	HohonuLaserBurnEffect->SetRelativeScale3D(FVector3d::One() * 2);
 	
 	UKWBossHohonuDataAsset* HohonuData = Cast<UKWBossHohonuDataAsset>(BossMonsterStatusData);
 	if(HohonuData)
@@ -57,6 +61,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 		HohonuRingEffect->SetAsset(HohonuData->HohonuRingEffect);
 		HohonuHeadEffect->SetAsset(HohonuData->HohonuHeadEffect);
 		HohonuLaserSweepEffect->SetAsset(HohonuData->SL_LaserVFX);
+		HohonuLaserBurnEffect->SetAsset(HohonuData->SL_BurnVFX);
 	}
 	
 	UKWBossAnimDataAsset* BossAnimData = Cast<UKWBossAnimDataAsset>(BossMonsterAnimData);
@@ -81,6 +86,8 @@ void AKWBossMonsterHohonu::BeginPlay()
 	}
 
 	HohonuLaserSweepEffect->Deactivate();
+	HohonuLaserBurnEffect->Deactivate();
+	SL_OriginRotation = HohonuLaserSweepEffect->GetRelativeRotation();
 	AKWHohonuAIController* AIController = Cast<AKWHohonuAIController>(GetController());
 	if(AIController)
 	{
@@ -126,7 +133,7 @@ void AKWBossMonsterHohonu::InitData()
 		SC_SpawnDelay = HohonuData->SC_SpawnDelay;
 		SC_SpawnHeight = HohonuData->SC_SpawnHeight;
 
-		SL_bIsRandomStart = HohonuData->SL_bIsRandomStart;
+		bSL_BIsRandomStart = HohonuData->SL_bIsRandomStart;
 		SL_Damage = HohonuData->SL_Damage;
 		SL_Degree = HohonuData->SL_Degree;
 		SL_ActiveTime = HohonuData->SL_ActiveTime;
@@ -357,8 +364,8 @@ void AKWBossMonsterHohonu::OmenPattern_SL()
 	UE_LOG(LogTemp, Log, TEXT("Hohonu SweepLaser Start"));
 	bIsSweepLaserDamageCaused = false;
 	HohonuLaserSweepEffect->Activate();
-	
-	if(SL_bIsRandomStart)
+	HohonuLaserBurnEffect->Activate();
+	if(bSL_BIsRandomStart)
 	{
 		bIsSweepLeftToRight = FMath::RandRange(0, 1);
 	}
@@ -372,7 +379,7 @@ void AKWBossMonsterHohonu::OmenPattern_SL()
 	{
 		AIOwner->GetBlackboardComponent()->SetValueAsBool(KEY_HOHONU_SL_TURN, false);
 	}
-	HohonuLaserSweepEffect->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
+	HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation);
 	
 	if(bIsSweepLeftToRight)
 	{
@@ -382,6 +389,7 @@ void AKWBossMonsterHohonu::OmenPattern_SL()
 	{
 		HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() + FRotator(0.f, SL_Degree / 2, 0.f));
 	}
+	SL_ElapsedTime = 0;
 	GetWorldTimerManager().SetTimerForNextTick(this, &AKWBossMonsterHohonu::ExecutePattern_SL);
 }
 
@@ -426,11 +434,26 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 	if(!bIsPatternRunning)
 	{
 		HohonuLaserSweepEffect->Deactivate();
+		HohonuLaserBurnEffect->Deactivate();
 		return;
 	}
 	
 	FVector StartLocation = HohonuLaserSweepEffect->GetComponentLocation();
 	FVector EndLocation = StartLocation + HohonuLaserSweepEffect->GetUpVector() * SL_Distance;
+
+	FHitResult HitResult;
+	FCollisionQueryParams Param(NAME_None, false, this);
+	bool bGroundResult = GetWorld()->LineTraceSingleByProfile(
+	HitResult,
+	HohonuLaserSweepEffect->GetRelativeLocation(),
+	HohonuLaserSweepEffect->GetRelativeLocation() + HohonuLaserSweepEffect->GetUpVector() * 1000,
+	CP_STATIC_ONLY,
+	Param);
+	//DrawDebugBox(GetWorld(), HohonuLaserSweepEffect->GetRelativeLocation() + HohonuLaserSweepEffect->GetUpVector() * 500, FVector3d::One() * 30, FColor::Blue, false, 0.3f);
+	if(bGroundResult)
+	{
+		HohonuLaserBurnEffect->SetWorldLocation(FVector(EndLocation.X, EndLocation.Y, HitResult.Location.Z + 10.f));
+	}
 	
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams Params(NAME_None, false, this);
@@ -479,15 +502,22 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 			}
 		}
 	}
+	SL_ElapsedTime += GetWorld()->DeltaTimeSeconds;
+	float RotateValue = SL_Degree * (SL_ElapsedTime / SL_ActiveTime) / 2;
+	if(SL_ElapsedTime >= SL_ActiveTime && RotateValue >= SL_Degree)
+	{
+		HohonuLaserSweepEffect->Deactivate();
+		HohonuLaserBurnEffect->Deactivate();
+		return;
+	}
 	
-	float RotateValue = SL_Degree * 0.01f / SL_ActiveTime / 2;
 	if(bIsSweepLeftToRight)
 	{
-		HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() + FRotator(0.f, RotateValue, 0.f));
+		HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation + FRotator(0.f, RotateValue, 0.f));
 	}
 	else
 	{
-		HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() - FRotator(0.f, RotateValue, 0.f));
+		HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation - FRotator(0.f, RotateValue, 0.f));
 	}
 	if(bIsDebugEnable)
 	{
