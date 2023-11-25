@@ -130,10 +130,9 @@ void ACommonMonster::CommonMonsterDead()
 }
 
 void ACommonMonster::PlayDeadAnimation()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->StopAllMontages(0.0f);
-	AnimInstance->Montage_Play(DeadMontage, 1.0f);
+{;
+	GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
+	GetMesh()->GetAnimInstance()->Montage_Play(DeadMontage, 1.0f);
 }
 
 void ACommonMonster::AfterDead()
@@ -143,9 +142,11 @@ void ACommonMonster::AfterDead()
 
 void ACommonMonster::PlayHitAnimation()
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->StopAllMontages(0.0f);
-	AnimInstance->Montage_Play(HitMontage, 1.0f);
+	if(MonsterCurrentHP > 0)
+	{
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage, 0.5f);
+	}
 }
 
 void ACommonMonster::ApplyKnockBack()
