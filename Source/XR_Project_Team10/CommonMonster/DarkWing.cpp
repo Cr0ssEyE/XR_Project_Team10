@@ -98,3 +98,13 @@ void ADarkWing::AttackBehaviour()
 		}
 	}
 }
+
+void ADarkWing::PlayDeadAnimation()
+{
+	Super::PlayDeadAnimation();
+}
+
+void ADarkWing::PlayHitAnimation()
+{
+	Super::PlayHitAnimation();
+}

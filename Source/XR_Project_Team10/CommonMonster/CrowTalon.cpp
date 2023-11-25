@@ -151,4 +151,14 @@ void ACrowTalon::AttackEndCheck()
 	GetWorldTimerManager().SetTimerForNextTick(this, &ACrowTalon::AttackEndCheck);
 }
 
+void ACrowTalon::PlayDeadAnimation()
+{
+	Super::PlayDeadAnimation();
+}
+
+void ACrowTalon::PlayHitAnimation()
+{
+	Super::PlayHitAnimation();
+}
+
 

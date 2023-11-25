@@ -53,9 +53,9 @@ protected:
 
 	virtual void CommonMonsterAttack(AActor* Target) override;	// BT에서의 공격 실행
 	void CommonMonsterDead() override;
-	virtual void PlayDeadAnimation();
 	void AfterDead();
 
+	virtual void PlayDeadAnimation();
 	virtual void PlayHitAnimation();
 
 	virtual void ApplyKnockBack();
