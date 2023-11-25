@@ -6,6 +6,9 @@
 
 ARuneSpirit::ARuneSpirit()
 {
+	HitMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/CrowTalon/Animation/AM_RuneSpirit_Dead.AM_RuneSpirit_Dead'"));
+	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/CrowTalon/Animation/AM_RuneSpirit_Dead.AM_RuneSpirit_Dead'"));
+
 	MonsterData = FPPConstructorHelper::FindAndGetObject<UCommonMonsterDataAsset>(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/RuneSpiritDataAsset"));
 }
 
@@ -36,9 +39,10 @@ void ARuneSpirit::AttackBehaviour()
 
 void ARuneSpirit::PlayDeadAnimation()
 {
-
+	Super::PlayDeadAnimation();
 }
 
 void ARuneSpirit::PlayHitAnimation()
 {
+	Super::PlayHitAnimation();
 }

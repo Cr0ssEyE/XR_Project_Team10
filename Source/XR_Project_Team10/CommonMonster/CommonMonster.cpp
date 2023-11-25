@@ -145,14 +145,16 @@ void ACommonMonster::PlayHitAnimation()
 	if(MonsterCurrentHP > 0)
 	{
 		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
-		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage, 0.5f);
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage, 1.5f);
 	}
 }
 
 void ACommonMonster::ApplyKnockBack()
 {
-	MonsterState = EState::E_HIT;
-	PlayHitAnimation();
+	if (MonsterState == EState::E_IDLE) {
+		MonsterState = EState::E_HIT;
+		PlayHitAnimation();
+	}
 	KnockBackElapsedTime += GetWorld()->DeltaTimeSeconds;
 	if (KnockBackElapsedTime >= 0.5f)
 	{
