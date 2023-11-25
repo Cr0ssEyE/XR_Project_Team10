@@ -37,6 +37,7 @@ void UKWGameIntroWidget::ToggleUIEvent()
 	bIsInterfaceEnabled = !bIsInterfaceEnabled;
 	UIPanel->SetRenderOpacity(bIsInterfaceEnabled);
 	EnableUIBtn->SetRenderScale(FVector2d::One() * !bIsInterfaceEnabled);
+	SkipCurrentCutSceneBtn->SetRenderScale(FVector2d::One() * bIsInterfaceEnabled);
 	if(bIsInterfaceEnabled)
 	{
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::UpdateAutoPlaySecond);
@@ -57,6 +58,10 @@ void UKWGameIntroWidget::SkipCurrentSceneBtnEvent()
 
 void UKWGameIntroWidget::SkipIntroBtnEvent()
 {
+	SkipIntroBtn->SetIsEnabled(false);
+	SkipCurrentCutSceneBtn->SetIsEnabled(false);
+	AutoPlayElapsedSecond = 0;
+	bIsFadeSequenceOnGoing = true;
 	FadeWidget->StartFadeOut();
 }
 

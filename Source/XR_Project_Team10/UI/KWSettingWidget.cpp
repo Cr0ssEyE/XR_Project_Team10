@@ -47,6 +47,11 @@ void UKWSettingWidget::LoadSettingData(UKWSaveSettingOption* SettingOption)
 	MasterSoundVolumeSlider->SetValue(SettingOption->MasterSoundVolumeSliderValue);
 	BGMSoundVolumeSlider->SetValue(SettingOption->BGMSoundVolumeSliderValue);
 	SFXSoundVolumeSlider->SetValue(SettingOption->SFXSoundVolumeSliderValue);
+
+	MasterVolumeProgressBar->SetPercent(MasterSoundVolumeSlider->GetValue());
+	BGMVolumeProgressBar->SetPercent(BGMSoundVolumeSlider->GetValue());
+	SFXVolumeProgressBar->SetPercent(SFXSoundVolumeSlider->GetValue());
+	
 	ResolutionTypes = SettingOption->ResolutionType;
 	ResolutionComboBox->SetSelectedOption(*ResolutionEnumMap.FindKey(ResolutionTypes));
 	bIsFullScreenActivate = SettingOption->bIsFullScreenActivate;
@@ -90,6 +95,8 @@ void UKWSettingWidget::ApplyResolutionType(FString ResolutionName, ESelectInfo::
 void UKWSettingWidget::ApplyFullScreen()
 {
 	bIsFullScreenActivate = true;
+	UseFullScreenBtn->SetIsEnabled(false);
+	UseWindowBtn->SetIsEnabled(true);
 	GEngine->GetGameUserSettings()->SetFullscreenMode(EWindowMode::WindowedFullscreen);
 	GEngine->GetGameUserSettings()->ApplySettings(false);
 }
@@ -97,6 +104,8 @@ void UKWSettingWidget::ApplyFullScreen()
 void UKWSettingWidget::ApplyWindowScreen()
 {
 	bIsFullScreenActivate = false;
+	UseFullScreenBtn->SetIsEnabled(true);
+	UseWindowBtn->SetIsEnabled(false);
 	GEngine->GetGameUserSettings()->SetFullscreenMode(EWindowMode::Windowed);
 	GEngine->GetGameUserSettings()->ApplySettings(false);
 }
