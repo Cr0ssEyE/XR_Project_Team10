@@ -110,6 +110,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 이펙트")
 	TObjectPtr<UNiagaraSystem> SL_LaserVFX;
 
+	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 지면 이펙트")
+	TObjectPtr<UNiagaraSystem> SL_BurnVFX;
+	
 	UPROPERTY(EditAnywhere, Category = Pattern_B, DisplayName = "호호누 레이저 발사 좌우 무작위 시작(기본 값 왼쪽에서 오른쪽)")
 	uint8 SL_bIsRandomStart : 1;
 	

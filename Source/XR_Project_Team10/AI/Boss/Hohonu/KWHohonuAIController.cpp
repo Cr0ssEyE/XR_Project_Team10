@@ -27,6 +27,7 @@ void AKWHohonuAIController::ActivateAI()
 		Blackboard->SetValueAsVector(KEY_BASE_LOCATION, GetPawn()->GetActorLocation());
 		Blackboard->SetValueAsBool(KEY_NEARBY_BOOLEAN, false);
 		Blackboard->SetValueAsFloat(KEY_MONSTER_HP, ControllingPawn->GetHp());
+		Blackboard->SetValueAsFloat(KEY_TARGET_DISTANCE, BIG_NUMBER);
 		Blackboard->SetValueAsFloat(KEY_HOHONU_SC_COOLDOWN, 0.f);
 		Blackboard->SetValueAsFloat(KEY_HOHONU_SL_COOLDOWN, 0.f);
 		Blackboard->SetValueAsFloat(KEY_HOHONU_MA_COOLDOWN, 0.f);
@@ -91,7 +92,7 @@ void AKWHohonuAIController::Tick(float DeltaSeconds)
 	AActor* Target = Cast<AActor>(Blackboard->GetValueAsObject(KEY_TARGET));
 	if(Target)
 	{
-		float Distance = GetPawn()->GetDistanceTo(Target);
+		float Distance = GetPawn()->GetHorizontalDistanceTo(Target);
 		Blackboard->SetValueAsFloat(KEY_TARGET_DISTANCE, Distance);
 	}
 }

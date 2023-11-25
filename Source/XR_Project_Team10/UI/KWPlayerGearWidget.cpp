@@ -38,19 +38,34 @@ void UKWPlayerGearWidget::PlayGearChangeAnimation()
 	switch (NewGearState)
 	{
 	case EGearState::GearOne:
-		NextTexture2D = GearOneImages[CurrentAnimationState];
+		if(CurrentAnimationState < GearOneImages.Num())
+		{
+			NextTexture2D = GearOneImages[CurrentAnimationState];
+		}
 		break;
 	case EGearState::GearTwo:
-		NextTexture2D = GearTwoImages[CurrentAnimationState];
+		if(CurrentAnimationState < GearTwoImages.Num())
+		{
+			NextTexture2D = GearTwoImages[CurrentAnimationState];
+		}
 		break;
 	case EGearState::GearThree:
-		NextTexture2D = GearThreeImages[CurrentAnimationState];
+		if(CurrentAnimationState < GearThreeImages.Num())
+		{
+			NextTexture2D = GearThreeImages[CurrentAnimationState];
+		}
 		break;
 	case EGearState::GearFour:
-		NextTexture2D = GearFourImages[CurrentAnimationState];
+		if(CurrentAnimationState < GearFourImages.Num())
+		{
+			NextTexture2D = GearFourImages[CurrentAnimationState];
+		}
 		break;
 	case EGearState::KiwiMode:
-		NextTexture2D = KiwiModeImages[CurrentAnimationState];
+		if(CurrentAnimationState < KiwiModeImages.Num())
+		{
+			NextTexture2D = KiwiModeImages[CurrentAnimationState];
+		}
 		break;
 	default:
 		checkNoEntry();

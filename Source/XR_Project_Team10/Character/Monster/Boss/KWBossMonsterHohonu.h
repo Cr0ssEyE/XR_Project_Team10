@@ -90,7 +90,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UKWBossHohonuAnimInstance> HohonuAnimInstance;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UBoxComponent> HitCheckBoxComponent;
 	
 	UPROPERTY()
@@ -125,15 +125,19 @@ private:
 private:
 	FTimerHandle SL_SweepTimerHandle;
 
-	uint8 SL_bIsRandomStart : 1;
+	uint8 bSL_BIsRandomStart : 1;
 	
 	float SL_Damage;
 
 	float SL_Degree;
 
+	float SL_ElapsedTime;
+	
 	float SL_ActiveTime;
 
 	float SL_Distance;
+
+	FRotator SL_OriginRotation;
 	
 	FVector SL_DamageRange;
 
@@ -214,6 +218,9 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraComponent> HohonuLaserSweepEffect;
 
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraComponent> HohonuLaserBurnEffect;
+	
 	UPROPERTY()
 	uint8 bIsDebugEnable : 1;
 
