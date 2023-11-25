@@ -6,13 +6,24 @@
 #include "GameFramework/SaveGame.h"
 #include "KWSaveSettingOption.generated.h"
 
+UENUM()
+enum class EResolutionTypes : uint8
+{
+	SD UMETA(DisplayName = "800x450"),
+	HD UMETA(DisplayName = "1280x720"),
+	HDP UMETA(DisplayName = "1600x900"),
+	FHD UMETA(DisplayName = "1920x1080")
+};
+
 /**
  * 
  */
+
 UCLASS()
 class XR_PROJECT_TEAM10_API UKWSaveSettingOption : public USaveGame
 {
 	GENERATED_BODY()
+	
 public:
 	UKWSaveSettingOption();
 
@@ -29,35 +40,13 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
 	float SFXSoundVolumeSliderValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	uint32 bMasterSoundToggle : 1;
-
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	uint32 bBGMSoundToggle : 1;
-
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	uint32 bSFXSoundToggle : 1;
-
-	// DisplayOption
-public:
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	float DisplayBrightnessValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	float DisplayVignettingValue;
-
-	// GraphicOption
-public:
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	uint32 TextureQualityValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	uint32 ShadowQualityValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	uint32 AAType;
 	
+	// ResolutionOption
+public:
 	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
-	uint32 AAQualityValue;
+	EResolutionTypes ResolutionType;
+
+	UPROPERTY(EditDefaultsOnly, Category = SettingOption)
+	uint8 bIsFullScreenActivate : 1;
+	
 };
