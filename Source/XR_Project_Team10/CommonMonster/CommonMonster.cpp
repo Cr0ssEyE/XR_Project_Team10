@@ -13,13 +13,6 @@ ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-
-	//MonsterComponent = GetCapsuleComponent();
-
-	// MonsterComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capshule"));
-	// MonsterComponent->SetSimulatePhysics(true);
-	//  RootComponent = MonsterComponent;
-
 	AIControllerClass = AKWCommonAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
@@ -148,11 +141,21 @@ void ACommonMonster::AfterDead()
 	Destroy();
 }
 
+void ACommonMonster::PlayHitAnimation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(HitMontage, 1.0f);
+}
+
 void ACommonMonster::ApplyKnockBack()
 {
+	MonsterState = EState::E_HIT;
+	PlayHitAnimation();
 	KnockBackElapsedTime += GetWorld()->DeltaTimeSeconds;
 	if (KnockBackElapsedTime >= 0.5f)
 	{
+		MonsterState = EState::E_IDLE;
 		return;
 	}
 	float OriginZ = GetActorLocation().Z;

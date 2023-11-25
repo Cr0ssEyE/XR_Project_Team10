@@ -14,7 +14,9 @@ ADarkWing::ADarkWing()
 
 	FeatherClass = FPPConstructorHelper::FindAndGetClass<ADW_FeatherProjectile>(TEXT("/Script/Engine.Blueprint'/Game/9-CommonAI/AI/MyDW_FeatherProjectile.MyDW_FeatherProjectile_C'"), EAssertionLevel::Check);
 
-	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/DarkWing/Animation/AM_DarkWind_Dead.AM_DarkWind_Dead'"), EAssertionLevel::Check);
+	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/DarkWing/Animation/AM_DarkWing_Dead.AM_DarkWing_Dead'"), EAssertionLevel::Check); 
+	HitMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/CrowTalon/Animation/AM_DarkWing_Hit.AM_DarkWing_Hit'"));
+
 }
 
 void ADarkWing::Tick(float DeltaTime)
@@ -52,7 +54,6 @@ void ADarkWing::Attack()
 void ADarkWing::AttackEnd()
 {
 	Super::AttackEnd();
-	PlayerTarget = nullptr;
 }
 
 void ADarkWing::AttackBehaviour()
@@ -87,9 +88,6 @@ void ADarkWing::AttackBehaviour()
 						TargetLocationVector = MuzzleLocation + ((TargetLocation - MuzzleLocation) * AttackRange);
 						TargetLocationVector.Z = 0;
 						TargetLocationVector = (TargetLocationVector - MuzzleLocation).GetSafeNormal();
-
-						//UE_LOG(LogTemp, Log, TEXT("%f %f %f"), TargetLocationVector.X, TargetLocationVector.Y, TargetLocationVector.Z);
-						//UE_LOG(LogTemp, Log, TEXT(""));
 
 						FVector LaunchDirection = TargetLocationVector;
 
