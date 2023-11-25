@@ -13,13 +13,6 @@ ACommonMonster::ACommonMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-
-	//MonsterComponent = GetCapsuleComponent();
-
-	// MonsterComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capshule"));
-	// MonsterComponent->SetSimulatePhysics(true);
-	//  RootComponent = MonsterComponent;
-
 	AIControllerClass = AKWCommonAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
@@ -137,10 +130,9 @@ void ACommonMonster::CommonMonsterDead()
 }
 
 void ACommonMonster::PlayDeadAnimation()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->StopAllMontages(0.0f);
-	AnimInstance->Montage_Play(DeadMontage, 1.0f);
+{;
+	GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
+	GetMesh()->GetAnimInstance()->Montage_Play(DeadMontage, 1.0f);
 }
 
 void ACommonMonster::AfterDead()
@@ -148,11 +140,25 @@ void ACommonMonster::AfterDead()
 	Destroy();
 }
 
+void ACommonMonster::PlayHitAnimation()
+{
+	if(MonsterCurrentHP > 0)
+	{
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage, 1.5f);
+	}
+}
+
 void ACommonMonster::ApplyKnockBack()
 {
+	if (MonsterState == EState::E_IDLE) {
+		MonsterState = EState::E_HIT;
+		PlayHitAnimation();
+	}
 	KnockBackElapsedTime += GetWorld()->DeltaTimeSeconds;
 	if (KnockBackElapsedTime >= 0.5f)
 	{
+		MonsterState = EState::E_IDLE;
 		return;
 	}
 	float OriginZ = GetActorLocation().Z;

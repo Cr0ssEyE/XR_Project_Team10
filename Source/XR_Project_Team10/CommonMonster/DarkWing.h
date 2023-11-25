@@ -29,7 +29,10 @@ protected:
 	virtual void AttackEnd() override;
 
 	virtual void AttackBehaviour() override;
-	
+
+	virtual void PlayDeadAnimation() override;
+	virtual void PlayHitAnimation() override;
+
 	// 외부 수정 변수
 private:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리 (배수)")
