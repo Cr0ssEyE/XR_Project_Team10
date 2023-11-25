@@ -13,7 +13,7 @@ ARamp::ARamp()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	BaseMesh->SetStaticMesh(FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Game/1-Graphic-Resource/Props/JumpSlide/SM_JumpSlide")));
+	BaseMesh->SetStaticMesh(FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Game/1-Graphic-Resource/Props/WithGimmick/Ramp_Slide/SM_JumpSlide.SM_JumpSlide'")));
 	RootComponent = BaseMesh;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));

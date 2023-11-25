@@ -10,6 +10,10 @@ void UKWFadeWidget::NativeConstruct()
 	Super::NativeConstruct();
 	// FadeImage->SetRenderOpacity(0.f);
 	// FadeImage->SetRenderScale(FVector2D::ZeroVector);
+	if(!FadeSpeedPerTick)
+	{
+		FadeSpeedPerTick = 0.01f;
+	}
 	bIsFading = false;
 }
 
@@ -39,22 +43,27 @@ void UKWFadeWidget::StartFadeIn()
 
 void UKWFadeWidget::FadeOutSequence()
 {
-	FadeImage->SetRenderOpacity(FadeImage->GetRenderOpacity() + 0.0025f);
+	FadeImage->SetRenderOpacity(FadeImage->GetRenderOpacity() + FadeSpeedPerTick);
 	if(FadeImage->GetRenderOpacity() >= 1.f)
 	{
-		UGameplayStatics::OpenLevel(this, GetWorld()->OriginalWorldName);
+		bIsFading = false;
+		FadeImage->SetRenderOpacity(1.f);
+		FadeOutSequenceEndDelegate.Broadcast(true);
+		return;
 	}
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWFadeWidget::FadeOutSequence);
 }
 
 void UKWFadeWidget::FadeInSequence()
 {
-	FadeImage->SetRenderOpacity(FadeImage->GetRenderOpacity() - 0.0025f);
+	FadeImage->SetRenderOpacity(FadeImage->GetRenderOpacity() - FadeSpeedPerTick);
 	if(FadeImage->GetRenderOpacity() <= 0.f)
 	{
 		bIsFading = false;
+		FadeImage->SetRenderOpacity(0.f);
 		FadeImage->SetRenderScale(FVector2D::Zero());
-		FadeSequenceEndDelegate.Broadcast(true);
+		FadeInSequenceEndDelegate.Broadcast(true);
+		return;
 	}
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWFadeWidget::FadeInSequence);
 }

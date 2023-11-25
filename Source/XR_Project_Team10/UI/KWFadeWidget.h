@@ -7,7 +7,9 @@
 #include "Components/Image.h"
 #include "KWFadeWidget.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FFadeSequenceEndDelegate, bool)
+DECLARE_MULTICAST_DELEGATE_OneParam(FFadeInSequenceEndDelegate, bool)
+DECLARE_MULTICAST_DELEGATE_OneParam(FFadeOutSequenceEndDelegate, bool)
+
 /**
  * 
  */
@@ -22,8 +24,10 @@ public:
 	void StartFadeOut();
 
 	FORCEINLINE float GetFadeOpacity() const { return FadeImage->GetRenderOpacity(); }
-
-	FFadeSequenceEndDelegate FadeSequenceEndDelegate;
+	FORCEINLINE void SetFadeSpeed(float Value) { FadeSpeedPerTick = Value; }
+	
+	FFadeInSequenceEndDelegate FadeInSequenceEndDelegate;
+	FFadeOutSequenceEndDelegate FadeOutSequenceEndDelegate;
 	
 protected:
 	void FadeInSequence();
@@ -33,5 +37,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (BindWidget))
 	TObjectPtr<UImage> FadeImage;
 
+private:
+	UPROPERTY(EditAnywhere)
+	float FadeSpeedPerTick;
+	
 	uint8 bIsFading : 1;
 };
