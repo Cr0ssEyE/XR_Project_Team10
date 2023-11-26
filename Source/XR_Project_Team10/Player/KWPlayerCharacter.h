@@ -8,6 +8,7 @@
 #include "NiagaraSystem.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/AudioComponent.h"
 #include "XR_Project_Team10/Enumeration/KWPlayerGearType.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
 #include "KWPlayerCharacter.generated.h"
@@ -87,6 +88,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UNiagaraComponent> EventNiagaraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAudioComponent> KiwiMainAudioComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAudioComponent> KiwiSubAudioComponent;
 	
 	UPROPERTY()
 	float PlayerHp;

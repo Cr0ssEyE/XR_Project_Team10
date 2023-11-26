@@ -31,14 +31,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 구르기 상태 메시")
 	TObjectPtr<class USkeletalMesh> PlayerRollingMesh;
 
-	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 구르기 상태 애니메이션 블루프린트(제거 예정)")
-	TObjectPtr<class UAnimBlueprint> PlayerRollingAnimBlueprint;
-	
 	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 걷기 상태 메시")
 	TObjectPtr<class USkeletalMesh> PlayerWalkingMesh;
-
-	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트(제거 예정)")
-	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
 
 	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 죽음 애니메이션 몽타주")
 	TObjectPtr<UAnimMontage> KiwiAnimMontage;
@@ -72,6 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 이펙트")
 	TObjectPtr<UNiagaraSystem> WalkingNiagaraSystem;
 
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "구르기 이펙트")
+	TObjectPtr<UNiagaraSystem> RollingNiagaraSystem;
+	
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "점프 이펙트")
 	TObjectPtr<UNiagaraSystem> JumpingNiagaraSystem;
 

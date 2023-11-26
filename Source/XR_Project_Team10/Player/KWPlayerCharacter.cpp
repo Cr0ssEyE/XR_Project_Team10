@@ -73,6 +73,11 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	RollingModeNiagaraComponent->SetupAttachment(RollingMeshComponent);
 	EventNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("EventNiagaraComponent"));
 	EventNiagaraComponent->SetRelativeScale3D(FVector::One() * 2);
+
+	KiwiMainAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("MainAudioComponent"));
+	KiwiMainAudioComponent->SetupAttachment(RootComponent);
+	KiwiSubAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("SubAudioComponent"));
+	KiwiSubAudioComponent->SetupAttachment(RootComponent);
 	
 	PlayerWidgetController = CreateDefaultSubobject<UKWPlayerWidgetController>(TEXT("PlayerWidgetController"));
 
@@ -85,8 +90,10 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	RollingMesh = CharacterData->PlayerRollingMesh;
 	
 	//TODO: 폴더 정리 후 ConstructorHelper로 애님 인스턴스 가져오기
-	WalkingAnimInstance = CharacterData->PlayerWalkingAnimBlueprint->GetAnimBlueprintGeneratedClass();
-	RollingAnimInstance = CharacterData->PlayerRollingAnimBlueprint->GetAnimBlueprintGeneratedClass();
+	WalkingAnimInstance = FPPConstructorHelper::FindAndGetClass<UKWPlayerAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/1-Graphic-Resource/Player/Animation/ABP_Player_Kiwi.ABP_Player_Kiwi_C'"), EAssertionLevel::Check);
+	
+	RollingAnimInstance = FPPConstructorHelper::FindAndGetClass<UAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/1-Graphic-Resource/Player/Animation/ABP_Player_Kiwi_Roll.ABP_Player_Kiwi_Roll_C'"), EAssertionLevel::Check);
+	
 	KiwiAnimMontage = CharacterData->KiwiAnimMontage;
 	
 	InputMappingContext= CharacterData->PlayerInputMappingContext;
@@ -445,7 +452,7 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 
 		if(!RollingModeNiagaraComponent->IsActive())
 		{
-			RollingModeNiagaraComponent->SetAsset(CharacterData->WalkingNiagaraSystem);
+			RollingModeNiagaraComponent->SetAsset(CharacterData->RollingNiagaraSystem);
 			RollingModeNiagaraComponent->Activate();
 		}
 		RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() + AddVelocityResult);
@@ -686,6 +693,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		PlayerComponent->SetWorldScale3D(FVector::OneVector);
 		PlayerComponent->SetWorldLocation(RootMesh->GetComponentToWorld().GetLocation());
 
+		RollingModeNiagaraComponent->Deactivate();
 		CurrentGearState = EGearState::KiwiMode;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 걷기 상태로 전환")));
 		
@@ -703,6 +711,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetWorldScale3D(FVector::ZeroVector);
 
+		KiwiModeNiagaraComponent->Deactivate();
 		CurrentGearState = EGearState::GearOne;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 구르기 상태로 전환")));
 	}
