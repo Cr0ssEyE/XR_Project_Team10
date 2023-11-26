@@ -11,9 +11,6 @@
 UENUM()
 enum class EState : uint8 {
 	E_IDLE,
-	/*E_RESEARCH,
-	E_RECOGNITION,
-	E_TRACKING,*/
 	E_ATTACK_CONFIG,
 	E_ATTACK_OMEN,
 	E_ATTACK,
@@ -48,16 +45,18 @@ protected:
 
 	virtual void SetCommonAttackDelegate(const FCommonAttackFinished& InOnAttackFinished) override;
 
-	virtual void AttackOmen() override;
-	virtual void Attack() override;
-	virtual void AttackBehaviour();
-	virtual void AttackEnd();
+	virtual void AttackOmen() override;	// 공격 전조
+	virtual void Attack() override;		// 공격 전반 실행
+	virtual void AttackBehaviour();		// 진짜 공격 
+	virtual void AttackEnd();			// 특수한 상황에서의 공격중지 체크
 	void CheckAttackDelay();
 
-	virtual void CommonMonsterAttack(AActor* Target) override;
-	virtual void CommonMonsterDead() override;
-	void PlayDeadAnimation();
+	virtual void CommonMonsterAttack(AActor* Target) override;	// BT에서의 공격 실행
+	void CommonMonsterDead() override;
 	void AfterDead();
+
+	virtual void PlayDeadAnimation();
+	virtual void PlayHitAnimation();
 
 	virtual void ApplyKnockBack();
 
@@ -98,13 +97,16 @@ protected:
 	FVector KnockBackImpactLocation;
 
 	UPROPERTY(EditAnywhere, Category = KnockBack, DisplayName = "넉백량")
-	float KnockBackAmount = 10.0f;
+	float KnockBackAmount = 1.0f;
 
 	UPROPERTY(EditAnywhere, Category = Dead, DisplayName = "사망 후 비활성화되는 시간")
 	float MonsterDisableTime = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> HitMontage;
 
 	UPROPERTY()
 	AActor* PlayerTarget;

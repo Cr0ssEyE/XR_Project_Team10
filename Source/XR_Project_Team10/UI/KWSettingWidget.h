@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Sound/SoundClass.h"
+#include "Components/ProgressBar.h"
 #include "XR_Project_Team10/Util/KWSaveSettingOption.h"
 #include "KWSettingWidget.generated.h"
 
@@ -23,13 +24,13 @@ public:
 	
 protected:
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ApplyMasterSliderValue(const float Value) { MasterSoundClass->Properties.Volume = Value; }
+	FORCEINLINE void ApplyMasterSliderValue(const float Value) { MasterVolumeProgressBar->SetPercent(MasterSoundClass->Properties.Volume = Value); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ApplyBGMSliderValue(const float Value) { BGMSoundClass->Properties.Volume = Value; }
+	FORCEINLINE void ApplyBGMSliderValue(const float Value) { BGMVolumeProgressBar->SetPercent(BGMSoundClass->Properties.Volume = Value); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ApplySFXSliderValue(const float Value) { SFXSoundClass->Properties.Volume = Value; }
+	FORCEINLINE void ApplySFXSliderValue(const float Value) { SFXVolumeProgressBar->SetPercent(SFXSoundClass->Properties.Volume = Value); }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void CloseSettingWidget() { SetRenderScale(FVector2d::Zero()); }
@@ -53,6 +54,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 	TObjectPtr<class USlider> SFXSoundVolumeSlider;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	TObjectPtr<class UProgressBar> MasterVolumeProgressBar;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	TObjectPtr<class UProgressBar> BGMVolumeProgressBar;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	TObjectPtr<class UProgressBar> SFXVolumeProgressBar;
+	
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 	TObjectPtr<class UComboBoxString> ResolutionComboBox;
 	

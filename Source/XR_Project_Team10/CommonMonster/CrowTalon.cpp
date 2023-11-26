@@ -11,7 +11,8 @@
 ACrowTalon::ACrowTalon()
 {
 	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/CrowTalon/Animation/AM_CrowTalon_Dead.AM_CrowTalon_Dead'"));
-	
+	HitMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/CrowTalon/Animation/AM_CrowTalon_Hit.AM_CrowTalon_Hit'"));
+
 	MonsterData = FPPConstructorHelper::FindAndGetObject<UCommonMonsterDataAsset>(TEXT("/Game/Rolling-Kiwi/Datas/DataAssets/CrowTalon"));
 }
 
@@ -148,6 +149,16 @@ void ACrowTalon::AttackEndCheck()
 		}
 	}
 	GetWorldTimerManager().SetTimerForNextTick(this, &ACrowTalon::AttackEndCheck);
+}
+
+void ACrowTalon::PlayDeadAnimation()
+{
+	Super::PlayDeadAnimation();
+}
+
+void ACrowTalon::PlayHitAnimation()
+{
+	Super::PlayHitAnimation();
 }
 
 

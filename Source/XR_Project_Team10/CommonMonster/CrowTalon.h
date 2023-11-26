@@ -28,6 +28,10 @@ protected:
 	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	void AttackEndCheck();
+
+	virtual void PlayDeadAnimation();
+	virtual void PlayHitAnimation();
+
 	// 외부 수정 변수
 private:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공격 사거리")

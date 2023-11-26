@@ -20,7 +20,9 @@ void UKWGameIntroWidget::NativeConstruct()
 	// const FStringDataTable* PrologueString = CutSceneTextDataArray[0].GetRow<FStringDataTable>(CutSceneTextDataArray[0].RowName.ToString());
 	// CutSceneText->SetText(FText::FromName(PrologueString->Kor));
 	ChangeTestImage->SetBrushFromTexture(TestImageArray[0]);
-	
+
+	EnableUIBtn->SetRenderScale(FVector2d::Zero());
+	ActivateSkipAlarm->SetRenderScale(FVector2d::Zero());
 	FadeWidget->SetFadeSpeed(SceneFadeSpeed);
 	FadeWidget->FadeOutSequenceEndDelegate.AddUObject(this, &UKWGameIntroWidget::LoadMainLevel);
 	AutoPlayElapsedSecond = 0;
@@ -35,6 +37,7 @@ void UKWGameIntroWidget::ToggleUIEvent()
 	bIsInterfaceEnabled = !bIsInterfaceEnabled;
 	UIPanel->SetRenderOpacity(bIsInterfaceEnabled);
 	EnableUIBtn->SetRenderScale(FVector2d::One() * !bIsInterfaceEnabled);
+	SkipCurrentCutSceneBtn->SetRenderScale(FVector2d::One() * bIsInterfaceEnabled);
 	if(bIsInterfaceEnabled)
 	{
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::UpdateAutoPlaySecond);
@@ -44,11 +47,21 @@ void UKWGameIntroWidget::ToggleUIEvent()
 void UKWGameIntroWidget::SkipCurrentSceneBtnEvent()
 {
 	SkipCurrentCutSceneBtn->SetIsEnabled(false);
-	CutSceneFadeOutSequence();
+	if(CurrentScene < TestImageArray.Num())
+	{
+		AutoPlayElapsedSecond = 0;
+		bIsFadeSequenceOnGoing = true;
+		ActivateSkipAlarm->SetRenderScale(FVector2d::Zero());
+		CutSceneFadeOutSequence();
+	}
 }
 
 void UKWGameIntroWidget::SkipIntroBtnEvent()
 {
+	SkipIntroBtn->SetIsEnabled(false);
+	SkipCurrentCutSceneBtn->SetIsEnabled(false);
+	AutoPlayElapsedSecond = 0;
+	bIsFadeSequenceOnGoing = true;
 	FadeWidget->StartFadeOut();
 }
 
@@ -58,6 +71,7 @@ void UKWGameIntroWidget::CutSceneFadeInSequence()
 	{
 		CutSceneFadeImage->SetRenderOpacity(0.f);
 		CutSceneText->SetRenderOpacity(1.f);
+		ActivateSkipAlarm->SetRenderScale(FVector2d::One());
 		
 		bIsFadeSequenceOnGoing = false;
 		SkipCurrentCutSceneBtn->SetIsEnabled(true);
