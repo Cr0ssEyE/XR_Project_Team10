@@ -49,22 +49,20 @@ void ACrowTalon::Attack()
 	Super::Attack();
 	if(PlayerTarget)
 	{
-		return;
+		FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
+		float TurnSpeed = 5.f;
+		LookVector.Z = 0.0f;
+		FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
+		OriPos = GetActorLocation();
 	}
-	float TurnSpeed = 5.f;
-	FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
-	LookVector.Z = 0.0f;
-	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
-	SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
-	OriPos = GetActorLocation();
 }
 
 void ACrowTalon::AttackBehaviour()
 {
-	AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 	if (nullptr != PlayerTarget)
 	{
-		// AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
+		AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 		AttackDir = GetActorForwardVector() * RushSpeed;
 		MonsterAttackElapsedTime = 0;
 		OriPos = GetActorLocation();

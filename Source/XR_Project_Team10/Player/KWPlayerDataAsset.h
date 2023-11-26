@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "Engine/DataAsset.h"
+#include "NiagaraSystem.h"
 #include "KWPlayerDataAsset.generated.h"
 
 /**
@@ -68,6 +69,15 @@ public:
 
 	// 기본 상태 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 이펙트")
+	TObjectPtr<UNiagaraSystem> WalkingNiagaraSystem;
+
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "점프 이펙트")
+	TObjectPtr<UNiagaraSystem> JumpingNiagaraSystem;
+
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "피격 이펙트")
+	TObjectPtr<UNiagaraSystem> HitNiagaraSystem;
+	
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 이동 속도")
 	float WakingStateMoveSpeed;
 	
@@ -111,6 +121,12 @@ public:
 
 	// 공격 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 이펙트")
+	TObjectPtr<UNiagaraSystem> DA_MoveNiagaraSystem;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 타격 이펙트")
+	TObjectPtr<UNiagaraSystem> DA_AttackNiagaraSystem;
+	
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공중 대시 사용 여부")
 	uint8 bCanDashOnFlying : 1;
 

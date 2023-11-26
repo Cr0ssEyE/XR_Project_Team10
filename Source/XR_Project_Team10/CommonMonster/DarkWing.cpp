@@ -15,7 +15,7 @@ ADarkWing::ADarkWing()
 	FeatherClass = FPPConstructorHelper::FindAndGetClass<ADW_FeatherProjectile>(TEXT("/Script/Engine.Blueprint'/Game/9-CommonAI/AI/MyDW_FeatherProjectile.MyDW_FeatherProjectile_C'"), EAssertionLevel::Check);
 
 	DeadMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/DarkWing/Animation/AM_DarkWing_Dead.AM_DarkWing_Dead'"), EAssertionLevel::Check); 
-	HitMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/CrowTalon/Animation/AM_DarkWing_Hit.AM_DarkWing_Hit'"));
+	HitMontage = FPPConstructorHelper::FindAndGetObject<UAnimMontage>(TEXT("/Script/Engine.AnimMontage'/Game/1-Graphic-Resource/Monster/DarkWing/Animation/AM_DarkWing_Hit.AM_DarkWing_Hit'"));
 
 }
 

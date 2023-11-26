@@ -9,6 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "KWPlayerAnimInstance.h"
+#include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
@@ -66,6 +67,14 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	KiwiModeNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("KiwiNiagaraComponent"));
+	KiwiModeNiagaraComponent->SetupAttachment(GetMesh());
+	RollingModeNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("RollingNiagaraComponent"));
+	RollingModeNiagaraComponent->SetupAttachment(RollingMeshComponent);
+	EventNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("EventNiagaraComponent"));
+	EventNiagaraComponent->SetRelativeScale3D(FVector::One() * 2);
+	EventNiagaraComponent->SetupAttachment(RootComponent);
+	
 	PlayerWidgetController = CreateDefaultSubobject<UKWPlayerWidgetController>(TEXT("PlayerWidgetController"));
 
 	CharacterData = FPPConstructorHelper::FindAndGetObject<UKWPlayerDataAsset>(TEXT("/Script/XR_Project_Team10.KWPlayerDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/PlayerDataAsset.PlayerDataAsset'"), EAssertionLevel::Check);
@@ -109,7 +118,8 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	
 	AddJumpForceValue = CharacterData->AddJumpForceValue;
 	JumpDelayTime = CharacterData->JumpDelayTime;
-	
+
+	RollingModeNiagaraComponent->SetAsset(CharacterData->DA_MoveNiagaraSystem);
 	DA_BaseDamage = CharacterData->DA_BaseDamage;
 	DA_MultiplyDamageByGear = CharacterData->DA_MultiplyDamageByGear;
 	DA_AddVelocityValue = CharacterData->DA_AddVelocityValue;
@@ -196,7 +206,9 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsAttackOnGoing = false;
 	bIsKnockBackOnGoing = false;
 
-	
+	KiwiModeNiagaraComponent->Deactivate();
+	RollingModeNiagaraComponent->Deactivate();
+	EventNiagaraComponent->Deactivate();
 }
 
 float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
@@ -207,8 +219,20 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		return 0;
 	}
+
+	if(bIsRolling)
+	{
+		EventNiagaraComponent->SetRelativeLocation(RollingMeshComponent->GetRelativeLocation());
+	}
+	else
+	{
+		EventNiagaraComponent->SetWorldLocation(PlayerTrueLocation->GetActorLocation());
+	}
 	
+	EventNiagaraComponent->SetAsset(CharacterData->HitNiagaraSystem);
+	EventNiagaraComponent->Activate(true);
 	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
+	
 	PlayerHp -= DamageAmount;
 	PlayerWidgetController->UpdateHealthWidget(false);
 	if(PlayerHp <= 0)
@@ -417,12 +441,21 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 		{
 			AddVelocityResult.Y = 10.f;
 		}
-		
+
+		if(!RollingModeNiagaraComponent->IsActive())
+		{
+			RollingModeNiagaraComponent->SetAsset(CharacterData->WalkingNiagaraSystem);
+			RollingModeNiagaraComponent->Activate();
+		}
 		RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() + AddVelocityResult);
-		// RollingMeshComponent->AddLocalRotation(FRotator(0.f, 1.f, 0.f));
 	}
 	else
 	{
+		if(!KiwiModeNiagaraComponent->IsActive())
+		{
+			KiwiModeNiagaraComponent->SetAsset(CharacterData->WalkingNiagaraSystem);
+			KiwiModeNiagaraComponent->Activate();
+		}
 		GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
 		AddMovementInput(MoveDirection, 1.f);
 	}
@@ -442,6 +475,10 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 			}
 		}
 	}
+	else
+	{
+		KiwiModeNiagaraComponent->Deactivate();
+	}
 }
 
 void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
@@ -460,6 +497,7 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 			GetWorldTimerManager().ClearTimer(JumpDelayTimerHandle);
 		}
 	}), 0.01f, true);
+	
 	bIsFlying = true;
 	if(bIsRolling)
 	{
@@ -468,6 +506,8 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 	}
 	else
 	{
+		KiwiModeNiagaraComponent->SetAsset(CharacterData->JumpingNiagaraSystem);
+		KiwiModeNiagaraComponent->Activate();
 		Jump();
 	}
 }
@@ -499,6 +539,10 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 			return;
 		}
 
+		RollingModeNiagaraComponent->ResetSystem();
+		RollingModeNiagaraComponent->SetAsset(CharacterData->DA_MoveNiagaraSystem);
+		RollingModeNiagaraComponent->Activate();
+		
 		if(bCanDashOnFlying && !bIsUsedFlyDash && !DA_ElapsedTime)
 		{
 			bIsUsedFlyDash = true;
@@ -959,6 +1003,7 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 	DA_ElapsedTime += GetWorld()->DeltaTimeSeconds;
 	if(DA_ElapsedTime >= DA_DurationTime)
 	{
+		RollingModeNiagaraComponent->Deactivate();
 		DA_ElapsedTime = 0;
 		CurrentGearState = EGearState::GearTwo;
 		DA_Params.ClearIgnoredActors();
