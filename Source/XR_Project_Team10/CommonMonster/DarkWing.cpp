@@ -42,13 +42,12 @@ void ADarkWing::AttackOmen()
 //공격
 void ADarkWing::Attack()
 {
+	Super::Attack();
 	float TurnSpeed = 5.f;
 	FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
 	LookVector.Z = 0.0f;
 	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
 	SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
-
-	Super::Attack();
 }
 
 void ADarkWing::AttackEnd()

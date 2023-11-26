@@ -73,7 +73,6 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	RollingModeNiagaraComponent->SetupAttachment(RollingMeshComponent);
 	EventNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("EventNiagaraComponent"));
 	EventNiagaraComponent->SetRelativeScale3D(FVector::One() * 2);
-	EventNiagaraComponent->SetupAttachment(RootComponent);
 	
 	PlayerWidgetController = CreateDefaultSubobject<UKWPlayerWidgetController>(TEXT("PlayerWidgetController"));
 
@@ -266,7 +265,9 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		PlayerTrueLocation->SetActorLocation(GetActorLocation());
 	}
 
+	EventNiagaraComponent->SetWorldLocation(PlayerTrueLocation->GetActorLocation());
 	PlayerWidgetController->UpdateGearWidget(CurrentGearState);
+	
 	if(!bIsRolling)
 	{
 		return;
@@ -989,6 +990,11 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 	RootMesh->SetWorldLocation(RootMesh->GetComponentLocation() + FVector(0.f, 0.f, 30.f));
 	VelocityDecelerateTarget = RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
 	RootMesh->SetPhysicsLinearVelocity(AD_Direction);
+
+	RollingModeNiagaraComponent->ResetSystem();
+	RollingModeNiagaraComponent->SetAsset(CharacterData->DA_MoveNiagaraSystem);
+	RollingModeNiagaraComponent->Activate();
+	
 	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
 }
 
@@ -1034,6 +1040,15 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 	if(bResult)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
+
+		if(!EventNiagaraComponent->IsActive())
+		{
+			EventNiagaraComponent->ResetSystem();
+			EventNiagaraComponent->SetWorldRotation((HitResult.GetActor()->GetActorLocation() - GetActorLocation()).GetSafeNormal().Rotation());
+			EventNiagaraComponent->AddWorldRotation(FRotator(0.f, -90.f, 0.f));
+			EventNiagaraComponent->SetAsset(CharacterData->DA_AttackNiagaraSystem);
+			EventNiagaraComponent->Activate();
+		}
 		
 		FDamageEvent DamageEvent;
 		HitResult.GetActor()->TakeDamage(DA_BaseDamage * DA_MultiplyDamageByGear[static_cast<uint8>(AttackInputGearState)], DamageEvent, GetController(), this);
