@@ -87,6 +87,9 @@ private:
 	TObjectPtr<UNiagaraComponent> RollingModeNiagaraComponent;
 
 	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> AttackEffectNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UNiagaraComponent> EventNiagaraComponent;
 
 	UPROPERTY(VisibleAnywhere)

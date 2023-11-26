@@ -17,8 +17,12 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
+#include "XR_Project_Team10/CommonMonster/CommonMonster.h"
+#include "XR_Project_Team10/CommonMonster/RuneSpirit.h"
 #include "XR_Project_Team10/Constant/KWAnimMontageSectionName.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
+#include "XR_Project_Team10/Game/KWGameInstance.h"
 
 // Sets default values
 AKWPlayerCharacter::AKWPlayerCharacter()
@@ -71,6 +75,8 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	KiwiModeNiagaraComponent->SetupAttachment(GetMesh());
 	RollingModeNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("RollingNiagaraComponent"));
 	RollingModeNiagaraComponent->SetupAttachment(RollingMeshComponent);
+	AttackEffectNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("AttackNiagaraComponent"));
+	AttackEffectNiagaraComponent->SetupAttachment(RollingMeshComponent);
 	EventNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("EventNiagaraComponent"));
 	EventNiagaraComponent->SetRelativeScale3D(FVector::One() * 2);
 
@@ -238,7 +244,7 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	EventNiagaraComponent->SetAsset(CharacterData->HitNiagaraSystem);
 	EventNiagaraComponent->Activate(true);
 	GetMesh()->GetAnimInstance()->Montage_Play(KiwiAnimMontage);
-	
+
 	PlayerHp -= DamageAmount;
 	PlayerWidgetController->UpdateHealthWidget(false);
 	if(PlayerHp <= 0)
@@ -459,11 +465,6 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 	}
 	else
 	{
-		if(!KiwiModeNiagaraComponent->IsActive())
-		{
-			KiwiModeNiagaraComponent->SetAsset(CharacterData->WalkingNiagaraSystem);
-			KiwiModeNiagaraComponent->Activate();
-		}
 		GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
 		AddMovementInput(MoveDirection, 1.f);
 	}
@@ -510,12 +511,12 @@ void AKWPlayerCharacter::JumpAddForceAction(const FInputActionValue& Value)
 	if(bIsRolling)
 	{
 		const FVector JumpVelocityVector = FVector(0.f, 0.f, AddJumpForceValue);
+		EventNiagaraComponent->SetAsset(CharacterData->JumpingNiagaraSystem);
+		EventNiagaraComponent->Activate();
 		RootMesh->SetPhysicsLinearVelocity(RootMesh->GetPhysicsLinearVelocity() + JumpVelocityVector);
 	}
 	else
 	{
-		KiwiModeNiagaraComponent->SetAsset(CharacterData->JumpingNiagaraSystem);
-		KiwiModeNiagaraComponent->Activate();
 		Jump();
 	}
 }
@@ -547,9 +548,9 @@ void AKWPlayerCharacter::AttackActionSequence(const FInputActionValue& Value)
 			return;
 		}
 
-		RollingModeNiagaraComponent->ResetSystem();
-		RollingModeNiagaraComponent->SetAsset(CharacterData->DA_MoveNiagaraSystem);
-		RollingModeNiagaraComponent->Activate();
+		AttackEffectNiagaraComponent->ResetSystem();
+		AttackEffectNiagaraComponent->SetAsset(CharacterData->DA_MoveNiagaraSystem);
+		AttackEffectNiagaraComponent->Activate();
 		
 		if(bCanDashOnFlying && !bIsUsedFlyDash && !DA_ElapsedTime)
 		{
@@ -767,6 +768,8 @@ void AKWPlayerCharacter::DA_ProceedAction()
 	
 	RootMesh->SetWorldLocation(RootMesh->GetComponentLocation() + FVector(0.f, 0.f, 30.f));
 	RootMesh->SetPhysicsLinearVelocity(AD_Direction);
+
+	UGameplayStatics::PlaySound2D(GetWorld(), GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetSoundData()->KiwiDashMoveSoundCue[static_cast<int>(AttackInputGearState) + 1]);
 	
 	DA_Params.AddIgnoredActor(this);
 	DA_ElapsedTime = 0;
@@ -954,6 +957,7 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 		{
 			bIsReBounding = false;
 			bIsInputJustAction = false;
+			UGameplayStatics::PlaySound2D(GetWorld(), GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetSoundData()->KiwiReBoundSuccessSoundCue);
 			RBD_SuccessEvent();
 			return;
 		}
@@ -963,6 +967,7 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 		{
 			GetWorldTimerManager().ClearTimer(CheckIdleStateTimerHandle);
 		}
+		UGameplayStatics::PlaySound2D(GetWorld(), GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetSoundData()->KiwiReBoundFailedSoundCue);
 		GetWorldTimerManager().SetTimer(RBD_FailedTimerHandle, this, &AKWPlayerCharacter::RBD_FailedPenaltyEndEvent, 0.01f, false, RB_DisableMovementTime);
 		return;
 	}
@@ -1000,10 +1005,11 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 	VelocityDecelerateTarget = RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * CurrentMaxVelocityValue;
 	RootMesh->SetPhysicsLinearVelocity(AD_Direction);
 
-	RollingModeNiagaraComponent->ResetSystem();
-	RollingModeNiagaraComponent->SetAsset(CharacterData->DA_MoveNiagaraSystem);
-	RollingModeNiagaraComponent->Activate();
+	AttackEffectNiagaraComponent->ResetSystem();
+	AttackEffectNiagaraComponent->SetAsset(CharacterData->DA_MoveNiagaraSystem);
+	AttackEffectNiagaraComponent->Activate();
 	
+	UGameplayStatics::PlaySound2D(GetWorld(), GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetSoundData()->KiwiDashMoveSoundCue[static_cast<int>(CurrentGearState)]);
 	GetWorldTimerManager().SetTimerForNextTick(this,& AKWPlayerCharacter::DA_HitCheckSequence);
 }
 

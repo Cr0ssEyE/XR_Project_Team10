@@ -21,14 +21,14 @@ public:
 	TArray<USoundCue*> KiwiDashMoveSoundCue;
 
 	UPROPERTY(EditAnywhere, Category = Player, DisplayName = "플레이어 대시 타격 사운드")
-	TArray<USoundCue*> KiwiDashHitSoundCue;
+	TObjectPtr<USoundCue> KiwiDashHitSoundCue;
 	
 	UPROPERTY(EditAnywhere, Category = Player, DisplayName = "플레이어 리바운드 성공 사운드")
 	TObjectPtr<USoundCue> KiwiReBoundSuccessSoundCue;
-
+	
 	UPROPERTY(EditAnywhere, Category = Player, DisplayName = "플레이어 리바운드 실패 사운드")
 	TObjectPtr<USoundCue> KiwiReBoundFailedSoundCue;
-
+	
 public:
 	UPROPERTY(EditAnywhere, Category = Gimmick, DisplayName = "가속 장치 사운드")
 	TObjectPtr<USoundCue> BoostPadSoundCue;
@@ -38,7 +38,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Gimmick, DisplayName = "스프링 사운드")
 	TObjectPtr<USoundCue> SpringGimmickSoundCue;
-	
+
 public:
 	UPROPERTY(EditAnywhere, Category = BGM, DisplayName = "로비 배경음악")
 	TObjectPtr<USoundCue> LobbyBGMSoundCue;
@@ -48,11 +48,14 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = BGM, DisplayName = "기본 배경음악")
 	TObjectPtr<USoundCue> FieldBGMSoundCue;
-
+	
 	UPROPERTY(EditAnywhere, Category = BGM, DisplayName = "전투 배경음악")
 	TObjectPtr<USoundCue> BattleBGMSoundCue;
 	
 	UPROPERTY(EditAnywhere, Category = BGM, DisplayName = "보스 배경음악")
 	TObjectPtr<USoundCue> BossBGMSoundCue;
 
+	UPROPERTY(EditAnywhere, Category = BGM, DisplayName = "사망 배경음악")
+	TObjectPtr<USoundCue> DeadBGMSoundCue;
+	
 };
