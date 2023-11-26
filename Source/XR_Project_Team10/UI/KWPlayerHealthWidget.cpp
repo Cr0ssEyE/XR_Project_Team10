@@ -40,6 +40,10 @@ void UKWPlayerHealthWidget::NativeConstruct()
 void UKWPlayerHealthWidget::PlayDecreaseHealthAnimation()
 {
 	CurrentAnimationState++;
+	if(CurrentAnimationState >= TopVitalImages.Num())
+	{
+		return;
+	}
 	if(FocusImageType == EVitalImageType::Fill)
 	{
 		FocusedImage->SetBrushFromTexture(TopVitalImages[CurrentAnimationState]);

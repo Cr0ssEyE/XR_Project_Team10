@@ -1024,7 +1024,7 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 	DA_ElapsedTime += GetWorld()->DeltaTimeSeconds;
 	if(DA_ElapsedTime >= DA_DurationTime)
 	{
-		RollingModeNiagaraComponent->Deactivate();
+		AttackEffectNiagaraComponent->Deactivate();
 		DA_ElapsedTime = 0;
 		CurrentGearState = EGearState::GearTwo;
 		DA_Params.ClearIgnoredActors();
