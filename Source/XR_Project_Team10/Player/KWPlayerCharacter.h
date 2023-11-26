@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "KWPlayerWidgetController.h"
+#include "NiagaraSystem.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/AudioComponent.h"
 #include "XR_Project_Team10/Enumeration/KWPlayerGearType.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
 #include "KWPlayerCharacter.generated.h"
@@ -78,6 +80,24 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> KiwiModeNiagaraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> RollingModeNiagaraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> AttackEffectNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> EventNiagaraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAudioComponent> KiwiMainAudioComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAudioComponent> KiwiSubAudioComponent;
+	
 	UPROPERTY()
 	float PlayerHp;
 
@@ -206,6 +226,7 @@ private:
 
 public:
 	uint8 IsDropDownActive : 1 = false;
+	
 	/** 공격 관련 변수 리스트 \n
 	* 약어 정리 \n
 	* DA = DashAttack \n 
@@ -357,7 +378,10 @@ private:
 
 	UPROPERTY()
 	TArray<float> RB_MultiplyValuesByObjectType;
-	
+
+	// 이펙트 관련 변수
+private:
+
 	// 타이머 델리게이트 등
 private:
 	void DA_HitCheckSequence();

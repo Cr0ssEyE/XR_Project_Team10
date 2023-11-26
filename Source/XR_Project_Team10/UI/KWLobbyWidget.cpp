@@ -90,6 +90,7 @@ void UKWLobbyWidget::ShowLobbyUISequence()
 		if(FirstEnterEmissionText->GetRenderOpacity() <= 0.f)
 		{
 			FirstEnterEmissionText->SetRenderScale(FVector2d::Zero());
+			FirstEnterEmissionText->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 	if(LobbyUIPanel->GetRenderOpacity() >= 1.f)

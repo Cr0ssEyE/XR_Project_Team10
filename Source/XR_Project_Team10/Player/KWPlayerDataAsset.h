@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "Engine/DataAsset.h"
+#include "NiagaraSystem.h"
 #include "KWPlayerDataAsset.generated.h"
 
 /**
@@ -30,14 +31,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 구르기 상태 메시")
 	TObjectPtr<class USkeletalMesh> PlayerRollingMesh;
 
-	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 구르기 상태 애니메이션 블루프린트(제거 예정)")
-	TObjectPtr<class UAnimBlueprint> PlayerRollingAnimBlueprint;
-	
 	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 걷기 상태 메시")
 	TObjectPtr<class USkeletalMesh> PlayerWalkingMesh;
-
-	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 걷기 상태 애니메이션 블루프린트(제거 예정)")
-	TObjectPtr<class UAnimBlueprint> PlayerWalkingAnimBlueprint;
 
 	UPROPERTY(EditAnywhere, Category = Default, DisplayName = "플레이어 죽음 애니메이션 몽타주")
 	TObjectPtr<UAnimMontage> KiwiAnimMontage;
@@ -68,6 +63,15 @@ public:
 
 	// 기본 상태 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "구르기 이펙트")
+	TObjectPtr<UNiagaraSystem> RollingNiagaraSystem;
+	
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "점프 이펙트")
+	TObjectPtr<UNiagaraSystem> JumpingNiagaraSystem;
+
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "피격 이펙트")
+	TObjectPtr<UNiagaraSystem> HitNiagaraSystem;
+	
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 상태 이동 속도")
 	float WakingStateMoveSpeed;
 	
@@ -111,6 +115,12 @@ public:
 
 	// 공격 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 이펙트")
+	TObjectPtr<UNiagaraSystem> DA_MoveNiagaraSystem;
+
+	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 타격 이펙트")
+	TObjectPtr<UNiagaraSystem> DA_AttackNiagaraSystem;
+	
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "공중 대시 사용 여부")
 	uint8 bCanDashOnFlying : 1;
 

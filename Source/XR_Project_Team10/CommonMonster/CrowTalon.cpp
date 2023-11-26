@@ -49,22 +49,20 @@ void ACrowTalon::Attack()
 	Super::Attack();
 	if(PlayerTarget)
 	{
-		return;
+		FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
+		float TurnSpeed = 5.f;
+		LookVector.Z = 0.0f;
+		FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
+		OriPos = GetActorLocation();
 	}
-	float TurnSpeed = 5.f;
-	FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
-	LookVector.Z = 0.0f;
-	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
-	SetActorRotation(FMath::RInterpTo(GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(), TurnSpeed));
-	OriPos = GetActorLocation();
 }
 
 void ACrowTalon::AttackBehaviour()
 {
-	AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 	if (nullptr != PlayerTarget)
 	{
-		// AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
+		AttackDir = (PlayerTarget->GetActorLocation() - OriPos).GetSafeNormal() * RushSpeed;
 		AttackDir = GetActorForwardVector() * RushSpeed;
 		MonsterAttackElapsedTime = 0;
 		OriPos = GetActorLocation();
@@ -97,57 +95,56 @@ void ACrowTalon::AttackEndCheck()
 		return;
 	}
 	SetActorLocation(GetActorLocation() + AttackDir);
-	if (FVector::Dist(GetActorLocation(), OriPos) >= AttackRange)
-	{
-		FHitResult HitResult;
-		FCollisionQueryParams Params(NAME_None, false, this);
+	
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
 		
-		bool bResult = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		GetActorLocation(),
-		GetActorLocation() + GetActorForwardVector() * 200.f,
-		FQuat::Identity,
-		ECC_PLAYER_ONLY,
-		FCollisionShape::MakeBox(FVector(100.f, 100.f, 100.f)),
-		Params);
-		// DrawDebugBox(GetWorld(), GetActorLocation() + GetActorForwardVector() * 200.f, FVector(100.f, 100.f, 100.f), FColor::Blue, false, 0.3f);
-		if(bResult)
+	bool bResult = GetWorld()->SweepSingleByChannel(
+	HitResult,
+	GetActorLocation(),
+	GetActorLocation() + GetActorForwardVector() * 200.f,
+	FQuat::Identity,
+	ECC_PLAYER_ONLY,
+	FCollisionShape::MakeBox(FVector(100.f, 100.f, 100.f)),
+	Params);
+	// DrawDebugBox(GetWorld(), GetActorLocation() + GetActorForwardVector() * 200.f, FVector(100.f, 100.f, 100.f), FColor::Blue, false, 0.3f);
+	if(bResult)
+	{
+		AKWLocationDetector* PlayerLocation = Cast<AKWLocationDetector>(HitResult.GetActor());
+		if(PlayerLocation)
 		{
-			AKWLocationDetector* PlayerLocation = Cast<AKWLocationDetector>(HitResult.GetActor());
-			if(PlayerLocation)
+			AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerLocation->GetTargetCharacter());
+			if(PlayerCharacter)
 			{
-				AKWPlayerCharacter* PlayerCharacter = Cast<AKWPlayerCharacter>(PlayerLocation->GetTargetCharacter());
-				if(PlayerCharacter)
-				{
-					OnAttackFinished.ExecuteIfBound();
-					PlayerTarget = nullptr;
-					bIsDamageCaused = true;
+				OnAttackFinished.ExecuteIfBound();
+				PlayerTarget = nullptr;
+				bIsDamageCaused = true;
 					
-					FDamageEvent DamageEvent;
-					PlayerCharacter->TakeDamage(RushPower, DamageEvent, nullptr, this);
+				FDamageEvent DamageEvent;
+				PlayerCharacter->TakeDamage(RushPower, DamageEvent, nullptr, this);
 					
-					// FVector PlayerDirection = PlayerLocation->GetActorLocation() - GetActorLocation();
-					// TODO: 매직넘버 수정하기
-					// ReBoundVector = PlayerDirection * 10.f;
-					// ReBoundVector.Z = 3000.f;
-					// PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
+				// FVector PlayerDirection = PlayerLocation->GetActorLocation() - GetActorLocation();
+				// TODO: 매직넘버 수정하기
+				// ReBoundVector = PlayerDirection * 10.f;
+				// ReBoundVector.Z = 3000.f;
+				// PlayerCharacter->RB_ApplyReBoundByObjectType(ReBoundVector, EReBoundObjectType::Enemy);
 					
-					GetWorldTimerManager().ClearTimer(RushTimerHandle);
-					FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
-					return;
-				}
+				GetWorldTimerManager().ClearTimer(RushTimerHandle);
+				FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
+				return;
 			}
 		}
-		if (FVector::Dist(GetActorLocation(), OriPos) >= AttackRange)
-		{
-			OnAttackFinished.ExecuteIfBound();
-			MonsterState = EState::E_ATTACK_END;
-			PlayerTarget = nullptr;
-			bIsDamageCaused = false;
-			GetWorldTimerManager().ClearTimer(RushTimerHandle);
-			FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
-		}
 	}
+	
+	if (FVector::Dist(GetActorLocation(), OriPos) >= AttackRange)
+    {
+    	OnAttackFinished.ExecuteIfBound();
+    	MonsterState = EState::E_ATTACK_END;
+    	PlayerTarget = nullptr;
+    	bIsDamageCaused = false;
+    	GetWorldTimerManager().ClearTimer(RushTimerHandle);
+    	FPPTimerHelper::InvalidateTimerHandle(RushTimerHandle);
+    }
 	GetWorldTimerManager().SetTimerForNextTick(this, &ACrowTalon::AttackEndCheck);
 }
 
