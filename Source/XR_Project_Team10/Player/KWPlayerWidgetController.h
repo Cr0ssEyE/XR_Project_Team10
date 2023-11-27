@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Constant/KWLevelName.h"
 #include "XR_Project_Team10/UI/KWFadeWidget.h"
 #include "XR_Project_Team10/UI/KWPauseWidget.h"
 #include "XR_Project_Team10/UI/KWPlayerGearWidget.h"
@@ -36,7 +37,7 @@ public:
 	void StartFadeOut();
 	
 private:
-	FORCEINLINE void LoadCurrentLevel(bool Value) { UGameplayStatics::OpenLevel(GetWorld(), GetWorld()->OriginalWorldName); }
+	FORCEINLINE void LoadCurrentLevel(bool Value) { UGameplayStatics::OpenLevel(GetWorld(), PLAY_LEVEL); }
 	
 private:
 	UPROPERTY()

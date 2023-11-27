@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Sound/SoundClass.h"
 #include "Components/ProgressBar.h"
+#include "XR_Project_Team10/Game/KWGameInstance.h"
 #include "XR_Project_Team10/Util/KWSaveSettingOption.h"
 #include "KWSettingWidget.generated.h"
 
@@ -24,16 +25,16 @@ public:
 	
 protected:
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ApplyMasterSliderValue(const float Value) { MasterVolumeProgressBar->SetPercent(MasterSoundClass->Properties.Volume = Value); }
+	FORCEINLINE void ApplyMasterSliderValue(const float Value) { MasterSoundClass->Properties.Volume = Value; MasterVolumeProgressBar->SetPercent(Value); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ApplyBGMSliderValue(const float Value) { BGMVolumeProgressBar->SetPercent(BGMSoundClass->Properties.Volume = Value); }
+	FORCEINLINE void ApplyBGMSliderValue(const float Value) { BGMSoundClass->Properties.Volume = Value; BGMVolumeProgressBar->SetPercent(Value); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ApplySFXSliderValue(const float Value) { SFXVolumeProgressBar->SetPercent(SFXSoundClass->Properties.Volume = Value); }
+	FORCEINLINE void ApplySFXSliderValue(const float Value) { SFXSoundClass->Properties.Volume = Value; SFXVolumeProgressBar->SetPercent(Value); }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void CloseSettingWidget() { SetRenderScale(FVector2d::Zero()); }
+	FORCEINLINE void CloseSettingWidget() { SaveSettingData(GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetSaveSettingOption()); SetRenderScale(FVector2d::Zero()); }
 	
 	UFUNCTION(BlueprintCallable)
 	void ApplyResolutionType(FString ResolutionName, ESelectInfo::Type Info);

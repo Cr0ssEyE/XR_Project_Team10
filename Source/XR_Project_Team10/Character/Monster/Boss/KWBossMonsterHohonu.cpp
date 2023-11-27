@@ -383,11 +383,11 @@ void AKWBossMonsterHohonu::OmenPattern_SL()
 	
 	if(bIsSweepLeftToRight)
 	{
-		HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() - FRotator(0.f, SL_Degree / 2, 0.f));
+		HohonuLaserSweepEffect->SetRelativeRotation(HohonuLaserSweepEffect->GetComponentRotation() - FRotator(0.f, SL_Degree / 2, 0.f));
 	}
 	else
 	{
-		HohonuLaserSweepEffect->SetWorldRotation(HohonuLaserSweepEffect->GetComponentRotation() + FRotator(0.f, SL_Degree / 2, 0.f));
+		HohonuLaserSweepEffect->SetRelativeRotation(HohonuLaserSweepEffect->GetComponentRotation() + FRotator(0.f, SL_Degree / 2, 0.f));
 	}
 	SL_ElapsedTime = 0;
 	GetWorldTimerManager().SetTimerForNextTick(this, &AKWBossMonsterHohonu::ExecutePattern_SL);
@@ -446,7 +446,7 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 	bool bGroundResult = GetWorld()->LineTraceSingleByProfile(
 	HitResult,
 	HohonuLaserSweepEffect->GetRelativeLocation(),
-	HohonuLaserSweepEffect->GetRelativeLocation() + HohonuLaserSweepEffect->GetUpVector() * 1000,
+	HohonuLaserSweepEffect->GetRelativeLocation() + HohonuLaserSweepEffect->GetUpVector() * 10000,
 	CP_STATIC_ONLY,
 	Param);
 	//DrawDebugBox(GetWorld(), HohonuLaserSweepEffect->GetRelativeLocation() + HohonuLaserSweepEffect->GetUpVector() * 500, FVector3d::One() * 30, FColor::Blue, false, 0.3f);
@@ -454,6 +454,11 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 	{
 		HohonuLaserBurnEffect->SetWorldLocation(FVector(EndLocation.X, EndLocation.Y, HitResult.Location.Z + 10.f));
 	}
+	else
+	{
+		HohonuLaserBurnEffect->SetWorldLocation(FVector(EndLocation.X, EndLocation.Y, HitCheckBoxComponent->GetComponentLocation().Z - HitCheckBoxComponent->GetScaledBoxExtent().Z));
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Ground: %f, %f"), EndLocation.X, EndLocation.Y));
 	
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams Params(NAME_None, false, this);
@@ -513,11 +518,15 @@ void AKWBossMonsterHohonu::ExecutePattern_SL()
 	
 	if(bIsSweepLeftToRight)
 	{
-		HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation + FRotator(0.f, RotateValue, 0.f));
+		// HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation + FRotator(0.f, RotateValue, 0.f));
+		HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation - FRotator(0.f, SL_Degree / 2, 0.f));
+		HohonuLaserSweepEffect->AddRelativeRotation(FRotator(0.f, RotateValue, 0.f));
 	}
 	else
 	{
-		HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation - FRotator(0.f, RotateValue, 0.f));
+		// HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation - FRotator(0.f, RotateValue, 0.f));
+		HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation - FRotator(0.f, SL_Degree / 2, 0.f));
+		HohonuLaserSweepEffect->AddRelativeRotation(FRotator(0.f, -RotateValue, 0.f));
 	}
 	if(bIsDebugEnable)
 	{
@@ -696,20 +705,23 @@ void AKWBossMonsterHohonu::ExecutePattern_WW()
 		}
 	}
 	
-	FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-	AddActorLocalRotation(FRotator(0.f, WW_RotateSpeed * 0.01f, 0.f));
+	if(TargetPlayer)
+	{
+		FVector MoveDirection = (TargetPlayer->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+		AddActorLocalRotation(FRotator(0.f, WW_RotateSpeed * 0.01f, 0.f));
 
-	// TODO: 매직 넘버 수정
-	if(FVector::DistXY(GetActorLocation(), TargetPlayer->GetActorLocation()) > 500.f)
-	{
-		AddMovementInput(MoveDirection);
-	}
-	if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
-	{
-		GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeedPerSecond * FPPTimerHelper::GetActualDeltaTime(WW_TimerHandle);
-		if(GetCharacterMovement()->MaxWalkSpeed > WW_MaxMoveSpeed)
+		// TODO: 매직 넘버 수정
+		if(FVector::DistXY(GetActorLocation(), TargetPlayer->GetActorLocation()) > 500.f)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = WW_MaxMoveSpeed;
+			AddMovementInput(MoveDirection);
+		}
+		if(GetCharacterMovement()->MaxWalkSpeed < WW_MaxMoveSpeed)
+		{
+			GetCharacterMovement()->MaxWalkSpeed += WW_IncreaseMoveSpeedPerSecond * FPPTimerHelper::GetActualDeltaTime(WW_TimerHandle);
+			if(GetCharacterMovement()->MaxWalkSpeed > WW_MaxMoveSpeed)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = WW_MaxMoveSpeed;
+			}
 		}
 	}
 	
@@ -747,3 +759,4 @@ void AKWBossMonsterHohonu::ExecutePattern_ML()
 {
 	
 }
+	

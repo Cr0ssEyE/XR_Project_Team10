@@ -465,6 +465,11 @@ void AKWPlayerCharacter::MoveAction(const FInputActionValue& Value)
 	}
 	else
 	{
+		if(!KiwiModeNiagaraComponent->IsActive())
+		{
+			KiwiModeNiagaraComponent->SetAsset(CharacterData->WalkingNiagaraSystem);
+			KiwiModeNiagaraComponent->Activate();
+		}
 		GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
 		AddMovementInput(MoveDirection, 1.f);
 	}
@@ -694,6 +699,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		PlayerComponent->SetWorldScale3D(FVector::OneVector);
 		PlayerComponent->SetWorldLocation(RootMesh->GetComponentToWorld().GetLocation());
 
+		RollingModeNiagaraComponent->SetAsset(nullptr);
 		RollingModeNiagaraComponent->Deactivate();
 		CurrentGearState = EGearState::KiwiMode;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 걷기 상태로 전환")));
@@ -712,6 +718,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		PlayerComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerComponent->SetWorldScale3D(FVector::ZeroVector);
 
+		KiwiModeNiagaraComponent->SetAsset(nullptr);
 		KiwiModeNiagaraComponent->Deactivate();
 		CurrentGearState = EGearState::GearOne;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 구르기 상태로 전환")));

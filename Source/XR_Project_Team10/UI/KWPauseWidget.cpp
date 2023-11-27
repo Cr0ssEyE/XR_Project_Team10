@@ -4,6 +4,7 @@
 #include "XR_Project_Team10/UI/KWPauseWidget.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "XR_Project_Team10/Constant/KWLevelName.h"
 #include "XR_Project_Team10/Player/KWPlayerController.h"
 
 void UKWPauseWidget::NativeConstruct()
@@ -65,12 +66,12 @@ void UKWPauseWidget::FadeSequence()
 		switch (SubWidget)
 		{
 		case ESubWidgetType::ReStart:
-			UGameplayStatics::OpenLevel(this, GetWorld()->OriginalWorldName);
+			UGameplayStatics::OpenLevel(this, PLAY_LEVEL);
 			break;
 			
 			// TODO: 로비 레벨 만들어서 연결하기
 		case ESubWidgetType::Exit:
-			UGameplayStatics::OpenLevel(this, GetWorld()->OriginalWorldName);
+			UGameplayStatics::OpenLevel(this, LOBBY_LEVEL);
 			break;
 		default:
 			checkNoEntry();
