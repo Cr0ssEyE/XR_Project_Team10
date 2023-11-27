@@ -12,6 +12,8 @@ void UKWLobbyWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->ClearSavePoint();
+	
 	GameStartBtn->OnClicked.AddDynamic(this, &UKWLobbyWidget::GameStartBtnEvent);
 	SettingBtn->OnClicked.AddDynamic(this, &UKWLobbyWidget::SettingBtnEvent);
 	ExitGameBtn->OnClicked.AddDynamic(this, &UKWLobbyWidget::ExitGameBtnEvent);
