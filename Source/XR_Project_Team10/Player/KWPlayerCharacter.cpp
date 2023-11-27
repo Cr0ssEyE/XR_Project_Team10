@@ -74,7 +74,6 @@ AKWPlayerCharacter::AKWPlayerCharacter()
 	KiwiModeNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("KiwiNiagaraComponent"));
 	KiwiModeNiagaraComponent->SetupAttachment(GetMesh());
 	RollingModeNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("RollingNiagaraComponent"));
-	RollingModeNiagaraComponent->SetupAttachment(RollingMeshComponent);
 	AttackEffectNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("AttackNiagaraComponent"));
 	AttackEffectNiagaraComponent->SetupAttachment(RollingMeshComponent);
 	EventNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("EventNiagaraComponent"));
@@ -278,6 +277,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		PlayerTrueLocation->SetActorLocation(GetActorLocation());
 	}
 
+	RollingModeNiagaraComponent->SetWorldLocation(PlayerTrueLocation->GetActorLocation());
 	EventNiagaraComponent->SetWorldLocation(PlayerTrueLocation->GetActorLocation());
 	PlayerWidgetController->UpdateGearWidget(CurrentGearState);
 	
