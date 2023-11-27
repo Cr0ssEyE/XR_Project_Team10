@@ -88,9 +88,6 @@ protected:
 	TObjectPtr<class USoundClass> SFXSoundClass;
 
 	UPROPERTY()
-	TMap<FString, EResolutionTypes> ResolutionEnumMap;
-	
-	UPROPERTY()
 	EResolutionTypes ResolutionTypes;
 
 	UPROPERTY()

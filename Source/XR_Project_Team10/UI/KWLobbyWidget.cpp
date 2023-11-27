@@ -73,6 +73,7 @@ void UKWLobbyWidget::FirstEnterBtnEvent()
 	FirstEnterBtn->SetIsEnabled(false);
 	FirstEnterBtn->SetRenderScale(FVector2d::Zero());
 	LobbyUIPanel->SetRenderScale(FVector2d::One());
+	
 	ShowLobbyUISequence();
 }
 

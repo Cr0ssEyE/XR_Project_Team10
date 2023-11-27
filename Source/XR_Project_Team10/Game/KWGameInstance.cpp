@@ -9,7 +9,7 @@
 UKWGameInstance::UKWGameInstance()
 {
 	SaveSettingOption = CastChecked<UKWSaveSettingOption>(UGameplayStatics::CreateSaveGameObject(UKWSaveSettingOption::StaticClass()));
-	TObjectPtr<UKWSaveSettingOption> SavedOption= Cast<UKWSaveSettingOption>(UGameplayStatics::LoadGameFromSlot(SaveSettingOption->SaveFileName, 0));
+	TObjectPtr<UKWSaveSettingOption> SavedOption = Cast<UKWSaveSettingOption>(UGameplayStatics::LoadGameFromSlot(SaveSettingOption->SaveFileName, 0));
 	if(SavedOption)
 	{
 		SaveSettingOption = SavedOption;

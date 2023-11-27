@@ -9,6 +9,6 @@ UKWSaveSettingOption::UKWSaveSettingOption()
 	MasterSoundVolumeSliderValue = 0.5f;
 	BGMSoundVolumeSliderValue = 0.5f;
 	SFXSoundVolumeSliderValue = 0.5f;
-	ResolutionType = EResolutionTypes::HDP;
+	ResolutionType = EResolutionTypes::FHD;
 	bIsFullScreenActivate = false;
 }
