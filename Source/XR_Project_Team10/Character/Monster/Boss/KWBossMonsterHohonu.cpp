@@ -67,7 +67,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 	UKWBossAnimDataAsset* BossAnimData = Cast<UKWBossAnimDataAsset>(BossMonsterAnimData);
 	if(BossAnimData)
 	{
-		GetMesh()->SetAnimInstanceClass(BossAnimData->BossAnimBlueprint->GetAnimBlueprintGeneratedClass());
+		GetMesh()->SetAnimInstanceClass(FPPConstructorHelper::FindAndGetClass<UKWBossHohonuAnimInstance>(TEXT("/Script/Engine.AnimBlueprint'/Game/1-Graphic-Resource/Monster/Boss/Animation/ABP_Boss_Hohonu.ABP_Boss_Hohonu_C'"), EAssertionLevel::Check));
 		BossAnimMontage = BossAnimData->BossAnimMontage;
 	}
 }
