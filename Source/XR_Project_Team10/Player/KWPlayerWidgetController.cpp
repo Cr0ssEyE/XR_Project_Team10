@@ -2,6 +2,8 @@
 
 
 #include "XR_Project_Team10/Player/KWPlayerWidgetController.h"
+
+#include "XR_Project_Team10/Game/KWGameInstance.h"
 #include "XR_Project_Team10/Util/PPConstructorHelper.h"
 
 // Sets default values for this component's properties
@@ -22,6 +24,11 @@ UKWPlayerWidgetController::UKWPlayerWidgetController()
 	
 	PlayerGearWidget = CreateDefaultSubobject<UKWPlayerGearWidget>(TEXT("PlayerGearWidget"));
 	PlayerGearWidgetClass = FPPConstructorHelper::FindAndGetClass<UKWPlayerGearWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_PlayerGearWidget.WB_PlayerGearWidget_C'"), EAssertionLevel::Check);
+
+	SettingWidget = CreateDefaultSubobject<UKWSettingWidget>(TEXT("SettingWidget"));
+	SettingWidgetClass =  FPPConstructorHelper::FindAndGetClass<UKWSettingWidget>(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Rolling-Kiwi/Blueprint/UI/WB_SettingWidget.WB_SettingWidget_C'"), EAssertionLevel::Check);
+	
+	bIsVisible = true;
 }
 
 
@@ -36,7 +43,6 @@ void UKWPlayerWidgetController::BeginPlay()
 		PauseWidget = CastChecked<UKWPauseWidget>(CreateWidget(GetWorld(), PauseWidgetClass));
 		if(PauseWidget)
 		{
-			PauseWidget->AddToViewport();
 			PauseWidget->SetVisibility(ESlateVisibility::Hidden);
 			PauseWidget->SetIsEnabled(false);
 		}
@@ -47,7 +53,6 @@ void UKWPlayerWidgetController::BeginPlay()
 		ScreenFadeWidget = CastChecked<UKWFadeWidget>(CreateWidget(GetWorld(), ScreenFadeWidgetClass));
 		if(ScreenFadeWidget)
 		{
-			ScreenFadeWidget->AddToViewport();
 			ScreenFadeWidget->SetVisibility(ESlateVisibility::Hidden);
 			ScreenFadeWidget->SetIsEnabled(false);
 			ScreenFadeWidget->FadeOutSequenceEndDelegate.AddUObject(this, &UKWPlayerWidgetController::LoadCurrentLevel);
@@ -57,21 +62,32 @@ void UKWPlayerWidgetController::BeginPlay()
 	if(IsValid(PlayerHealthWidgetClass))
 	{
 		PlayerHealthWidget = CastChecked<UKWPlayerHealthWidget>(CreateWidget(GetWorld(), PlayerHealthWidgetClass));
-		if(PlayerHealthWidget)
-		{
-			PlayerHealthWidget->AddToViewport();
-		}
 	}
 	
 	if(IsValid(PlayerGearWidgetClass))
 	{
 		PlayerGearWidget = CastChecked<UKWPlayerGearWidget>(CreateWidget(GetWorld(), PlayerGearWidgetClass));
-		if(PlayerGearWidget)
-		{
-			PlayerGearWidget->AddToViewport();
-		}
 	}
 
+	if(IsValid(SettingWidgetClass))
+	{
+		SettingWidget = CastChecked<UKWSettingWidget>(CreateWidget(GetWorld(), SettingWidgetClass));
+		if(SettingWidget)
+		{
+			SettingWidget->SetVisibility(ESlateVisibility::Hidden);
+			SettingWidget->SetIsEnabled(false);
+		}
+	}
+	SettingWidget->AddToViewport();
+	SettingWidget->LoadSettingData(GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetSaveSettingOption());
+	
+	if(!GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetMainLevelFirstEnterCheck())
+	{
+		PlayerHealthWidget->AddToViewport();
+		PlayerGearWidget->AddToViewport();
+		ScreenFadeWidget->AddToViewport();
+		PauseWidget->AddToViewport();
+	}
 	PauseWidget->ResumeGameDelegate.AddUObject(this, &UKWPlayerWidgetController::TogglePauseWidget);
 }
 
@@ -127,5 +143,24 @@ void UKWPlayerWidgetController::StartFadeOut()
 	ScreenFadeWidget->SetVisibility(ESlateVisibility::Visible);
 	ScreenFadeWidget->SetIsEnabled(true);
 	ScreenFadeWidget->StartFadeOut();
+}
+
+void UKWPlayerWidgetController::ToggleAllWidgetVisibility()
+{
+	if(bIsVisible)
+	{
+		PlayerHealthWidget->RemoveFromParent();
+		PlayerGearWidget->RemoveFromParent();
+		ScreenFadeWidget->RemoveFromParent();
+		PauseWidget->RemoveFromParent();
+	}
+	else
+	{
+		PlayerHealthWidget->AddToViewport();
+		PlayerGearWidget->AddToViewport();
+		ScreenFadeWidget->AddToViewport();
+		PauseWidget->AddToViewport();
+	}
+	bIsVisible = !bIsVisible;
 }
 

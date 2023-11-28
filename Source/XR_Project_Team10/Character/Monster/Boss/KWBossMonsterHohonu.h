@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AIController.h"
 #include "KWBossHohonuAnimInstance.h"
 
 #include "NiagaraSystem.h"
@@ -14,10 +15,12 @@
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "KWBossMonsterHohonu.generated.h"
 
+class AKWHohonuAIController;
+
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class XR_PROJECT_TEAM10_API AKWBossMonsterHohonu : public AKWBossMonsterBase
 {
 	GENERATED_BODY()
@@ -47,6 +50,7 @@ public:
 	FORCEINLINE void SetTarget(AActor& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
+	
 	void EnableHealthUI();
 	
 	UFUNCTION()
@@ -57,6 +61,9 @@ public:
 	
 	UFUNCTION()
 	void FinishAIPatternNode(UAnimMontage* Montage, bool IsInterrupted);
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateAI();
 	
 	/**
 	* 호호누 패턴 구현 함수 \n

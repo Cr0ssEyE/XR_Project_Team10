@@ -13,11 +13,6 @@ void UKWBossHealthWidget::NativeConstruct()
 	BossMonster = CastChecked<AKWBossMonsterHohonu>(UGameplayStatics::GetActorOfClass(GetWorld(), AKWBossMonsterHohonu::StaticClass()));
 	MaxHealth = BossMonster->GetHp();
 	CurrentHealth = MaxHealth;
-	OriginImageSize = ClearImage->GetRenderTransform().Scale;
-	ClearImage->SetRenderScale(FVector2D(0.f, 0.f));
-	OriginBtnSize = ReStartBtn->GetRenderTransform().Scale;
-	ReStartBtn->SetRenderScale(FVector2D(0.f, 0.f));
-	ReStartBtn->OnClicked.AddDynamic(this, &UKWBossHealthWidget::ResetGame);
 }
 
 void UKWBossHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -32,7 +27,6 @@ void UKWBossHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 	HealthBar->SetPercent(HealthBarPercent);
 	if(CurrentHealth <= 0)
 	{
-		ClearImage->SetRenderScale(OriginImageSize);
-		ReStartBtn->SetRenderScale(OriginBtnSize);
+		
 	}
 }

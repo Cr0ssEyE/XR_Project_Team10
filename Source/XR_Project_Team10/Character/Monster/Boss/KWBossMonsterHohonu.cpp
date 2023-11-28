@@ -22,7 +22,7 @@ AKWBossMonsterHohonu::AKWBossMonsterHohonu()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AKWHohonuAIController::StaticClass();
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	// AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
 	BossMonsterStatusData = FPPConstructorHelper::FindAndGetObject<UDataAsset>(TEXT("/Script/XR_Project_Team10.KWBossHohonuDataAsset'/Game/Rolling-Kiwi/Datas/DataAssets/Hohonu_DataAsset.Hohonu_DataAsset'"));
 
@@ -91,9 +91,7 @@ void AKWBossMonsterHohonu::BeginPlay()
 	AKWHohonuAIController* AIController = Cast<AKWHohonuAIController>(GetController());
 	if(AIController)
 	{
-		// 인카운터 모션 나오면 적용 예정
-		// AIController->DeActivateAI();
-		// GetMesh()->GetAnimInstance()->Montage_JumpToSection(SECTION_ENCOUNTER, BossAnimMontage);
+		AIController->DeActivateAI();
 	}
 	bIsPatternRunning = false;
 }
@@ -336,6 +334,15 @@ void AKWBossMonsterHohonu::FinishAIPatternNode(UAnimMontage* Montage, bool IsInt
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("패턴 노드 종료")));
 	bIsPatternRunning = false;
 	CharacterPatternFinished.Broadcast();
+}
+
+void AKWBossMonsterHohonu::ActivateAI()
+{
+	AKWHohonuAIController* AIController = Cast<AKWHohonuAIController>(GetController());
+	if(AIController)
+	{
+		AIController->ActivateAI();
+	}
 }
 
 void AKWBossMonsterHohonu::OmenPattern_SC()

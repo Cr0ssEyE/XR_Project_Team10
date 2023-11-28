@@ -43,6 +43,10 @@ void ADarkWing::AttackOmen()
 void ADarkWing::Attack()
 {
 	Super::Attack();
+	if(GetMonsterHP() <= 0)
+	{
+		return;
+	}
 	float TurnSpeed = 5.f;
 	FVector LookVector = PlayerTarget->GetActorLocation() - GetActorLocation();
 	LookVector.Z = 0.0f;

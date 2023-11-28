@@ -33,6 +33,9 @@ void AKWPlayerFallingEventTrigger::NotifyActorBeginOverlap(AActor* OtherActor)
 	if(PlayerCharacterLocation)
 	{
 		PlayerCharacterLocation->GetTargetCharacter()->SetActorLocation(ReSpawnPosition->GetComponentLocation());
+		PlayerCharacterLocation->SetActorLocation(ReSpawnPosition->GetComponentLocation());
+		// PlayerCharacterLocation->GetTargetCharacter()->GetMesh()->SetWorldLocation(ReSpawnPosition->GetComponentLocation());
+		PlayerCharacterLocation->GetTargetCharacter()->GetCapsuleComponent()->SetWorldLocation(ReSpawnPosition->GetComponentLocation());
 	}
 }
 

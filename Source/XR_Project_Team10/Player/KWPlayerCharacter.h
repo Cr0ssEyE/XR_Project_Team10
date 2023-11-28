@@ -14,7 +14,7 @@
 #include "KWPlayerCharacter.generated.h"
 
 // 플레이어 캐릭터
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class XR_PROJECT_TEAM10_API AKWPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -32,6 +32,13 @@ public:
 	FORCEINLINE AActor* GetTruePlayerLocation() { return Cast<AActor>(PlayerTrueLocation); }
 	FORCEINLINE float GetHp() { return PlayerHp; }
 	FORCEINLINE void SetHp(float Value) { PlayerHp = Value; }
+
+	FORCEINLINE bool CheckRolling() { return bIsRolling; }
+	FORCEINLINE void ToggleTypeToRolling() { if(!bIsRolling) { ToggleCharacterType(); }; }
+	
+ 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UKWPlayerWidgetController* GetWidgetController() { return PlayerWidgetController; }
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -121,8 +128,8 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
-	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RootMesh; }
-
+	FORCEINLINE TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RootMesh; }
+	
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/

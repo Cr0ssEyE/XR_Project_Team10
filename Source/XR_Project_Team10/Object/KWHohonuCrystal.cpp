@@ -85,7 +85,7 @@ void AKWHohonuCrystal::Tick(float DeltaTime)
 	bool bResult = GetWorld()->LineTraceSingleByProfile(
 		HitResult,
 		GetActorLocation(),
-		GetActorLocation() - FVector(0.f, 0.f, -BossHohonuDataAsset->SC_SpawnHeight),
+		GetActorLocation() + FVector(0.f, 0.f, -BossHohonuDataAsset->SC_SpawnHeight * 2),
 		CP_STATIC_ONLY,
 		Params
 	);
@@ -93,7 +93,6 @@ void AKWHohonuCrystal::Tick(float DeltaTime)
 	if(bResult)
 	{
 		DropDownVFX->SetWorldLocation(HitResult.Location);
-		WaveVFX->SetWorldLocation(HitResult.Location);
 	}
 }
 
@@ -166,6 +165,7 @@ void AKWHohonuCrystal::ActivateAndDropDownSequence()
 	StaticMeshComponent->SetVisibility(true);
 	SummonVFX->Activate(true);
 	DropDownVFX->Activate(true);
+	WaveVFX->Deactivate();
 	GetWorldTimerManager().SetTimer(DropDownTimerHandle, this, &AKWHohonuCrystal::DropDownSequence, 0.01f, false, SC_DropDownDelay);
 }
 
@@ -214,9 +214,9 @@ void AKWHohonuCrystal::DropDownSequence()
 		}
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("지면 충돌")));
 		bIsPlaceInGround = true;
-		DropDownVFX->Activate(true);
 		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SC_CurrentAttackRange = 0;
+		
 		WaveVFX->Activate(true);
 		GetWorldTimerManager().SetTimer(WaveAttackHitCheckTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttack, 0.01f, true);
 		return;
@@ -246,6 +246,7 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 	ECC_PLAYER_ONLY,
 	FCollisionShape::MakeSphere(SC_CurrentAttackRange),
 	Params);
+	
 	if(bIsDebugEnable)
 	{
 		DrawDebugSphere(GetWorld(), GetActorLocation(), SC_CurrentAttackRange, 32, FColor::Yellow, false, 0.1f);
@@ -287,6 +288,7 @@ void AKWHohonuCrystal::ActivateWaveAttack()
 	if(SC_CurrentAttackRange >= SC_MaxAttackRange)
 	{
 		SC_CurrentAttackRange = 0;
+		WaveVFX->Deactivate();
 		GetWorldTimerManager().SetTimer(WaveAttackDelayTimerHandle, this, &AKWHohonuCrystal::ActivateWaveAttackTimer, SC_AttackDelay, false);
 	}
 }
