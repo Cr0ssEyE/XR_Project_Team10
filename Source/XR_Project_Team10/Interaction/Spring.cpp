@@ -6,9 +6,6 @@ ASpring::ASpring()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	EndTopPos = EndPosition;
-	EndTopPos.Z += ZValue;
-
 	SpringAnim = FPPConstructorHelper::FindAndGetObject<UAnimSequence>(TEXT("/Script/Engine.AnimSequence'/Game/1-Graphic-Resource/Props/WithGimmick/KnockBack_Spring/AS_Spring_Bounce'"));
 
 	BaseMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
@@ -16,8 +13,13 @@ ASpring::ASpring()
 	RootComponent = BaseMesh;
 	BaseMesh->SetWorldScale3D(FVector(5.f, 5.f, 5.f));
 	BaseMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-	
 
+	StartLocationComponent = CreateDefaultSubobject<USceneComponent>(TEXT("StartLocation"));
+	StartLocationComponent->SetupAttachment(BaseMesh);
+	
+	TargetLocationComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TargetLocation"));
+	TargetLocationComponent->SetupAttachment(BaseMesh);
+	
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
 	CollisionBox->SetupAttachment(BaseMesh);
 	CollisionBox->SetBoxExtent(FVector(20.f, 20.f, 10.f));
@@ -27,12 +29,15 @@ ASpring::ASpring()
 void ASpring::BeginPlay()
 {
 	Super::BeginPlay();
+	EndPosition = TargetLocationComponent->GetComponentLocation();
+	EndTopPos = EndPosition;
+	EndTopPos.Z += ZValue;
 }
 
 void ASpring::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	auto PlayableCharacter = Cast<AKWPlayerCharacter>(OtherActor);
-
+	/*
 	if (nullptr != PlayableCharacter 
 		&& !GetWorldTimerManager().IsTimerActive(MoveToTimerHandle)) {
 		ControlPoint = 0;
@@ -43,6 +48,17 @@ void ASpring::NotifyActorBeginOverlap(AActor* OtherActor)
 
 		BaseMesh->PlayAnimation(SpringAnim, false);
 		GetWorldTimerManager().SetTimer(MoveToTimerHandle, this, &ASpring::MoveToPoint, TimerTick, true);
+	}
+	*/
+	if(PlayableCharacter)
+	{
+		Player = PlayableCharacter;
+		if(!PlayableCharacter->CheckRolling())
+		{
+			PlayableCharacter->ToggleTypeToRolling();
+		}
+		BaseMesh->PlayAnimation(SpringAnim, false);
+		GetWorldTimerManager().SetTimerForNextTick(this, &ASpring::MoveToPoint);
 	}
 }
 
@@ -63,13 +79,15 @@ FVector ASpring::CurvePoints(float Control)
 
 void ASpring::MoveToPoint()
 {
-	if (ControlPoint >= 1) {
-		Player = nullptr;
-		GetWorldTimerManager().ClearTimer(MoveToTimerHandle);
+	ControlPoint += GetWorld()->DeltaTimeSeconds;
+	float Alpha = ControlPoint / Time;
+	if(Alpha >= 1)
+	{
+		Player->SetActorLocation(TargetLocationComponent->GetComponentLocation());
+		ControlPoint = 0;
 		return;
 	}
-
-	ControlPoint += TimerTick / Time;
-	Player->SetActorLocation(CurvePoints(ControlPoint));
+	Player->SetActorLocation(FMath::Lerp(StartLocationComponent->GetComponentLocation(), TargetLocationComponent->GetComponentLocation(), Alpha));
+	GetWorldTimerManager().SetTimerForNextTick(this, &ASpring::MoveToPoint);
 }
 

@@ -45,6 +45,12 @@ private:
 	TObjectPtr<USkeletalMeshComponent> BaseMesh;
 
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<USceneComponent> StartLocationComponent;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USceneComponent> TargetLocationComponent;
+	
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))

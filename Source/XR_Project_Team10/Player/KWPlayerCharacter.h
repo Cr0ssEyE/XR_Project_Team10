@@ -33,7 +33,10 @@ public:
 	FORCEINLINE float GetHp() { return PlayerHp; }
 	FORCEINLINE void SetHp(float Value) { PlayerHp = Value; }
 
-	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool CheckRolling() { return bIsRolling; }
+	FORCEINLINE void ToggleTypeToRolling() { if(!bIsRolling) { ToggleCharacterType(); }; }
+	
+ 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UKWPlayerWidgetController* GetWidgetController() { return PlayerWidgetController; }
 	
 protected:
@@ -125,8 +128,8 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
-	TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RootMesh; }
-
+	FORCEINLINE TObjectPtr<class UStaticMeshComponent> GetMeshComp() { return RootMesh; }
+	
 	/**
 	 *	유저 입력 관련 함수 리스트
 	 **/

@@ -11,6 +11,7 @@
 #include "XR_Project_Team10/UI/KWPlayerGearWidget.h"
 #include "XR_Project_Team10/UI/KWPlayerHealthWidget.h"
 #include "XR_Project_Team10/Enumeration/KWPlayerGearType.h"
+#include "XR_Project_Team10/UI/KWSettingWidget.h"
 #include "KWPlayerWidgetController.generated.h"
 
 
@@ -67,5 +68,11 @@ private:
 	UPROPERTY()
 	TObjectPtr<UKWPlayerGearWidget> PlayerGearWidget;
 
+	UPROPERTY()
+	TSubclassOf<UKWSettingWidget> SettingWidgetClass;
+	
+	UPROPERTY()
+	TObjectPtr<UKWSettingWidget> SettingWidget;
+	
 	uint8 bIsVisible : 1;
 };

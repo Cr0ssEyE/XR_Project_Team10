@@ -20,7 +20,7 @@ UKWGameInstance::UKWGameInstance()
 	SoundData = FPPConstructorHelper::FindAndGetObject<UKWSoundData>(TEXT("/Script/XR_Project_Team10.KWSoundData'/Game/Rolling-Kiwi/Datas/DataAssets/SoundData.SoundData'"), EAssertionLevel::Check);
 
 	bIsSavePointActivated = false;
-	bIsMainLevelFirstEnter = false;
+	bIsMainLevelFirstEnter = true;
 	bIsBossVisited = false;
 	SavePointsArrayNum = -1;
 }
