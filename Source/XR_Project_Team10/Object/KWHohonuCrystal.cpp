@@ -85,7 +85,7 @@ void AKWHohonuCrystal::Tick(float DeltaTime)
 	bool bResult = GetWorld()->LineTraceSingleByProfile(
 		HitResult,
 		GetActorLocation(),
-		GetActorLocation() - FVector(0.f, 0.f, -BossHohonuDataAsset->SC_SpawnHeight * 2),
+		GetActorLocation() + FVector(0.f, 0.f, -BossHohonuDataAsset->SC_SpawnHeight * 2),
 		CP_STATIC_ONLY,
 		Params
 	);
@@ -214,7 +214,6 @@ void AKWHohonuCrystal::DropDownSequence()
 		}
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("지면 충돌")));
 		bIsPlaceInGround = true;
-		DropDownVFX->Activate(true);
 		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SC_CurrentAttackRange = 0;
 		
