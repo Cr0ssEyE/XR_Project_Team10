@@ -28,6 +28,7 @@ public:
 	FORCEINLINE bool CheckSavePointActivate() const { return bIsSavePointActivated; }
 	FORCEINLINE int GetSavePointNum() const { return SavePointsArrayNum; }
 	FORCEINLINE void SetSavePoint(int Num) { bIsSavePointActivated = true; SavePointsArrayNum = Num; }
+	FORCEINLINE void ClearSavePoint() { bIsSavePointActivated = false; }
 	
 private:
 	// 인스턴스내에 환경설정 값을 저장시켜놓고 레벨을 옮길 때 레벨에서 인스턴스의 환경설정 값을 적용

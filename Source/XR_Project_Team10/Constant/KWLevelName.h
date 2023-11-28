@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 
-#define LOBBY_LEVEL TEXT("")
-#define INTRO_LEVEL TEXT("")
-#define PLAY_LEVEL TEXT("")
-#define ENDING_LEVEL TEXT("")
+#define LOBBY_LEVEL TEXT("LobbyLevel")
+#define INTRO_LEVEL TEXT("IntroLevel")
+#define PLAY_LEVEL TEXT("MainLevel")
+#define ENDING_LEVEL TEXT("EndingLevel")

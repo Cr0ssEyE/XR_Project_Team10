@@ -63,6 +63,9 @@ public:
 
 	// 기본 상태 관련 변수
 public:
+	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "걷기 이펙트")
+	TObjectPtr<UNiagaraSystem> WalkingNiagaraSystem;
+	
 	UPROPERTY(EditAnywhere, Category = Walking, DisplayName = "구르기 이펙트")
 	TObjectPtr<UNiagaraSystem> RollingNiagaraSystem;
 	

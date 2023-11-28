@@ -23,11 +23,7 @@ void UKWSettingWidget::NativeConstruct()
 	UseFullScreenBtn->OnClicked.AddDynamic(this, &UKWSettingWidget::ApplyFullScreen);
 	UseWindowBtn->OnClicked.AddDynamic(this, &UKWSettingWidget::ApplyWindowScreen);
 	CloseBtn->OnClicked.AddDynamic(this, &UKWSettingWidget::CloseSettingWidget);
-	
-	for (int i = 0; i <= static_cast<int>(EResolutionTypes::FHD); i++)
-	{
-		ResolutionEnumMap.Add(StaticEnum<EResolutionTypes>()->GetDisplayNameTextByIndex(i).ToString(), static_cast<EResolutionTypes>(i));
-	}
+
 	LoadSettingData(GetWorld()->GetGameInstanceChecked<UKWGameInstance>()->GetSaveSettingOption());
 }
 
@@ -53,7 +49,8 @@ void UKWSettingWidget::LoadSettingData(UKWSaveSettingOption* SettingOption)
 	SFXVolumeProgressBar->SetPercent(SFXSoundVolumeSlider->GetValue());
 	
 	ResolutionTypes = SettingOption->ResolutionType;
-	ResolutionComboBox->SetSelectedOption(*ResolutionEnumMap.FindKey(ResolutionTypes));
+	FString Resolution = StaticEnum<EResolutionTypes>()->GetDisplayNameTextByIndex(static_cast<int>(ResolutionTypes)).ToString();
+	ResolutionComboBox->SetSelectedOption(Resolution);
 	bIsFullScreenActivate = SettingOption->bIsFullScreenActivate;
 	
 	MasterSoundVolumeSlider->OnValueChanged.Broadcast(MasterSoundVolumeSlider->GetValue());
@@ -71,7 +68,8 @@ void UKWSettingWidget::ApplyResolutionType(FString ResolutionName, ESelectInfo::
 	{
 		return;
 	}
-	ResolutionTypes = ResolutionEnumMap[ResolutionName];
+
+	ResolutionTypes = static_cast<EResolutionTypes>(ResolutionComboBox->GetSelectedIndex());
 	switch (ResolutionTypes)
 	{
 	case EResolutionTypes::SD:

@@ -50,6 +50,10 @@
 		{
 			"Name": "PhysicsControl",
 			"Enabled": true
+		},
+		{
+			"Name": "ActorPalette",
+			"Enabled": true
 		}
 	]
 }
