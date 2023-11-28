@@ -34,11 +34,13 @@ private:
 
 private:
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UStaticMeshComponent> BaseMesh;
+	TObjectPtr<USkeletalMeshComponent> BaseMesh;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimSequence> JumpAnim;
 	
 	UPROPERTY(EditAnywhere, DisplayName = "점프 크기값")
 	float JumpForceValue;

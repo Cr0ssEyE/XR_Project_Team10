@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
+#include "Animation/AnimInstance.h"
 #include "XR_Project_Team10/Player/KWPlayerCharacter.h"
 #include "GameFramework/Actor.h"
 #include "Spring.generated.h"
@@ -41,10 +42,13 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UStaticMeshComponent> BaseMesh;
+	TObjectPtr<USkeletalMeshComponent> BaseMesh;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimSequence> SpringAnim;
 
 	UPROPERTY()
 	TObjectPtr<AKWPlayerCharacter> Player;
