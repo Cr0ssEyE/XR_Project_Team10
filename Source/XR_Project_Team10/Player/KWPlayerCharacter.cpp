@@ -651,7 +651,7 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 			bIsAttackOnGoing = false;
 		}
 		VelocityDecelerateTarget = FVector::ZeroVector;
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
 		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 	}
 		
@@ -663,7 +663,7 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 		}
 
 		VelocityDecelerateTarget = FVector::ZeroVector;
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
 		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 		if(!GetWorldTimerManager().IsTimerActive(RBD_FailedTimerHandle))
 		{
@@ -702,7 +702,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		RollingModeNiagaraComponent->SetAsset(nullptr);
 		RollingModeNiagaraComponent->Deactivate();
 		CurrentGearState = EGearState::KiwiMode;
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 걷기 상태로 전환")));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 걷기 상태로 전환")));
 		
 	}
 	else // 구르기 상태 전환
@@ -721,7 +721,7 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		KiwiModeNiagaraComponent->SetAsset(nullptr);
 		KiwiModeNiagaraComponent->Deactivate();
 		CurrentGearState = EGearState::GearOne;
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 구르기 상태로 전환")));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("현재 구르기 상태로 전환")));
 	}
 }
 
@@ -741,7 +741,7 @@ void AKWPlayerCharacter::RBD_JustTimingProceedAction()
 
 void AKWPlayerCharacter::DA_ProceedAction()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("일반 대시 시작")));
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("일반 대시 시작")));
 
 	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
 	{
@@ -968,7 +968,7 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 			RBD_SuccessEvent();
 			return;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("리바운드 패널티 적용")));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("리바운드 패널티 적용")));
 		DisableInput(Cast<APlayerController>(GetController()));
 		if(GetWorldTimerManager().IsTimerActive(CheckIdleStateTimerHandle))
 		{
@@ -983,7 +983,7 @@ void AKWPlayerCharacter::RB_CheckContactToFloor()
 
 void AKWPlayerCharacter::RBD_SuccessEvent()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("리바운드 대시 시작")));
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("리바운드 대시 시작")));
 	
 	// 리바운드 대쉬 실행
 	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
@@ -1061,7 +1061,7 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 	
 	if(bResult)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
 
 		if(!EventNiagaraComponent->IsActive())
 		{
@@ -1124,7 +1124,7 @@ void AKWPlayerCharacter::FD_HitCheckSequence()
 	
 	if(bResult)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("충돌 대상에게 데미지 적용")));
 		
 		FDamageEvent DamageEvent;
 		HitResult.GetActor()->TakeDamage(DropDownDamage, DamageEvent, GetController(), this);

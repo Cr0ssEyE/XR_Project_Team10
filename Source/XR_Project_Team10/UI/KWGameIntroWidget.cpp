@@ -17,8 +17,8 @@ void UKWGameIntroWidget::NativeConstruct()
 	CurrentScene = 0;
 	// CutSceneWidget->Atlas = SpineAtlasDataArray[0];
 	// CutSceneWidget->SkeletonData = SpineSkeletonDataArray[0];
-	// const FStringDataTable* PrologueString = CutSceneTextDataArray[0].GetRow<FStringDataTable>(CutSceneTextDataArray[0].RowName.ToString());
-	// CutSceneText->SetText(FText::FromName(PrologueString->Kor));
+	const FStringDataTable* PrologueString = CutSceneTextDataArray[0].GetRow<FStringDataTable>(CutSceneTextDataArray[0].RowName.ToString());
+	CutSceneText->SetText(FText::FromName(PrologueString->Kor));
 	ChangeTestImage->SetBrushFromTexture(TestImageArray[0]);
 
 	EnableUIBtn->SetRenderScale(FVector2d::Zero());
@@ -141,8 +141,8 @@ void UKWGameIntroWidget::SwapCutSceneAndText()
 	
 	// CutSceneWidget->Atlas = SpineAtlasDataArray[CurrentScene];
 	// CutSceneWidget->SkeletonData = SpineSkeletonDataArray[CurrentScene];
-	// const FStringDataTable* PrologueString = CutSceneTextDataArray[CurrentScene].GetRow<FStringDataTable>(CutSceneTextDataArray[CurrentScene].RowName.ToString());
-	// CutSceneText->SetText(FText::FromName(PrologueString->Kor));
+	const FStringDataTable* PrologueString = CutSceneTextDataArray[CurrentScene].GetRow<FStringDataTable>(CutSceneTextDataArray[CurrentScene].RowName.ToString());
+	CutSceneText->SetText(FText::FromName(PrologueString->Kor));
 	ChangeTestImage->SetBrushFromTexture(TestImageArray[CurrentScene]);
 }
 

@@ -38,6 +38,18 @@ public:
 	
  	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UKWPlayerWidgetController* GetWidgetController() { return PlayerWidgetController; }
+
+	UFUNCTION(BlueprintCallable)
+	UAudioComponent* GetMainAudioComponent() { return KiwiMainAudioComponent; }
+	
+	UFUNCTION(BlueprintCallable)
+	UAudioComponent* GetSubAudioComponent() { return KiwiSubAudioComponent; }
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAudioComponent> KiwiMainAudioComponent;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAudioComponent> KiwiSubAudioComponent;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -98,12 +110,6 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UNiagaraComponent> EventNiagaraComponent;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAudioComponent> KiwiMainAudioComponent;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAudioComponent> KiwiSubAudioComponent;
 	
 	UPROPERTY()
 	float PlayerHp;

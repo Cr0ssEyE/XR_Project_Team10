@@ -20,7 +20,7 @@ class AKWHohonuAIController;
 /**
  * 
  */
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, Blueprintable)
 class XR_PROJECT_TEAM10_API AKWBossMonsterHohonu : public AKWBossMonsterBase
 {
 	GENERATED_BODY()
@@ -29,6 +29,9 @@ public:
 	AKWBossMonsterHohonu();
 
 	FAICharacterPatternFinished CharacterPatternFinished;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<AActor> DeadSequencePlayerActor;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -46,12 +49,11 @@ public:
 
 	// BT 및 AI 컨트롤러 호출용 함수
 public:
-	FORCEINLINE float GetHp() const { return BossHp; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetHp() { return BossHp; }
 	FORCEINLINE void SetTarget(AActor& Actor) { TargetPlayer = Actor; }
 	FORCEINLINE void SetPattern(const EHohonuPattern Pattern) { CurrentPattern = Pattern; }
 	FORCEINLINE void StopPattern() { bIsPatternRunning = false; }
-	
-	void EnableHealthUI();
 	
 	UFUNCTION()
 	void ActivatePatternOmen(UAnimMontage* Montage);
@@ -234,4 +236,5 @@ private:
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UUserWidget> HealthWidget;
+	
 };

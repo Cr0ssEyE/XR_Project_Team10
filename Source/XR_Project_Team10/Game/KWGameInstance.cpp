@@ -15,7 +15,7 @@ UKWGameInstance::UKWGameInstance()
 		SaveSettingOption = SavedOption;
 	}
 	
-	// StringDataTable = FPPConstructorHelper::FindAndGetObject<UDataTable>(TEXT("/Script/Engine.DataTable'/Game/Rolling-Kiwi/DataTable/StringData.StringData'"), EAssertionLevel::Check);
+	StringDataTable = FPPConstructorHelper::FindAndGetObject<UDataTable>(TEXT("/Script/Engine.DataTable'/Game/Rolling-Kiwi/Datas/DataTable/CutSceneData.CutSceneData'"), EAssertionLevel::Check);
 
 	SoundData = FPPConstructorHelper::FindAndGetObject<UKWSoundData>(TEXT("/Script/XR_Project_Team10.KWSoundData'/Game/Rolling-Kiwi/Datas/DataAssets/SoundData.SoundData'"), EAssertionLevel::Check);
 
