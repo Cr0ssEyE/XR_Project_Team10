@@ -26,7 +26,9 @@ void ABoostPad::NotifyActorBeginOverlap(AActor* OtherActor)
 		UE_LOG(LogTemp, Log, TEXT("boost"));
 		auto CharacterMesh = PlayableCharacter->GetMeshComp();
 
-		CharacterMesh->SetPhysicsLinearVelocity(CharacterMesh->GetPhysicsLinearVelocity() * AccelarationValue);
+		FVector BoostVector = CharacterMesh->GetPhysicsLinearVelocity() * AccelarationValue;
+		BoostVector.Z = 0;
+		CharacterMesh->SetPhysicsLinearVelocity(BoostVector);
 	}
 }
 

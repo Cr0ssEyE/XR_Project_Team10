@@ -14,7 +14,7 @@
 #include "KWPlayerWidgetController.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), BlueprintType, Blueprintable)
 class XR_PROJECT_TEAM10_API UKWPlayerWidgetController : public UActorComponent
 {
 	GENERATED_BODY()
@@ -35,6 +35,9 @@ public:
 	void UpdateHealthWidget(bool FillHealth);
 	void UpdateGearWidget(EGearState GearState);
 	void StartFadeOut();
+	
+	UFUNCTION(BlueprintCallable)
+	void ToggleAllWidgetVisibility();
 	
 private:
 	FORCEINLINE void LoadCurrentLevel(bool Value) { UGameplayStatics::OpenLevel(GetWorld(), PLAY_LEVEL); }
@@ -63,5 +66,6 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UKWPlayerGearWidget> PlayerGearWidget;
-	
+
+	uint8 bIsVisible : 1;
 };
