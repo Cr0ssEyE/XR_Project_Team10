@@ -7,13 +7,17 @@ AJumpPad::AJumpPad()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	BaseMesh->SetStaticMesh(FPPConstructorHelper::FindAndGetObject<UStaticMesh>(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'")));
+	JumpAnim = FPPConstructorHelper::FindAndGetObject<UAnimSequence>(TEXT("/Script/Engine.AnimSequence'/Game/1-Graphic-Resource/Props/WithGimmick/Jump_Mushroom/Animation/AS_Mushroom_Bounce'"));
+
+	BaseMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+	BaseMesh->SetSkeletalMesh(FPPConstructorHelper::FindAndGetObject<USkeletalMesh>(TEXT("/Script/Engine.SkeletalMesh'/Game/1-Graphic-Resource/Props/WithGimmick/Jump_Mushroom/Animation/SKM_Mushroom'")));
 	RootComponent = BaseMesh;
+	BaseMesh->SetWorldScale3D(FVector(30.f, 30.f, 30.f));
+	BaseMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 	
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
 	CollisionBox->SetupAttachment(BaseMesh);
-	CollisionBox->SetBoxExtent(FVector(100.f, 100.f, 100.f));
+	CollisionBox->SetBoxExtent(FVector(2.f, 2.f, 3.f));
 	CollisionBox->SetCollisionProfileName(CP_GIMMICK);
 	bResetVelocity = false;
 	bIsPlayerIn = false;
@@ -63,6 +67,7 @@ void AJumpPad::ContactJump()
 
 		JumpVelocityVector += PlayerMeshComp->GetPhysicsLinearVelocity();
 		PlayerMeshComp->SetPhysicsLinearVelocity(JumpVelocityVector);
+		BaseMesh->PlayAnimation(JumpAnim, false);
 	}
 }
 
