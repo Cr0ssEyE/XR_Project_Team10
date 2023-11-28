@@ -14,13 +14,16 @@ class UButton;
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class XR_PROJECT_TEAM10_API UKWBossHealthWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetVisibleUI() { HealthBar->SetRenderOpacity(1); }
+	
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetBossMonster(AKWBossMonsterHohonu* Boss) { BossMonster = Boss; }
 	
 	UFUNCTION(BlueprintCallable)
@@ -34,12 +37,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
 	TObjectPtr<UProgressBar> HealthBar;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UImage> ClearImage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta=(BindWidget))
-	TObjectPtr<UButton> ReStartBtn;
-
 private:
 	UPROPERTY()
 	TObjectPtr<AKWBossMonsterHohonu> BossMonster;
@@ -49,10 +46,4 @@ private:
 
 	UPROPERTY()
 	float CurrentHealth;
-
-	UPROPERTY()
-	FVector2D OriginImageSize;
-
-	UPROPERTY()
-	FVector2D OriginBtnSize;
 };

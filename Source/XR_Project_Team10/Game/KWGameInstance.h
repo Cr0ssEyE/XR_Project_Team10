@@ -12,7 +12,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class XR_PROJECT_TEAM10_API UKWGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
@@ -27,8 +27,24 @@ public:
 
 	FORCEINLINE bool CheckSavePointActivate() const { return bIsSavePointActivated; }
 	FORCEINLINE int GetSavePointNum() const { return SavePointsArrayNum; }
+	
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetSavePoint(int Num) { bIsSavePointActivated = true; SavePointsArrayNum = Num; }
+
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void ClearSavePoint() { bIsSavePointActivated = false; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetMainLevelFirstEnterCheck(bool Value) { bIsMainLevelFirstEnter = Value; }
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool GetMainLevelFirstEnterCheck() { return bIsMainLevelFirstEnter; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetBossVisited(bool Value) { bIsBossVisited = Value; }
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool GetBossVisited() { return bIsBossVisited; }
 	
 private:
 	// 인스턴스내에 환경설정 값을 저장시켜놓고 레벨을 옮길 때 레벨에서 인스턴스의 환경설정 값을 적용
@@ -47,6 +63,12 @@ private:
 	UPROPERTY()
 	uint8 bIsSavePointActivated : 1;
 
+	UPROPERTY()
+	uint8 bIsMainLevelFirstEnter : 1;
+
+	UPROPERTY()
+	uint8 bIsBossVisited : 1;
+	
 	UPROPERTY()
 	int SavePointsArrayNum;
 	
