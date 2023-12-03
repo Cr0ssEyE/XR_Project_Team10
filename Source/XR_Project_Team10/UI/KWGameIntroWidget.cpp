@@ -28,6 +28,7 @@ void UKWGameIntroWidget::NativeConstruct()
 	AutoPlayElapsedSecond = 0;
 	bIsFadeSequenceOnGoing = false;
 	bIsInterfaceEnabled = true;
+	bIsFirstText = true;
 	FadeWidget->StartFadeIn();
 	CutSceneFadeInSequence();
 }
@@ -47,12 +48,19 @@ void UKWGameIntroWidget::ToggleUIEvent()
 void UKWGameIntroWidget::SkipCurrentSceneBtnEvent()
 {
 	SkipCurrentCutSceneBtn->SetIsEnabled(false);
-	if(CurrentScene < TestImageArray.Num())
+	if(CurrentScene <= TestImageArray.Num())
 	{
 		AutoPlayElapsedSecond = 0;
 		bIsFadeSequenceOnGoing = true;
 		ActivateSkipAlarm->SetRenderScale(FVector2d::Zero());
-		CutSceneFadeOutSequence();
+		if(bIsFirstText)
+		{
+			TextFadeOutSequence();
+		}
+		else
+		{
+			CutSceneFadeOutSequence();
+		}
 	}
 }
 
@@ -92,12 +100,47 @@ void UKWGameIntroWidget::CutSceneFadeOutSequence()
 		CutSceneText->SetRenderOpacity(0.f);
 		
 		SwapCutSceneAndText();
-		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::CutSceneFadeInSequence);
+		if(CurrentScene <= TestImageArray.Num())
+		{
+			GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::CutSceneFadeInSequence);
+		}
 		return;
 	}
 	CutSceneFadeImage->SetRenderOpacity(CutSceneFadeImage->GetRenderOpacity() + ImageFadeSpeed);
 	CutSceneText->SetRenderOpacity(CutSceneText->GetRenderOpacity() - ImageFadeSpeed);
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::CutSceneFadeOutSequence);
+}
+
+void UKWGameIntroWidget::TextFadeInSequence()
+{
+	if(CutSceneText->GetRenderOpacity() >= 1)
+	{
+		CutSceneText->SetRenderOpacity(1.f);
+		ActivateSkipAlarm->SetRenderScale(FVector2d::One());
+		
+		bIsFadeSequenceOnGoing = false;
+		SkipCurrentCutSceneBtn->SetIsEnabled(true);
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::UpdateAutoPlaySecond);
+		return;
+	}
+	
+	CutSceneText->SetRenderOpacity(CutSceneText->GetRenderOpacity() + ImageFadeSpeed);
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::TextFadeInSequence);
+}
+
+void UKWGameIntroWidget::TextFadeOutSequence()
+{
+	if(CutSceneText->GetRenderOpacity() <= 0)
+	{
+		CutSceneText->SetRenderOpacity(0.f);
+		
+		SwapCutSceneAndText();
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::TextFadeInSequence);
+		return;
+	}
+
+	CutSceneText->SetRenderOpacity(CutSceneText->GetRenderOpacity() - ImageFadeSpeed);
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UKWGameIntroWidget::TextFadeOutSequence);
 }
 
 void UKWGameIntroWidget::UpdateAutoPlaySecond()
@@ -129,6 +172,14 @@ void UKWGameIntroWidget::UpdateAutoPlaySecond()
 void UKWGameIntroWidget::SwapCutSceneAndText()
 {
 	CurrentScene++;
+	if(bIsFirstText)
+	{
+		const FStringDataTable* PrologueString = CutSceneTextDataArray[CurrentScene].GetRow<FStringDataTable>(CutSceneTextDataArray[CurrentScene].RowName.ToString());
+		CutSceneText->SetText(FText::FromName(PrologueString->Kor));
+		bIsFirstText = false;
+		return;
+	}
+	
 	if(CurrentScene >= TestImageArray.Num())
 	{
 		bIsFadeSequenceOnGoing = true;
@@ -138,12 +189,11 @@ void UKWGameIntroWidget::SwapCutSceneAndText()
 		FadeWidget->StartFadeOut();
 		return;
 	}
-	
-	// CutSceneWidget->Atlas = SpineAtlasDataArray[CurrentScene];
-	// CutSceneWidget->SkeletonData = SpineSkeletonDataArray[CurrentScene];
+
 	const FStringDataTable* PrologueString = CutSceneTextDataArray[CurrentScene].GetRow<FStringDataTable>(CutSceneTextDataArray[CurrentScene].RowName.ToString());
 	CutSceneText->SetText(FText::FromName(PrologueString->Kor));
 	ChangeTestImage->SetBrushFromTexture(TestImageArray[CurrentScene]);
+	bIsFirstText = true;
 }
 
 void UKWGameIntroWidget::LoadMainLevel(bool Value)

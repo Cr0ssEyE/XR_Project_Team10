@@ -72,6 +72,10 @@ void UKWPlayerHealthWidget::PlayDecreaseHealthAnimation()
 		
 		GetWorld()->GetTimerManager().ClearTimer(HealthAnimationTimerHandle);
 	}
+	if(!PlayerCurrentHealth)
+	{
+		FocusedImage->SetRenderScale(FVector2d::Zero());
+	}
 }
 
 void UKWPlayerHealthWidget::AnimTestFunction()

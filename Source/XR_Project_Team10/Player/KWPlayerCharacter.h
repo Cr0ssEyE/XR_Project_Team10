@@ -33,6 +33,9 @@ public:
 	FORCEINLINE float GetHp() { return PlayerHp; }
 	FORCEINLINE void SetHp(float Value) { PlayerHp = Value; }
 
+	FORCEINLINE bool CheckIsAccelerated() { return bIsAccelerated; }
+	FORCEINLINE void SetAccelerate();
+
 	FORCEINLINE bool CheckRolling() { return bIsRolling; }
 	FORCEINLINE void ToggleTypeToRolling() { if(!bIsRolling) { ToggleCharacterType(); }; }
 	
@@ -313,6 +316,10 @@ private:
 	FTimerHandle CheckIdleStateTimerHandle;
 	
 	FTimerHandle CheckGearStateTimerHandle;
+
+	FTimerHandle AccelerateTimerHandle;
+	
+	FTimerHandle DamageDelayTimerHandle;
 	
 	EGearState CurrentGearState;
 
@@ -332,6 +339,9 @@ private:
 	UPROPERTY()
 	uint8 bIsFlying : 1;
 
+	UPROPERTY()
+	uint8 bIsAccelerated : 1;
+	
 	UPROPERTY()
 	uint8 bIsUsedFlyDash : 1;
 
@@ -402,6 +412,7 @@ private:
 	void AttackCoolDownTimer();
 	void DropDownCoolDownTimer();
 	void VelocityDecelerateTimer();
-	
+	void DamageDelayTimer();
+	void AccelerationTimer();
 };
 

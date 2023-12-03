@@ -226,11 +226,16 @@ float AKWPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	if(PlayerHp <= 0)
+	if(PlayerHp <= 0 || GetWorldTimerManager().IsTimerActive(DamageDelayTimerHandle))
 	{
 		return 0;
 	}
 
+	if(!GetWorldTimerManager().IsTimerActive(DamageDelayTimerHandle))
+	{
+		GetWorldTimerManager().SetTimer(DamageDelayTimerHandle, this, &AKWPlayerCharacter::DamageDelayTimer, 2.f, false);
+	}
+	
 	if(bIsRolling)
 	{
 		EventNiagaraComponent->SetRelativeLocation(RollingMeshComponent->GetRelativeLocation());
@@ -286,7 +291,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		return;
 	}
 
-	if(!bIsMoving && bIsRolling && !bIsAttackOnGoing && !GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle) && RootMesh->GetPhysicsLinearVelocity().Length() > 100.f)
+	if(!bIsMoving && bIsRolling && !bIsAttackOnGoing && !bIsAccelerated && !GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle) && RootMesh->GetPhysicsLinearVelocity().Length() > 100.f)
 	{
 		GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
 	}
@@ -323,7 +328,7 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	
 	FVector PlaneVelocityVector = RootMesh->GetPhysicsLinearVelocity();
 	PlaneVelocityVector.Z = 0.f;
-	if(PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2 && !bIsAttackOnGoing)
+	if(PlaneVelocityVector.Length() > SystemMaxVelocityValue * 2 && !bIsAttackOnGoing && !bIsAccelerated)
 	{
 		float LengthX = FMath::Clamp(PlaneVelocityVector.X, -SystemMaxVelocityValue, SystemMaxVelocityValue);
 		float LengthY = FMath::Clamp(PlaneVelocityVector.Y, -SystemMaxVelocityValue, SystemMaxVelocityValue);
@@ -619,7 +624,7 @@ void AKWPlayerCharacter::TogglePauseWidget()
 
 void AKWPlayerCharacter::VelocityDecelerateTimer()
 {
-	if(bIsReBounding || bIsKnockBackOnGoing)
+	if(bIsReBounding || bIsKnockBackOnGoing || bIsAccelerated)
 	{
 		return;
 	}
@@ -1140,6 +1145,23 @@ void AKWPlayerCharacter::AttackCoolDownTimer()
 
 void AKWPlayerCharacter::DropDownCoolDownTimer()
 {
+	// Do SomeThing
+}
+
+void AKWPlayerCharacter::DamageDelayTimer()
+{
+	// Do SomeThing
+}
+
+void AKWPlayerCharacter::SetAccelerate()
+{
+	bIsAccelerated = true;
+	GetWorldTimerManager().SetTimer(AccelerateTimerHandle, this, &AKWPlayerCharacter::AccelerationTimer, 0.5f, false);
+}
+
+void AKWPlayerCharacter::AccelerationTimer()
+{
+	bIsAccelerated = false;
 	// Do SomeThing
 }
 

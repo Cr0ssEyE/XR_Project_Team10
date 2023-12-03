@@ -34,6 +34,8 @@ protected:
 protected:
 	void CutSceneFadeInSequence();
 	void CutSceneFadeOutSequence();
+	void TextFadeInSequence();
+	void TextFadeOutSequence();
 	void UpdateAutoPlaySecond();
 	void SwapCutSceneAndText();
 	void LoadMainLevel(bool Value);
@@ -106,5 +108,8 @@ private:
 
 	UPROPERTY()
 	uint8 bIsFadeSequenceOnGoing : 1;
+
+	UPROPERTY()
+	uint8 bIsFirstText : 1;
 };
 

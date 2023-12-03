@@ -24,6 +24,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
-	UPROPERTY(EditAnywhere, DisplayName = "∞°º” ≈©±‚∞™")
+	UPROPERTY(EditAnywhere, DisplayName = "Í∞ÄÏÜç Î∞∞Ïú®")
 	float AccelarationValue = 5;
 };

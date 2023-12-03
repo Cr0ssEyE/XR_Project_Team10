@@ -15,6 +15,15 @@ void ARuneSpirit::BeginPlay()
 	Super::BeginPlay();
 }
 
+float ARuneSpirit::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	GetController()->Destroy();
+	CommonMonsterDead();
+	return 0;
+}
+
 void ARuneSpirit::AttackOmen()
 {
 	Super::AttackOmen();
