@@ -381,11 +381,6 @@ void AKWBossMonsterHohonu::OmenPattern_SL()
 		bIsSweepLeftToRight = true;
 	}
 	
-	AKWHohonuAIController* AIOwner = Cast<AKWHohonuAIController>(GetController());
-	if(AIOwner)
-	{
-		AIOwner->GetBlackboardComponent()->SetValueAsBool(KEY_HOHONU_SL_TURN, false);
-	}
 	HohonuLaserSweepEffect->SetRelativeRotation(SL_OriginRotation);
 	
 	if(bIsSweepLeftToRight)

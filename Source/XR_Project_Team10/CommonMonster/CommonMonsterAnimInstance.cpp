@@ -35,8 +35,6 @@ void UCommonMonsterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
-//Anim notify 확인 이후 monster state 변경, Attack 및 Attack end 실행
-
 void UCommonMonsterAnimInstance::AnimNotify_Attack()
 {
 	UE_LOG(LogTemp, Log, TEXT("Anim Attack Start"));

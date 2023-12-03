@@ -28,4 +28,8 @@ protected:
 
 	virtual void PlayDeadAnimation() override;
 	virtual void PlayHitAnimation() override;
+
+private:
+	UPROPERTY()
+	FVector ReBoundVector;
 };

@@ -84,6 +84,7 @@ void ASpring::MoveToPoint()
 	if(Alpha >= 1)
 	{
 		Player->SetActorLocation(TargetLocationComponent->GetComponentLocation());
+		Player->GetMeshComp()->SetPhysicsLinearVelocity(FVector::Zero());
 		ControlPoint = 0;
 		return;
 	}
