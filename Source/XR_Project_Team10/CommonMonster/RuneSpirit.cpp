@@ -24,7 +24,10 @@ float ARuneSpirit::TakeDamage(float DamageAmount, FDamageEvent const& DamageEven
 	AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	GetController()->Destroy();
+	if(GetController())
+	{
+		GetController()->Destroy();
+	}
 	CommonMonsterDead();
 	return 0;
 }

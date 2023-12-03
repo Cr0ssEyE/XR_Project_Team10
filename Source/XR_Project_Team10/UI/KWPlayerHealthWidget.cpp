@@ -100,7 +100,7 @@ void UKWPlayerHealthWidget::FillHealthState()
 {
 	for (int i = 0; i < VitalImages.Num(); i++)
 	{
-		if(i % 2 == 0)
+		if(i % 2 != 0)
 		{
 			VitalImages[i]->SetBrushFromTexture(TopVitalImages[0]);
 		}
@@ -111,4 +111,6 @@ void UKWPlayerHealthWidget::FillHealthState()
 		VitalImages[i]->SetRenderScale(FVector2d::One());
 	}
 	PlayerCurrentHealth = PlayerMaximumHealth;
+	FocusedImage = VitalImages[PlayerCurrentHealth - 1];
+	FocusImageType = EVitalImageType::Fill;
 }

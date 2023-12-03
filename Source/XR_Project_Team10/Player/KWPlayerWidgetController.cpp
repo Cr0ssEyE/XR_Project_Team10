@@ -152,14 +152,14 @@ void UKWPlayerWidgetController::ToggleAllWidgetVisibility()
 		PlayerHealthWidget->RemoveFromParent();
 		PlayerGearWidget->RemoveFromParent();
 		ScreenFadeWidget->RemoveFromParent();
-		PauseWidget->RemoveFromParent();
+		// PauseWidget->RemoveFromParent();
 	}
 	else
 	{
 		PlayerHealthWidget->AddToViewport();
 		PlayerGearWidget->AddToViewport();
 		ScreenFadeWidget->AddToViewport();
-		PauseWidget->AddToViewport();
+		// PauseWidget->AddToViewport();
 	}
 	bIsVisible = !bIsVisible;
 }

@@ -55,7 +55,7 @@ void AKWPlayerSavePoint::NotifyActorBeginOverlap(AActor* OtherActor)
 		if(PlayerCharacter)
 		{
 			//TODO: 체력 최대로 회복시켜주기
-			// PlayerCharacter->RecoverMaxHp();
+			PlayerCharacter->GetWidgetController()->UpdateHealthWidget(true);
 			RegisterSavePointDelegate.Broadcast(this);
 		}
 	}
