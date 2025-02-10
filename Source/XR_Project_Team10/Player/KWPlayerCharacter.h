@@ -226,8 +226,6 @@ private:
 	
 	FTimerHandle JustTimingTimerHandle;
 	
-	FTimerHandle VelocityDecelerationTimerHandle;
-	
 	UPROPERTY()
 	float RBD_JustTimingCheckTime;
 	
@@ -363,6 +361,9 @@ private:
 	UPROPERTY()
 	uint8 bIsAttackOnGoing : 1;
 
+	UPROPERTY()
+	uint8 bIsDecelerateOnGoing : 1;
+	
 	/** 리바운드 관련 함수 리스트\n
 	 * 캐릭터에서 너무 많은 기능을 수행해서는 안되므로 \n
 	 * 가급적이면 리바운드는 충돌하는 대상에서 각도, 충격량 등을 계산하고 \n
@@ -402,16 +403,16 @@ private:
 	UPROPERTY()
 	TArray<float> RB_MultiplyValuesByObjectType;
 
-	// 이펙트 관련 변수
-private:
-
 	// 타이머 델리게이트 등
 private:
 	void DA_HitCheckSequence();
 	void FD_HitCheckSequence();
 	void AttackCoolDownTimer();
 	void DropDownCoolDownTimer();
+	void BeginDeceleration();
 	void VelocityDecelerateTimer();
+	void EnhancedVelocityDecelerateSequence();
+	void OnDecelerationEnd(bool ResetVelocity = true);
 	void DamageDelayTimer();
 	void AccelerationTimer();
 };

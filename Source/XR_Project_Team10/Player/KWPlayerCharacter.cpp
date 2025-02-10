@@ -9,6 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "KWPlayerAnimInstance.h"
+#include "MovieSceneTracksComponentTypes.h"
 #include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -17,6 +18,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "XR_Project_Team10/Character/Monster/Boss/KWBossMonsterHohonu.h"
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/CommonMonster/RuneSpirit.h"
@@ -192,7 +194,7 @@ void AKWPlayerCharacter::BeginPlay()
 	SpringArm->SetRelativeLocation(PlayerComponent->GetRelativeLocation());
 	SpringArm->TargetArmLength =CharacterData->SpringArmLength;
 	SpringArm->SetRelativeRotation(FRotator(CharacterData->SpringArmAngle, 0.f,0.f));
-
+	SpringArm->AttachToComponent(PlayerTrueLocation->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	bIsEnableHitCheckDebugView = CharacterData->bIsEnableHitCheckDebugView;
 	bIsEnableGearDebugView = CharacterData->bIsEnableGearDebugView;
 	bIsEnableVelocityDebugView = CharacterData->bIsEnableVelocityDebugView;
@@ -217,6 +219,8 @@ void AKWPlayerCharacter::BeginPlay()
 	bIsAttackOnGoing = false;
 	bIsKnockBackOnGoing = false;
 
+	RollingModeNiagaraComponent->AttachToComponent(PlayerTrueLocation->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	EventNiagaraComponent->AttachToComponent(PlayerTrueLocation->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	KiwiModeNiagaraComponent->Deactivate();
 	RollingModeNiagaraComponent->Deactivate();
 	EventNiagaraComponent->Deactivate();
@@ -272,18 +276,14 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 	
 	if(!bIsRolling)
 	{
-		SpringArm->SetRelativeLocation(PlayerComponent->GetComponentToWorld().GetLocation());
 		PlayerTrueLocation->SetActorLocation(PlayerComponent->GetComponentToWorld().GetLocation());
 	}
 	else
 	{	
-		SpringArm->SetRelativeLocation(RootComponent->GetComponentToWorld().GetLocation());
 		RollingMeshComponent->SetWorldLocation(GetActorLocation() + FVector(0.f, 0.f, -0.f));
 		PlayerTrueLocation->SetActorLocation(GetActorLocation());
 	}
 
-	RollingModeNiagaraComponent->SetWorldLocation(PlayerTrueLocation->GetActorLocation());
-	EventNiagaraComponent->SetWorldLocation(PlayerTrueLocation->GetActorLocation());
 	PlayerWidgetController->UpdateGearWidget(CurrentGearState);
 	
 	if(!bIsRolling)
@@ -291,9 +291,9 @@ void AKWPlayerCharacter::Tick(float DeltaTime)
 		return;
 	}
 
-	if(!bIsMoving && bIsRolling && !bIsAttackOnGoing && !bIsAccelerated && !GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle) && RootMesh->GetPhysicsLinearVelocity().Length() > 100.f)
+	if(!bIsMoving && bIsRolling && !bIsAttackOnGoing && !bIsAccelerated && !bIsDecelerateOnGoing && RootMesh->GetPhysicsLinearVelocity().Length() > 100.f)
 	{
-		GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
+		BeginDeceleration();
 	}
 	
 	if(!GetWorldTimerManager().IsTimerActive(CheckGearStateTimerHandle))
@@ -486,12 +486,9 @@ void AKWPlayerCharacter::MoveActionCompleted(const FInputActionValue& Value)
 	if(bIsRolling)
 	{
 		CurrentGearState = EGearState::GearOne;
-		if(!bIsAttackOnGoing || !bIsFlying)
+		if(!bIsAttackOnGoing && !bIsFlying && !bIsDecelerateOnGoing)
 		{
-			if(!GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
-			{
-				GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
-			}
+			BeginDeceleration();
 		}
 	}
 	else
@@ -642,7 +639,7 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 	{
 		RootMesh->AddForce(RootMesh->GetPhysicsLinearVelocity().GetSafeNormal() * -10000);
 	}
-
+	
 	if(RootMesh->GetPhysicsLinearVelocity().Size2D() < 100.f)
 	{
 		FVector DecelerateVector = FVector(10.f, 10.f, 0.f) * RootMesh->GetPhysicsLinearVelocity().GetSafeNormal2D();
@@ -657,7 +654,6 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 		}
 		VelocityDecelerateTarget = FVector::ZeroVector;
 		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
-		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 	}
 		
 	if(!bIsRolling || (!bIsAttackOnGoing && bIsMoving) || abs(RootMesh->GetPhysicsLinearVelocity().Z) > 20.f)
@@ -669,12 +665,43 @@ void AKWPlayerCharacter::VelocityDecelerateTimer()
 
 		VelocityDecelerateTarget = FVector::ZeroVector;
 		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Decelerate End")));
-		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 		if(!GetWorldTimerManager().IsTimerActive(RBD_FailedTimerHandle))
 		{
 			GetWorldTimerManager().SetTimer(CheckIdleStateTimerHandle, this, &AKWPlayerCharacter::CheckIdleStateWhenRolling, 0.01f, true);
 		}
 	}
+}
+
+void AKWPlayerCharacter::	EnhancedVelocityDecelerateSequence()
+{
+	if (bIsAttackOnGoing || bIsMoving)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("Decelerate Canceled")));
+		OnDecelerationEnd(false);
+		return;
+	}
+	
+	if(bIsReBounding || bIsKnockBackOnGoing || bIsAccelerated)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("Decelerate Canceled(Reset Velocity)")));
+		OnDecelerationEnd();
+		return;
+	}
+	
+	VelocityDecelerateTime += GetWorld()->GetDeltaSeconds();
+	float Value = VelocityDecelerateTime / CharacterData->DecelerateTime;
+	
+	RootMesh->SetPhysicsLinearVelocity(UKismetMathLibrary::VEase(RootMesh->GetPhysicsLinearVelocity(), FVector::Zero(), Value, CharacterData->DecelerateEasingFunction));
+	
+	if (Value >= 1.f)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f, %f"), VelocityDecelerateTime, CharacterData->DecelerateTime));
+		OnDecelerationEnd();
+		return;
+	}
+
+	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("Decelerate For Next Tick")));
+	GetWorldTimerManager().SetTimerForNextTick(this, &AKWPlayerCharacter::EnhancedVelocityDecelerateSequence);
 }
 
 void AKWPlayerCharacter::ToggleCharacterType()
@@ -690,8 +717,6 @@ void AKWPlayerCharacter::ToggleCharacterType()
 		GetWorldTimerManager().ClearTimer(CheckIdleStateTimerHandle);
 		GetWorldTimerManager().ClearTimer(CheckGearStateTimerHandle);
 		GetWorldTimerManager().ClearTimer(DA_DurationTimerHandle);
-		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
 		
 		RootMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		RootMesh->SetRelativeRotation(FRotator::ZeroRotator);
@@ -748,11 +773,6 @@ void AKWPlayerCharacter::DA_ProceedAction()
 {
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("일반 대시 시작")));
 
-	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
-	{
-		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-	}
-	
 	bIsAttackOnGoing = true;
 	AttackInputGearState = CurrentGearState;
 	CurrentGearState = EGearState::GearThree;
@@ -848,46 +868,46 @@ void AKWPlayerCharacter::CheckGearState()
 		return;
 	}
 	
-	// 왜 직선 기어값 변경은 두번 체크해야 하는지 이유 불명
-	{	
-		if(abs(RootMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RootMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
+	if(abs(RootMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RootMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
+	{
+		switch (CurrentGearState)
 		{
-			switch (CurrentGearState)
-			{
-			case EGearState::GearOne:
-				CurrentGearState = EGearState::GearTwo;
-				break;
-			case EGearState::GearTwo:
-				// CurrentGearState = EGearState::GearThree;
-				break;
-			case EGearState::GearThree:
-				break;
-			case EGearState::GearFour:
-				break;
-			default:
-				checkNoEntry();
-			}
-		}
-		if(abs(RootMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RootMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
-		{
-			switch (CurrentGearState)
-			{
-			case EGearState::GearOne:
-				CurrentGearState = EGearState::GearTwo;
-				break;
-			case EGearState::GearTwo:
-				// CurrentGearState = EGearState::GearThree;
-				break;
-			case EGearState::GearThree:
-				break;
-			case EGearState::GearFour:
-				break;
-			default:
-				checkNoEntry();
-			}
-			CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+		case EGearState::GearOne:
+			CurrentGearState = EGearState::GearTwo;
+			break;
+		case EGearState::GearTwo:
+			// CurrentGearState = EGearState::GearThree;
+			break;
+		case EGearState::GearThree:
+			break;
+		case EGearState::GearFour:
+			break;
+		default:
+			checkNoEntry();
 		}
 	}
+
+	// 왜 직선 기어값 변경은 두번 체크해야 하는지 이유 불명
+	if(abs(RootMesh->GetPhysicsLinearVelocity().X) > UpperGearValue || abs(RootMesh->GetPhysicsLinearVelocity().Y) > UpperGearValue)
+	{
+		switch (CurrentGearState)
+		{
+		case EGearState::GearOne:
+			CurrentGearState = EGearState::GearTwo;
+			break;
+		case EGearState::GearTwo:
+			// CurrentGearState = EGearState::GearThree;
+			break;
+		case EGearState::GearThree:
+			break;
+		case EGearState::GearFour:
+			break;
+		default:
+			checkNoEntry();
+		}
+		CurrentMaxVelocityValue = DefaultMaxVelocityValue * MaxVelocityMagnificationByGear[static_cast<uint8>(CurrentGearState)];
+	}
+		
 	PlayerWidgetController->UpdateGearWidget(CurrentGearState);
 }
 
@@ -991,11 +1011,6 @@ void AKWPlayerCharacter::RBD_SuccessEvent()
 	// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("리바운드 대시 시작")));
 	
 	// 리바운드 대쉬 실행
-	if(GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
-	{
-		GetWorldTimerManager().ClearTimer(VelocityDecelerationTimerHandle);
-	}
-	
 	bIsAttackOnGoing = true;
 	AttackInputGearState = EGearState::GearFour;
 	CurrentGearState = EGearState::GearFour;
@@ -1041,9 +1056,9 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 		CurrentGearState = EGearState::GearTwo;
 		DA_Params.ClearIgnoredActors();
 		GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &AKWPlayerCharacter::AttackCoolDownTimer, AttackCoolDownTime, false);
-		if(!GetWorldTimerManager().IsTimerActive(VelocityDecelerationTimerHandle))
+		if(!bIsDecelerateOnGoing)
 		{
-			GetWorldTimerManager().SetTimer(VelocityDecelerationTimerHandle, this, &AKWPlayerCharacter::VelocityDecelerateTimer, 0.001f, true);
+			BeginDeceleration();
 			return;
 		}
 	}
@@ -1146,6 +1161,48 @@ void AKWPlayerCharacter::AttackCoolDownTimer()
 void AKWPlayerCharacter::DropDownCoolDownTimer()
 {
 	// Do SomeThing
+}
+
+void AKWPlayerCharacter::BeginDeceleration()
+{
+	bIsDecelerateOnGoing = true;
+	VelocityDecelerateTime = 0.f;
+	VelocityDecelerateTarget = FVector::Zero();
+	
+	if(static_cast<uint8>(CurrentGearState) > static_cast<uint8>(EGearState::GearTwo))
+	{
+		CurrentGearState = EGearState::GearTwo;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("Decelerate Start")));
+	GetWorldTimerManager().SetTimerForNextTick(this, &AKWPlayerCharacter::EnhancedVelocityDecelerateSequence);
+	// FTimerHandle DecelerationTimerHandle;
+	//GetWorldTimerManager().SetTimer(DecelerationTimerHandle, this, &AKWPlayerCharacter::EnhancedVelocityDecelerateSequence, GetWorld()->GetDeltaSeconds(), false);
+}
+
+void AKWPlayerCharacter::OnDecelerationEnd(bool ResetVelocity)
+{
+	bIsDecelerateOnGoing = false;
+	VelocityDecelerateTime = 0.f;
+	if (ResetVelocity)
+	{
+		RootMesh->SetPhysicsLinearVelocity(VelocityDecelerateTarget);
+	}
+	
+	if(!bIsRolling || (!bIsAttackOnGoing && bIsMoving) || abs(RootMesh->GetPhysicsLinearVelocity().Z) > 20.f)
+	{
+		if(bIsAttackOnGoing)
+		{
+			bIsAttackOnGoing = false;
+		}
+
+		VelocityDecelerateTarget = FVector::Zero();
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("Decelerate End")));
+		if(!GetWorldTimerManager().IsTimerActive(RBD_FailedTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(CheckIdleStateTimerHandle, this, &AKWPlayerCharacter::CheckIdleStateWhenRolling, 0.01f, true);
+		}
+	}
 }
 
 void AKWPlayerCharacter::DamageDelayTimer()

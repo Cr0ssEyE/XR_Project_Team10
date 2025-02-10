@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystemInterface.h"
 #include "Engine/DataAsset.h"
 #include "NiagaraSystem.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "KWPlayerDataAsset.generated.h"
 
 /**
@@ -116,6 +117,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "점프 딜레이")
 	float JumpDelayTime;
 
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "감속 시간")
+	float DecelerateTime = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = Rolling, DisplayName = "감속 그래프 유형")
+	TEnumAsByte<EEasingFunc::Type> DecelerateEasingFunction;
+	
 	// 공격 관련 변수
 public:
 	UPROPERTY(EditAnywhere, Category = Attack, DisplayName = "대시 이펙트")
