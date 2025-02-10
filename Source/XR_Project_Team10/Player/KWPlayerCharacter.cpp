@@ -170,7 +170,7 @@ void AKWPlayerCharacter::BeginPlay()
 	GetMesh()->SetCollisionObjectType(ECC_PLAYER);
 	GetMesh()->SetCollisionProfileName(CP_PLAYER, true);
 	GetMesh()->SetSkeletalMesh(WalkingMesh);
-	GetMesh()->SetAnimClass(WalkingAnimInstance);
+	GetMesh()->SetAnimInstanceClass(WalkingAnimInstance);
 	UKWPlayerAnimInstance* PlayerAnimInstance = Cast<UKWPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	if(PlayerAnimInstance)
 	{
@@ -179,7 +179,7 @@ void AKWPlayerCharacter::BeginPlay()
 	RollingMeshComponent->SetCollisionObjectType(ECC_PLAYER);
 	RollingMeshComponent->SetCollisionProfileName(CP_PLAYER, true);
 	RollingMeshComponent->SetSkeletalMesh(RollingMesh);
-	RollingMeshComponent->SetAnimClass(RollingAnimInstance);
+	RollingMeshComponent->SetAnimInstanceClass(RollingAnimInstance);
 	RollingMeshComponent->SetWorldScale3D(FVector::ZeroVector);
 	
 	RootMesh->SetCollisionObjectType(ECC_PLAYER);
@@ -1054,7 +1054,7 @@ void AKWPlayerCharacter::DA_HitCheckSequence()
 		AttackEffectNiagaraComponent->Deactivate();
 		DA_ElapsedTime = 0;
 		CurrentGearState = EGearState::GearTwo;
-		DA_Params.ClearIgnoredActors();
+		DA_Params.ClearIgnoredSourceObjects();
 		GetWorldTimerManager().SetTimer(AttackCoolDownTimerHandle, this, &AKWPlayerCharacter::AttackCoolDownTimer, AttackCoolDownTime, false);
 		if(!bIsDecelerateOnGoing)
 		{

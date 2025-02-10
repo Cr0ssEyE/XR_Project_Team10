@@ -3,6 +3,7 @@
 
 #include "XR_Project_Team10/UI/KWGameIntroWidget.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "XR_Project_Team10/Constant/KWLevelName.h"
 #include "XR_Project_Team10/Util/StringDataTable.h"
 

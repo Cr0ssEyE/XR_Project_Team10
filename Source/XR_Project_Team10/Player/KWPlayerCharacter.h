@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "KWPlayerDataAsset.h"
 #include "KWPlayerWidgetController.h"
 #include "NiagaraSystem.h"
 #include "GameFramework/Character.h"
@@ -11,6 +12,7 @@
 #include "Components/AudioComponent.h"
 #include "XR_Project_Team10/Enumeration/KWPlayerGearType.h"
 #include "XR_Project_Team10/Enumeration/KWObjectType.h"
+#include "XR_Project_Team10/Object/KWLocationDetector.h"
 #include "KWPlayerCharacter.generated.h"
 
 // 플레이어 캐릭터
@@ -67,10 +69,10 @@ private:
 	TObjectPtr<class UStaticMesh> RootStaticMesh;
 	
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UKWPlayerDataAsset> CharacterData;
+	TObjectPtr<UKWPlayerDataAsset> CharacterData;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class AKWLocationDetector> PlayerTrueLocation;
+	TObjectPtr<AKWLocationDetector> PlayerTrueLocation;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UCapsuleComponent> PlayerComponent;

@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "KWFadeWidget.h"
-#include "SpinePlugin/Public/SpineWidget.h"
-#include "SpinePlugin/Public/SpinePlugin.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
+#include "Components/CanvasPanel.h"
+#include "Components/TextBlock.h"
 #include "KWGameIntroWidget.generated.h"
 
-using namespace spine;
 /**
  * 
  */
@@ -79,12 +79,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	TArray<UTexture2D*> TestImageArray;
 	
-	UPROPERTY(EditAnywhere)
-	TArray<USpineAtlasAsset*> SpineAtlasDataArray;
-
-	UPROPERTY(EditAnywhere)
-	TArray<USpineSkeletonDataAsset*> SpineSkeletonDataArray;
-
 	UPROPERTY(EditAnywhere)
 	TArray<FDataTableRowHandle> CutSceneTextDataArray;
 	

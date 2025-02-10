@@ -5,6 +5,7 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Engine/OverlapResult.h"
 #include "XR_Project_Team10/CommonMonster/CommonMonster.h"
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"

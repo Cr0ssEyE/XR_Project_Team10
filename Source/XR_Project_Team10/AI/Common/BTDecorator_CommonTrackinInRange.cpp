@@ -2,12 +2,10 @@
 
 
 #include "XR_Project_Team10/AI/Common/BTDecorator_CommonTrackinInRange.h"
-#include "BTDecorator_CommonTrackinInRange.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "XR_Project_Team10/Constant/KWBlackBoardKeyName.h"
 #include "XR_Project_Team10/CommonMonster/ICommonMonsterBase.h"
-#include "XR_Project_Team10/Interface/KWMonsterAIInterface.h"
 #include "XR_Project_Team10/Object/KWLocationDetector.h"
 
 UBTDecorator_CommonTrackinInRange::UBTDecorator_CommonTrackinInRange()

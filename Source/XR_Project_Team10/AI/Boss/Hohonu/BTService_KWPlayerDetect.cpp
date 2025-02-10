@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Engine/OverlapResult.h"
 #include "XR_Project_Team10/Constant/KWCollisionChannel.h"
 
 UBTService_KWPlayerDetect::UBTService_KWPlayerDetect()
